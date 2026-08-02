@@ -30,13 +30,13 @@
             <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
                 🌐 Ke Web Publik
             </a>
-            <button onclick="bukaModalLogin()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition" id="btn-logout">
+            <button onclick="bukaModalLogin()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
                 Keluar / Ganti Akun
             </button>
         </div>
     </header>
 
-    <!-- Main Content Area: Peta Penuh + Panel Bawah / Samping Pengendali Tab -->
+    <!-- Main Content Area -->
     <div class="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
         <!-- Peta Interaktif Petugas -->
         <main class="flex-1 relative h-1/2 lg:h-full">
@@ -47,23 +47,22 @@
             </div>
         </main>
 
-        <!-- Panel Kontrol Berbasis Tab (Baru, Proses, Selesai, Semua) -->
-        <aside class="w-full lg:w-[520px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
-            <!-- Tab Navigasi -->
-            <div class="grid grid-cols-4 bg-slate-100 border-b border-slate-200 text-center text-[11px] font-bold">
+        <!-- Panel Kontrol Berbasis Tab -->
+        <aside class="w-full lg:w-[560px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
+            <div class="grid grid-cols-5 bg-slate-100 border-b border-slate-200 text-center text-[10px] md:text-[11px] font-bold">
                 <button onclick="gantiTab('Baru')" id="tab-Baru" class="py-2.5 px-1 border-b-2 border-red-600 text-red-700 bg-white">Baru (<span id="count-Baru">0</span>)</button>
+                <button onclick="gantiTab('Terverifikasi')" id="tab-Terverifikasi" class="py-2.5 px-1 text-slate-600 hover:text-amber-600">Verif (<span id="count-Terverifikasi">0</span>)</button>
                 <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-2.5 px-1 text-slate-600 hover:text-blue-700">Proses (<span id="count-Proses">0</span>)</button>
                 <button onclick="gantiTab('Selesai')" id="tab-Selesai" class="py-2.5 px-1 text-slate-600 hover:text-green-700">Selesai (<span id="count-Selesai">0</span>)</button>
                 <button onclick="gantiTab('Semua')" id="tab-Semua" class="py-2.5 px-1 text-slate-600 hover:text-slate-900">Semua</button>
             </div>
 
-            <!-- Tabel Data Sesuai Tab -->
             <div class="flex-1 overflow-y-auto p-2">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead class="bg-slate-50 sticky top-0 text-[10px] text-slate-700 uppercase border-b">
                         <tr>
                             <th class="p-2">ID / Waktu</th>
-                            <th class="p-2">Pelapor</th>
+                            <th class="p-2">Pelapor (WA)</th>
                             <th class="p-2">Lokasi & Jenis</th>
                             <th class="p-2 text-center">Aksi / Status</th>
                         </tr>
@@ -76,6 +75,35 @@
         </aside>
     </div>
 
+    <!-- MODAL: INPUT PROSES PENANGANAN (MENGGANTIKAN PROMPT BAWAAN) -->
+    <div id="modal-proses" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center mb-1">
+                <h3 class="font-bold text-sm text-slate-800">Formulir Aksi Penanganan</h3>
+                <button onclick="tutupModalProses()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+            </div>
+            <p class="text-[11px] text-slate-500">Masukkan detail instansi yang diterjunkan ke lapangan.</p>
+            <form id="form-proses" class="space-y-2.5">
+                <input type="hidden" id="proses-id-laporan">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Instansi Penanggung Jawab</label>
+                    <input type="text" id="input-instansi" required class="w-full p-2 border border-slate-300 rounded outline-none" value="Damkar Bula">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon Posko / Petugas</label>
+                    <input type="tel" id="input-telp-posko" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="0812XXXXXXXX">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Estimasi Selesai (Jam)</label>
+                    <input type="number" id="input-estimasi-jam" required class="w-full p-2 border border-slate-300 rounded outline-none" value="2" min="1">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded shadow transition">
+                    🚀 Mulai Proses Penanganan
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL LOGIN AKSES -->
     <div id="modal-login" class="fixed inset-0 bg-slate-900/90 z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-2xl text-xs space-y-4">
@@ -86,27 +114,27 @@
                 <button onclick="prosesLogin()" class="w-full bg-blue-900 text-white py-2.5 rounded font-bold hover:bg-blue-800 transition">Masuk Panel</button>
             </div>
             <div class="bg-slate-50 p-2.5 rounded text-[10px] text-slate-500 space-y-1">
-                <p><b>Petugas Teknis (Damkar/BPBD):</b> <code>sbt2026</code> (Bisa ubah status, isi instansi & nomor telpon)</p>
-                <p><b>Pimpinan / Kominfo:</b> <code>pimpinan</code> (Hanya memantau / Read-Only)</p>
+                <p><b>Petugas Teknis:</b> <code>sbt2026</code></p>
+                <p><b>Pimpinan / Kominfo:</b> <code>pimpinan</code> (Read-Only)</p>
             </div>
         </div>
     </div>
 
     <!-- SCRIPT UTAMA PETUGAS -->
     <script>
-        const t1 = 'pk.eyJ1IjoiYWxtYXNjYXRpZSIsImEiOiJjb';
-        const t2 = 'HE3YzVhMGgwdzVjMmlwczVlaWhpMmJ2In';
-        const t3 = '0.C98KArIa5on5kkr9C3Plvg';
-        mapboxgl.accessToken = t1 + t2 + t3;
+const t1 = 'pk.eyJ1IjoiYWxtYXNjYXRpZSIsImEiOiJjb';
+const t2 = 'HE3YzVhMGgwdzVjMmlwczVlaWhpMmJ2In';
+const t3 = '0.C98KArIa5on5kkr9C3Plvg';
+mapboxgl.accessToken = t1 + t2 + t3;
 
-         const SUPABASE_URL = 'https://tpopgxvuwdjqaaltssuf.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_qfy-1Xfaa3MVa5HqvEEmOQ_tzT6qEPm';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = 'https://tpopgxvuwdjqaaltssuf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_qfy-1Xfaa3MVa5HqvEEmOQ_tzT6qEPm';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let laporanList = [];
         let markers = [];
         let activeTab = 'Baru';
-        let currentUserRole = null; // 'petugas' atau 'pimpinan'
+        let currentUserRole = null; 
 
         const map = new mapboxgl.Map({
             container: 'map',
@@ -115,7 +143,6 @@
             zoom: 11
         });
 
-        // Cek login saat pertama kali buka halaman
         window.onload = () => {
             const savedRole = localStorage.getItem('sbt_role');
             if (savedRole) {
@@ -173,17 +200,19 @@
 
         function hitungBadgeTab() {
             const baru = laporanList.filter(i => i.status === 'Baru').length;
+            const verif = laporanList.filter(i => i.status === 'Terverifikasi').length;
             const proses = laporanList.filter(i => i.status === 'Proses').length;
             const selesai = laporanList.filter(i => i.status === 'Selesai').length;
 
             document.getElementById('count-Baru').innerText = baru;
+            document.getElementById('count-Terverifikasi').innerText = verif;
             document.getElementById('count-Proses').innerText = proses;
             document.getElementById('count-Selesai').innerText = selesai;
         }
 
         function gantiTab(tab) {
             activeTab = tab;
-            ['Baru', 'Proses', 'Selesai', 'Semua'].forEach(t => {
+            ['Baru', 'Terverifikasi', 'Proses', 'Selesai', 'Semua'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (t === tab) {
                     btn.className = 'py-2.5 px-1 border-b-2 border-red-600 text-red-700 bg-white font-bold';
@@ -211,9 +240,11 @@
             filtered.forEach(item => {
                 const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
                 
-                let infoStatus = `<span class="text-yellow-600 font-bold">Baru</span>`;
-                if (item.status === 'Proses') {
-                    infoStatus = `<span class="text-blue-600 font-bold">Proses (${item.penanggung_jawab})</span><br><span class="text-[10px] text-slate-500">Telp: <a href="tel:${item.telp_petugas}" class="text-blue-600 underline">${item.telp_petugas}</a></span>`;
+                let infoStatus = `<span class="text-red-600 font-bold">Baru (Belum Verif)</span>`;
+                if (item.status === 'Terverifikasi') {
+                    infoStatus = `<span class="text-amber-600 font-bold">Terverifikasi (Siap Proses)</span>`;
+                } else if (item.status === 'Proses') {
+                    infoStatus = `<span class="text-blue-600 font-bold">Proses (${item.penanggung_jawab})</span><br><span class="text-[10px] text-slate-500">Posko: <a href="tel:${item.telp_petugas}" class="text-blue-600 underline">${item.telp_petugas}</a></span>`;
                 } else if (item.status === 'Selesai') {
                     infoStatus = `<span class="text-green-600 font-bold">Selesai (${item.penanggung_jawab})</span>`;
                 }
@@ -222,13 +253,14 @@
                 tr.className = 'border-b hover:bg-slate-50 cursor-pointer';
                 tr.innerHTML = `
                     <td class="p-2 font-mono font-bold">${item.id}<br><span class="text-[9px] text-slate-400 font-normal">${new Date(item.created_at).toLocaleTimeString()}</span></td>
-                    <td class="p-2">${item.nama}<br><a href="tel:${item.telp}" class="text-blue-600 underline">${item.telp}</a></td>
+                    <td class="p-2">${item.nama}<br><a href="tel:${item.telp}" onclick="event.stopPropagation()" class="text-blue-600 underline font-bold bg-blue-50 px-1 rounded">📞 ${item.telp}</a></td>
                     <td class="p-2"><b>${item.lokasi}</b><br><span class="text-[9px] px-1.5 py-0.5 rounded ${badgeColor}">${item.jenis}</span></td>
-                    <td class="p-2 text-center">
+                    <td class="p-2 text-center" onclick="event.stopPropagation()">
                         <div class="mb-1">${infoStatus}</div>
                         ${currentUserRole === 'petugas' ? `
-                            ${item.status === 'Baru' ? `<button onclick="ubahStatus('${item.id}', 'Proses')" class="bg-blue-600 text-white px-2 py-1 rounded font-bold hover:bg-blue-700 text-[10px]">Proses</button>` : ''}
-                            ${item.status === 'Proses' ? `<button onclick="ubahStatus('${item.id}', 'Selesai')" class="bg-green-600 text-white px-2 py-1 rounded font-bold hover:bg-green-700 text-[10px]">Selesai</button>` : ''}
+                            ${item.status === 'Baru' ? `<button onclick="aksiVerifikasi('${item.id}')" class="bg-amber-600 text-white px-2.5 py-1 rounded font-bold hover:bg-amber-700 text-[10px]">✅ Verifikasi Telepon</button>` : ''}
+                            ${item.status === 'Terverifikasi' ? `<button onclick="bukaModalProses('${item.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded font-bold hover:bg-blue-700 text-[10px]">🚀 Mulai Proses</button>` : ''}
+                            ${item.status === 'Proses' ? `<button onclick="aksiSelesai('${item.id}')" class="bg-green-600 text-white px-2.5 py-1 rounded font-bold hover:bg-green-700 text-[10px]">🏁 Selesai</button>` : ''}
                         ` : '<span class="text-[10px] text-slate-400">Read-Only</span>'}
                     </td>
                 `;
@@ -242,9 +274,10 @@
             markers = [];
 
             laporanList.forEach(item => {
-                let color = '#eab308'; // Kuning untuk baru
-                if (item.status === 'Proses') color = '#3b82f6'; // Biru proses
-                if (item.status === 'Selesai') color = '#22c55e'; // Hijau selesai
+                let color = '#ef4444';
+                if (item.status === 'Terverifikasi') color = '#f59e0b';
+                if (item.status === 'Proses') color = '#3b82f6';
+                if (item.status === 'Selesai') color = '#22c55e';
 
                 const el = document.createElement('div');
                 el.className = 'rounded-full shadow-md cursor-pointer border-2 border-white';
@@ -257,7 +290,7 @@
                         <b class="text-slate-800">${item.lokasi}</b><br>
                         <span>Jenis: <b>${item.jenis}</b></span><br>
                         <span>Status: <b>${item.status}</b></span><br>
-                        <span>PJ: <b>${item.penanggung_jawab}</b></span>
+                        <span>Pelapor: <a href="tel:${item.telp}" class="text-blue-600 underline">${item.telp}</a></span>
                     </div>
                 `);
 
@@ -269,34 +302,58 @@
             });
         }
 
-        async function ubahStatus(id, statusBaru) {
-            let namaInstansi = 'Damkar Bula';
-            let telpPetugas = '-';
-            let estimasiWaktu = null;
+        async function aksiVerifikasi(id) {
+            const konfirm = confirm('Apakah Anda sudah menelepon pelapor dan memastikan laporan ini valid?');
+            if (!konfirm) return;
 
-            if (statusBaru === 'Proses') {
-                let instansi = prompt('Masukkan nama instansi penanggung jawab (Contoh: Damkar Bula / BPBD SBT):', 'Damkar Bula');
-                if (!instansi) return;
-                let telp = prompt('Masukkan nomor telepon/WhatsApp petugas posko yang bertugas:', '0812XXXXXXXX');
-                if (!telp) return;
-                let jam = prompt('Masukkan estimasi waktu penanganan selesai (dalam jam, contoh: 2):', '2');
-                let durasiMs = (parseFloat(jam) || 1) * 3600000;
-
-                namaInstansi = instansi;
-                telpPetugas = telp;
-                estimasiWaktu = new Date(Date.now() + durasiMs).toISOString();
-            } else if (statusBaru === 'Selesai') {
-                const itemLama = laporanList.find(i => i.id === id);
-                namaInstansi = itemLama ? itemLama.penanggung_jawab : 'Damkar Bula';
-                telpPetugas = itemLama ? itemLama.telp_petugas : '-';
+            const { error } = await supabaseClient.from('laporan').update({ status: 'Terverifikasi' }).eq('id', id);
+            if (error) {
+                alert('Gagal memperbarui status: ' + error.message);
+            } else {
+                ambilDataLaporan();
             }
+        }
+
+        function bukaModalProses(id) {
+            document.getElementById('proses-id-laporan').value = id;
+            document.getElementById('modal-proses').classList.remove('hidden');
+        }
+
+        function tutupModalProses() {
+            document.getElementById('modal-proses').classList.add('hidden');
+        }
+
+        document.getElementById('form-proses').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('proses-id-laporan').value;
+            const instansi = document.getElementById('input-instansi').value;
+            const telp = document.getElementById('input-telp-posko').value;
+            const jam = parseFloat(document.getElementById('input-estimasi-jam').value) || 1;
+            const durasiMs = jam * 3600000;
 
             const updateData = {
-                status: statusBaru,
-                penanggung_jawab: namaInstansi,
-                telp_petugas: telpPetugas
+                status: 'Proses',
+                penanggung_jawab: instansi,
+                telp_petugas: telp,
+                estimasi_selesai: new Date(Date.now() + durasiMs).toISOString()
             };
-            if (estimasiWaktu) updateData.estimasi_selesai = estimasiWaktu;
+
+            const { error } = await supabaseClient.from('laporan').update(updateData).eq('id', id);
+            if (error) {
+                alert('Gagal memperbarui status: ' + error.message);
+            } else {
+                tutupModalProses();
+                ambilDataLaporan();
+            }
+        });
+
+        async function aksiSelesai(id) {
+            const itemLama = laporanList.find(i => i.id === id);
+            const updateData = {
+                status: 'Selesai',
+                penanggung_jawab: itemLama ? itemLama.penanggung_jawab : 'Damkar Bula',
+                telp_petugas: itemLama ? itemLama.telp_petugas : '-'
+            };
 
             const { error } = await supabaseClient.from('laporan').update(updateData).eq('id', id);
             if (error) {
