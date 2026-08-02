@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pusat Krisis & Darurat Karhutla & Air Bersih - SBT</title>
+    <title>Pusat Siaga Darurat Karhutla & Air Bersih - SBT</title>
     <!-- Mapbox GL JS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
@@ -12,10 +12,10 @@
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        #map { width: 100%; height: 100%; }
+        #map, #map-dash { width: 100%; height: 100%; }
     </style>
 </head>
-<body class="bg-slate-50 h-screen flex flex-col font-sans">
+<body class="bg-slate-50 h-screen flex flex-col font-sans overflow-hidden">
 
     <!-- Top Navigation Bar -->
     <header class="bg-blue-950 text-white px-6 py-3 flex justify-between items-center shadow-md z-20">
@@ -27,14 +27,14 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="openModal('modal-lapor')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-bold shadow transition flex items-center gap-1">
-                🚨 Laporkan
+            <button onclick="bukaFormLapor()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-bold shadow transition flex items-center gap-1">
+                🚨 Laporkan Kejadian
             </button>
             <button onclick="openModal('modal-cek')" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
                 🔍 Cek Status
             </button>
             <button onclick="openModal('modal-login')" class="bg-blue-800 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
-                🔐 Login Petugas
+                🔐 Login Akses
             </button>
         </div>
     </header>
@@ -44,24 +44,24 @@
         📞 Darurat? Hubungi 112
     </a>
 
-    <!-- Main Content Area -->
+    <!-- Main Content Area (Public Map & Sidebar) -->
     <div class="flex flex-1 overflow-hidden relative">
         <!-- Sidebar Daftar Laporan Publik -->
         <aside class="w-full md:w-80 bg-white border-r border-slate-200 flex flex-col z-10 shadow-sm">
             <div class="p-3 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
-                <h2 class="text-xs font-bold text-slate-700 uppercase">Daftar Laporan Masuk</h2>
+                <h2 class="text-xs font-bold text-slate-700 uppercase">Daftar Laporan Warga</h2>
                 <span id="counter-laporan" class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">0 Kasus</span>
             </div>
             <div id="sidebar-list" class="flex-1 overflow-y-auto p-3 space-y-2.5">
-                <p class="text-xs text-slate-400 text-center py-4">Memuat data dari server...</p>
+                <p class="text-xs text-slate-400 text-center py-4">Memuat data...</p>
             </div>
             <div class="p-3 bg-red-50 border-t border-red-100 text-center">
                 <p class="text-[11px] text-red-700 font-semibold">Layanan Darurat 24 Jam</p>
-                <a href="tel:112" class="text-xs font-bold text-red-800 underline">📞 Call Center 112 / BPBD SBT</a>
+                <a href="tel:112" class="text-xs font-bold text-red-800 underline">📞 Call Center 112 / Damkar / BPBD</a>
             </div>
         </aside>
 
-        <!-- Peta Interaktif Mapbox -->
+        <!-- Peta Interaktif Publik -->
         <main class="flex-1 relative">
             <div id="map"></div>
             <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur p-2.5 rounded-lg shadow-md border border-slate-200 text-xs z-10 space-y-1">
@@ -72,12 +72,16 @@
         </main>
     </div>
 
-    <!-- MODAL 1: FORM LAPOR WARGA -->
+    <!-- MODAL 1: FORM LAPOR WARGA (DENGAN INSTRUKSI PILIH PETA) -->
     <div id="modal-lapor" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-base text-slate-800">Formulir Laporan Darurat Warga</h3>
                 <button onclick="closeModal('modal-lapor')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            <div class="mb-3 bg-amber-50 border border-amber-200 p-2.5 rounded text-[11px] text-amber-800">
+                <b>Panduan Lokasi:</b> Silakan klik tombol di bawah, lalu klik titik akurat di peta utama untuk mengambil koordinat lokasi kejadian.
+                <button type="button" onclick="aktifkanPilihPeta()" class="mt-2 w-full bg-amber-600 text-white py-1.5 rounded font-bold hover:bg-amber-700">📍 Pilih Titik Langsung di Peta</button>
             </div>
             <form id="form-lapor" class="space-y-3 text-xs">
                 <div>
@@ -85,7 +89,7 @@
                     <input type="text" id="warga-nama" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Contoh: Bpk. Umar">
                 </div>
                 <div>
-                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon / WhatsApp</label>
+                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon / WhatsApp (Untuk Cek Status)</label>
                     <input type="tel" id="warga-telp" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="0812XXXXXXXX">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
@@ -101,12 +105,9 @@
                         <input type="text" id="warga-lokasi" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Mis: Desa Wailola, Bula">
                     </div>
                 </div>
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">Titik Lokasi (Klik langsung pada peta utama)</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="warga-lng" readonly placeholder="Longitude" class="p-1.5 bg-slate-100 border border-slate-300 rounded text-slate-500">
-                        <input type="text" id="warga-lat" readonly placeholder="Latitude" class="p-1.5 bg-slate-100 border border-slate-300 rounded text-slate-500">
-                    </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="warga-lng" readonly placeholder="Longitude" class="p-1.5 bg-slate-100 border border-slate-300 rounded text-slate-500 font-mono">
+                    <input type="text" id="warga-lat" readonly placeholder="Latitude" class="p-1.5 bg-slate-100 border border-slate-300 rounded text-slate-500 font-mono">
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Keterangan Singkat Kejadian</label>
@@ -134,63 +135,79 @@
         </div>
     </div>
 
-    <!-- MODAL 3: LOGIN PETUGAS -->
+    <!-- MODAL 3: LOGIN AKSES -->
     <div id="modal-login" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-xl text-xs">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-sm text-slate-800">Login Petugas / Operator 112</h3>
+                <h3 class="font-bold text-sm text-slate-800">Login Akses Sistem</h3>
                 <button onclick="closeModal('modal-login')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
             </div>
             <div class="space-y-3">
                 <div>
-                    <label class="block font-medium text-slate-600 mb-1">Password Akses</label>
-                    <input type="password" id="login-pass" placeholder="Masukkan password petugas..." class="w-full p-2 border border-slate-300 rounded outline-none">
+                    <label class="block font-medium text-slate-600 mb-1">Password Akses Petugas / Pimpinan</label>
+                    <input type="password" id="login-pass" placeholder="Masukkan password..." class="w-full p-2 border border-slate-300 rounded outline-none">
                 </div>
                 <button onclick="prosesLogin()" class="w-full bg-blue-900 text-white py-2 rounded font-semibold hover:bg-blue-800">Masuk Dashboard</button>
+                <p class="text-[10px] text-slate-400 mt-1">💡 Petugas: `sbt2026` | Pimpinan/Kominfo (Read-Only): `pimpinan`</p>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 4: DASHBOARD PETUGAS & 112 -->
-    <div id="modal-dashboard" class="fixed inset-0 bg-slate-900/90 hidden z-50 flex flex-col p-4 md:p-8 overflow-y-auto text-xs">
-        <div class="bg-white rounded-xl max-w-5xl w-full mx-auto p-6 shadow-2xl flex flex-col flex-1 max-h-[90vh]">
+    <!-- MODAL 4: DASHBOARD UTAMA PETUGAS & PIMPINAN (DENGAN PETA DI DALAMNYA) -->
+    <div id="modal-dashboard" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex flex-col p-4 md:p-6 overflow-y-auto text-xs">
+        <div class="bg-white rounded-xl max-w-7xl w-full mx-auto p-4 md:p-6 shadow-2xl flex flex-col flex-1 max-h-[92vh]">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
                 <div>
-                    <h2 class="font-bold text-sm md:text-base text-slate-800">Dashboard Operasional Petugas (Damkar / BPBD / 112)</h2>
-                    <p class="text-slate-500 text-[11px]">Kelola dan ambil penanggung jawab penanganan laporan</p>
+                    <h2 id="dash-title" class="font-bold text-sm md:text-base text-slate-800">Dashboard Operasional</h2>
+                    <p id="dash-subtitle" class="text-slate-500 text-[11px]">Panel Monitoring dan Manajemen Penanganan Darurat</p>
                 </div>
-                <button onclick="closeModal('modal-dashboard')" class="bg-red-100 text-red-700 px-3 py-1 rounded font-bold hover:bg-red-200">Tutup</button>
+                <button onclick="closeModal('modal-dashboard')" class="bg-red-100 text-red-700 px-3 py-1.5 rounded font-bold hover:bg-red-200">Tutup Dashboard</button>
             </div>
 
-            <!-- Tabel Data -->
-            <div class="flex-1 overflow-y-auto border border-slate-200 rounded-lg">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-100 sticky top-0 text-[11px] text-slate-700 uppercase">
-                        <tr>
-                            <th class="p-2.5">ID</th>
-                            <th class="p-2.5">Pelapor & Telp</th>
-                            <th class="p-2.5">Lokasi & Jenis</th>
-                            <th class="p-2.5">Status & Penanggung Jawab</th>
-                            <th class="p-2.5 text-center">Aksi Petugas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dash-table-body" class="divide-y divide-slate-200">
-                        <!-- Diisi via script -->
-                    </tbody>
-                </table>
+            <!-- Layout Dashboard: Kiri Peta Titik Laporan, Kanan Tabel Manajemen -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden">
+                <!-- Kolom Peta Pendukung di Dashboard -->
+                <div class="h-64 lg:h-full rounded-lg border border-slate-300 relative overflow-hidden shadow-inner">
+                    <div id="map-dash"></div>
+                    <div class="absolute top-2 left-2 bg-white/90 px-2 py-1 rounded text-[10px] font-bold shadow z-10">Peta Sebaran Laporan Aktif</div>
+                </div>
+
+                <!-- Kolom Tabel Laporan & Aksi -->
+                <div class="lg:col-span-2 flex flex-col overflow-hidden border border-slate-200 rounded-lg">
+                    <div class="p-2.5 bg-slate-100 font-bold text-slate-700 border-b flex justify-between items-center">
+                        <span>Daftar Seluruh Laporan Masuk</span>
+                        <span id="dash-info-role" class="text-[10px] bg-blue-900 text-white px-2 py-0.5 rounded">Mode Petugas</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50 sticky top-0 text-[11px] text-slate-700 uppercase border-b">
+                                <tr>
+                                    <th class="p-2.5">ID / Waktu</th>
+                                    <th class="p-2.5">Pelapor & Telp</th>
+                                    <th class="p-2.5">Lokasi & Jenis</th>
+                                    <th class="p-2.5">Status & Estimasi</th>
+                                    <th class="p-2.5 text-center">Aksi Petugas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-table-body" class="divide-y divide-slate-200">
+                                <!-- Diisi via script -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- SCRIPT UTAMA -->
     <script>
-        // TOKEN DI-SPLIT UNTUK MENGHINDARI BLOKIR GITHUB SCANNER
+        // TOKEN AMAN DARI GITHUB SCANNER
         const t1 = 'pk.eyJ1IjoiYWxtYXNjYXRpZSIsImEiOiJjb';
         const t2 = 'HE3YzVhMGgwdzVjMmlwczVlaWhpMmJ2In';
         const t3 = '0.C98KArIa5on5kkr9C3Plvg';
         mapboxgl.accessToken = t1 + t2 + t3;
 
-        // MASUKKAN URL & KUNCI SUPABASE ANDA DI SINI
+        // MASUKKAN KUNCI SUPABASE ANDA DI SINI
         const SUPABASE_URL = 'https://tpopgxvuwdjqaaltssuf.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_qfy-1Xfaa3MVa5HqvEEmOQ_tzT6qEPm';
         
@@ -198,9 +215,12 @@
 
         let laporanList = [];
         let selectedCoords = { lng: 130.4850, lat: -3.1500 }; // Default Bula
-        let markers = [];
+        let markersPublik = [];
+        let markersDash = [];
+        let isPickingMap = false;
+        let currentUserRole = null; // 'petugas' atau 'pimpinan'
 
-        // Inisialisasi Peta
+        // Inisialisasi Peta Publik
         const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v12',
@@ -208,17 +228,32 @@
             zoom: 11
         });
 
+        // Inisialisasi Peta di Dashboard Petugas
+        let mapDash = null;
+
+        function initDashMap() {
+            if (!mapDash) {
+                mapDash = new mapboxgl.Map({
+                    container: 'map-dash',
+                    style: 'mapbox://styles/mapbox/streets-v12',
+                    center: [130.4850, -3.1500],
+                    zoom: 10
+                });
+            } else {
+                mapDash.resize();
+            }
+        }
+
         // Ambil Data dari Supabase secara Live
         async function ambilDataLaporan() {
             const { data, error } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
-            if (error) {
-                console.error('Gagal ambil data:', error);
-            } else {
+            if (!error) {
                 laporanList = data || [];
                 renderSidebar();
-                renderMarkers();
-                if(!document.getElementById('modal-dashboard').classList.contains('hidden')) {
+                renderMarkersPublik();
+                if (!document.getElementById('modal-dashboard').classList.contains('hidden')) {
                     renderDashboardTable();
+                    renderMarkersDash();
                 }
             }
         }
@@ -228,7 +263,7 @@
             container.innerHTML = '';
             document.getElementById('counter-laporan').innerText = `${laporanList.length} Kasus`;
 
-            if(laporanList.length === 0) {
+            if (laporanList.length === 0) {
                 container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Belum ada laporan masuk.</p>`;
                 return;
             }
@@ -246,16 +281,16 @@
                     </div>
                     <h3 class="text-xs font-bold text-slate-800">${item.lokasi}</h3>
                     <p class="text-[11px] text-slate-600 truncate">${item.ket}</p>
-                    <p class="text-[10px] text-slate-400 mt-1">ID: <code class="font-bold">${item.id}</code> | Oleh: ${item.penanggung_jawab || 'Belum diambil'}</p>
+                    <p class="text-[10px] text-slate-400 mt-1">ID: <code class="font-bold">${item.id}</code></p>
                 `;
                 card.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
                 container.appendChild(card);
             });
         }
 
-        function renderMarkers() {
-            markers.forEach(m => m.remove());
-            markers = [];
+        function renderMarkersPublik() {
+            markersPublik.forEach(m => m.remove());
+            markersPublik = [];
 
             laporanList.forEach(item => {
                 const color = item.jenis === 'Kebakaran' ? '#ef4444' : '#3b82f6';
@@ -269,8 +304,7 @@
                     <div class="p-1 text-xs">
                         <b class="text-slate-800">${item.lokasi}</b><br>
                         <span>Jenis: <b>${item.jenis}</b></span><br>
-                        <span>Status: <b>${item.status}</b></span><br>
-                        <span>Petugas: <b>${item.penanggung_jawab || 'Belum ada'}</b></span>
+                        <span>Status: <b>${item.status}</b></span>
                     </div>
                 `);
 
@@ -278,18 +312,51 @@
                     .setLngLat([item.lng, item.lat])
                     .setPopup(popup)
                     .addTo(map);
-                markers.push(marker);
+                markersPublik.push(marker);
             });
         }
 
-        // Ambil Koordinat Peta
-        map.on('click', (e) => {
-            selectedCoords = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+        function renderMarkersDash() {
+            markersDash.forEach(m => m.remove());
+            markersDash = [];
+
+            laporanList.forEach(item => {
+                const color = item.jenis === 'Kebakaran' ? '#ef4444' : '#3b82f6';
+                const el = document.createElement('div');
+                el.className = 'rounded-full shadow-md cursor-pointer border-2 border-white';
+                el.style.width = '24px';
+                el.style.height = '24px';
+                el.style.backgroundColor = color;
+
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat([item.lng, item.lat])
+                    .addTo(mapDash);
+                markersDash.push(marker);
+            });
+        }
+
+        // Interaksi Pilih Peta untuk Warga
+        function bukaFormLapor() {
+            openModal('modal-lapor');
             document.getElementById('warga-lng').value = selectedCoords.lng.toFixed(4);
             document.getElementById('warga-lat').value = selectedCoords.lat.toFixed(4);
+        }
+
+        function aktifkanPilihPeta() {
+            closeModal('modal-lapor');
+            isPickingMap = true;
+            alert('Silakan klik lokasi persis di peta utama untuk memilih titik kejadian, lalu form akan muncul kembali secara otomatis.');
+        }
+
+        map.on('click', (e) => {
+            if (isPickingMap) {
+                selectedCoords = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+                isPickingMap = false;
+                bukaFormLapor();
+            }
         });
 
-        // Kirim Laporan Warga ke Supabase
+        // Kirim Laporan Warga
         document.getElementById('form-lapor').addEventListener('submit', async (e) => {
             e.preventDefault();
             const idBaru = 'SBT-' + Math.floor(1000 + Math.random() * 9000);
@@ -302,6 +369,7 @@
                 ket: document.getElementById('warga-ket').value,
                 status: 'Baru',
                 penanggung_jawab: '-',
+                estimasi_selesai: null,
                 lng: selectedCoords.lng,
                 lat: selectedCoords.lat
             };
@@ -310,14 +378,14 @@
             if (error) {
                 alert('Gagal mengirim laporan: ' + error.message);
             } else {
-                alert(`Laporan berhasil dikirim!\n\nNomor Laporan Anda: ${idBaru}\nSimpan nomor ini untuk pengecekan.`);
+                alert(`Laporan berhasil dikirim!\n\nNomor Laporan Anda: ${idBaru}\nSimpan nomor ini untuk pengecekan status.`);
                 document.getElementById('form-lapor').reset();
                 closeModal('modal-lapor');
                 ambilDataLaporan();
             }
         });
 
-        // Cek Status Laporan
+        // Cek Status Laporan Warga
         function cekStatusLaporan() {
             const kode = document.getElementById('input-kode-cek').value.trim();
             const hasilDiv = document.getElementById('hasil-cek');
@@ -337,53 +405,111 @@
             }
         }
 
-        // Login Petugas
+        // Login Akses
         function prosesLogin() {
-            const pass = document.getElementById('login-pass').value;
-            if (pass === 'sbt2026' || pass === '112') {
+            const pass = document.getElementById('login-pass').value.trim();
+            if (pass === 'sbt2026') {
+                currentUserRole = 'petugas';
                 closeModal('modal-login');
-                openModal('modal-dashboard');
-                renderDashboardTable();
+                bukaDashboard();
+            } else if (pass === 'pimpinan') {
+                currentUserRole = 'pimpinan';
+                closeModal('modal-login');
+                bukaDashboard();
             } else {
                 alert('Password salah!');
             }
+        }
+
+        function bukaDashboard() {
+            openModal('modal-dashboard');
+            initDashMap();
+            setTimeout(() => { mapDash.resize(); renderMarkersDash(); }, 300);
+
+            const title = document.getElementById('dash-title');
+            const subtitle = document.getElementById('dash-subtitle');
+            const roleBadge = document.getElementById('dash-info-role');
+
+            if (currentUserRole === 'petugas') {
+                title.innerText = 'Dashboard Operasional Petugas';
+                subtitle.innerText = 'Kelola status dan estimasi waktu penanganan laporan darurat';
+                roleBadge.innerText = 'Mode Petugas (Akses Penuh Ubah Status)';
+                roleBadge.className = 'text-[10px] bg-blue-900 text-white px-2 py-0.5 rounded';
+            } else {
+                title.innerText = 'Dashboard Monitoring Pimpinan / Kominfo';
+                subtitle.innerText = 'Mode Akses Terbatas: Hanya memantau seluruh status laporan';
+                roleBadge.innerText = 'Mode Pimpinan (Read-Only)';
+                roleBadge.className = 'text-[10px] bg-slate-700 text-white px-2 py-0.5 rounded';
+            }
+
+            renderDashboardTable();
         }
 
         function renderDashboardTable() {
             const tbody = document.getElementById('dash-table-body');
             tbody.innerHTML = '';
 
+            if (laporanList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data laporan.</td></tr>`;
+                return;
+            }
+
             laporanList.forEach(item => {
+                // Cek overtime jika status proses lewat dari estimasi
+                let statusBadge = item.status;
+                if (item.status === 'Proses' && item.estimasi_selesai && Date.now() > item.estimasi_selesai) {
+                    statusBadge = '⚠️ Terlambat dari Estimasi';
+                }
+
                 const tr = document.createElement('tr');
-                tr.className = 'border-b hover:bg-slate-50';
+                tr.className = 'border-b hover:bg-slate-50 cursor-pointer';
                 tr.innerHTML = `
-                    <td class="p-2.5 font-mono font-bold">${item.id}</td>
+                    <td class="p-2.5 font-mono font-bold">${item.id}<br><span class="text-[9px] text-slate-400 font-normal">${new Date(item.created_at).toLocaleTimeString()}</span></td>
                     <td class="p-2.5">${item.nama}<br><a href="tel:${item.telp}" class="text-blue-600 underline">${item.telp}</a></td>
                     <td class="p-2.5"><b>${item.lokasi}</b><br><span class="text-slate-500">${item.jenis}</span></td>
-                    <td class="p-2.5"><b>${item.status}</b><br><span class="text-[10px] text-blue-700">PJ: ${item.penanggung_jawab}</span></td>
-                    <td class="p-2.5 text-center space-x-1">
-                        ${item.status === 'Baru' ? `<button onclick="updateStatus('${item.id}', 'Proses', 'Damkar/BPBD')" class="bg-blue-600 text-white px-2 py-1 rounded font-bold hover:bg-blue-700">Proses</button>` : ''}
-                        ${item.status === 'Proses' ? `<button onclick="updateStatus('${item.id}', 'Selesai', '${item.penanggung_jawab}')" class="bg-green-600 text-white px-2 py-1 rounded font-bold hover:bg-green-700">Selesai</button>` : ''}
-                        ${item.status === 'Selesai' ? '<span class="text-green-600 font-bold">Tuntas</span>' : ''}
+                    <td class="p-2.5"><b>${statusBadge}</b><br><span class="text-[10px] text-blue-700">PJ: ${item.penanggung_jawab || '-'}</span></td>
+                    <td class="p-2.5 text-center" onclick="event.stopPropagation()">
+                        ${currentUserRole === 'pimpinan' ? '<span class="text-[10px] text-slate-400 font-semibold">Hanya Lihat</span>' : `
+                            ${item.status === 'Baru' ? `<button onclick="ubahStatusLaporan('${item.id}', 'Proses')" class="bg-blue-600 text-white px-2.5 py-1 rounded font-bold hover:bg-blue-700">Proses</button>` : ''}
+                            ${item.status === 'Proses' ? `<button onclick="ubahStatusLaporan('${item.id}', 'Selesai')" class="bg-green-600 text-white px-2.5 py-1 rounded font-bold hover:bg-green-700">Selesai</button>` : ''}
+                            ${item.status === 'Selesai' ? '<span class="text-green-600 font-bold text-[11px]">Tuntas</span>' : ''}
+                        `}
                     </td>
                 `;
+                tr.onclick = () => {
+                    closeModal('modal-dashboard');
+                    map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
+                };
                 tbody.appendChild(tr);
             });
         }
 
-        async function updateStatus(id, statusBaru, pj) {
-            let namaPJ = pj;
-            if(statusBaru === 'Proses') {
-                namaPJ = prompt('Masukkan nama instansi/petugas penanggung jawab (Contoh: Tim Damkar Bula / BPBD SBT):', 'Tim Siaga SBT');
-                if(!namaPJ) return;
+        async function ubahStatusLaporan(id, statusBaru) {
+            let namaPJ = 'Tim Siaga SBT';
+            let estimasiWaktu = null;
+
+            if (statusBaru === 'Proses') {
+                let instansi = prompt('Masukkan nama instansi / petugas penanggung jawab (Contoh: Damkar Bula / BPBD SBT):', 'Tim Damkar SBT');
+                if (!instansi) return;
+                let jam = prompt('Masukkan estimasi waktu penanganan (dalam jam, contoh: 2):', '2');
+                let durasiMs = (parseFloat(jam) || 1) * 3600000;
+                
+                namaPJ = instansi;
+                estimasiWaktu = new Date(Date.now() + durasiMs).toISOString();
             }
+
+            const updateData = {
+                status: statusBaru,
+                penanggung_jawab: namaPJ
+            };
+            if (estimasiWaktu) updateData.estimasi_selesai = estimasiWaktu;
 
             const { error } = await supabaseClient
                 .from('laporan')
-                .update({ status: statusBaru, penanggung_jawab: namaPJ })
+                .update(updateData)
                 .eq('id', id);
 
-            if(error) {
+            if (error) {
                 alert('Gagal memperbarui status: ' + error.message);
             } else {
                 ambilDataLaporan();
@@ -393,10 +519,10 @@
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // Load data pertama kali dan polling berkala setiap 5 detik
+        // Load data pertama kali & polling otomatis setiap 5 detik
         map.on('load', () => {
             ambilDataLaporan();
-            setInterval(ambilDataLaporan, 5000); 
+            setInterval(ambilDataLaporan, 5000);
         });
     </script>
 </body>
