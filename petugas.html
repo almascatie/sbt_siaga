@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Petugas & Pimpinan - Siaga SBT</title>
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        #map { width: 100%; height: 100%; }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col font-sans overflow-hidden">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-blue-950 text-white px-4 md:px-6 py-3 flex justify-between items-center shadow-md z-20">
+        <div class="flex items-center gap-3">
+            <span class="bg-red-600 text-xs px-2 py-1 rounded font-bold">PANEL OPERASIONAL</span>
+            <div>
+                <h1 class="font-bold text-xs md:text-base" id="header-title">Dashboard Petugas / Pimpinan</h1>
+                <p class="text-[10px] md:text-[11px] text-blue-200">Kabupaten Seram Bagian Timur</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                🌐 Ke Web Publik
+            </a>
+            <button onclick="bukaModalLogin()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition" id="btn-logout">
+                Keluar / Ganti Akun
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area: Peta Penuh + Panel Bawah / Samping Pengendali Tab -->
+    <div class="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
+        <!-- Peta Interaktif Petugas -->
+        <main class="flex-1 relative h-1/2 lg:h-full">
+            <div id="map"></div>
+            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur p-2.5 rounded-lg shadow-md border border-slate-200 text-xs z-10 space-y-1">
+                <p class="font-bold text-slate-700">Peta Sebaran Laporan Darurat</p>
+                <p class="text-[10px] text-slate-500">Klik marker pada peta untuk melihat titik wilayah.</p>
+            </div>
+        </main>
+
+        <!-- Panel Kontrol Berbasis Tab (Baru, Proses, Selesai, Semua) -->
+        <aside class="w-full lg:w-[520px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
+            <!-- Tab Navigasi -->
+            <div class="grid grid-cols-4 bg-slate-100 border-b border-slate-200 text-center text-[11px] font-bold">
+                <button onclick="gantiTab('Baru')" id="tab-Baru" class="py-2.5 px-1 border-b-2 border-red-600 text-red-700 bg-white">Baru (<span id="count-Baru">0</span>)</button>
+                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-2.5 px-1 text-slate-600 hover:text-blue-700">Proses (<span id="count-Proses">0</span>)</button>
+                <button onclick="gantiTab('Selesai')" id="tab-Selesai" class="py-2.5 px-1 text-slate-600 hover:text-green-700">Selesai (<span id="count-Selesai">0</span>)</button>
+                <button onclick="gantiTab('Semua')" id="tab-Semua" class="py-2.5 px-1 text-slate-600 hover:text-slate-900">Semua</button>
+            </div>
+
+            <!-- Tabel Data Sesuai Tab -->
+            <div class="flex-1 overflow-y-auto p-2">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 sticky top-0 text-[10px] text-slate-700 uppercase border-b">
+                        <tr>
+                            <th class="p-2">ID / Waktu</th>
+                            <th class="p-2">Pelapor</th>
+                            <th class="p-2">Lokasi & Jenis</th>
+                            <th class="p-2 text-center">Aksi / Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-200">
+                        <!-- Diisi via script -->
+                    </tbody>
+                </table>
+            </div>
+        </aside>
+    </div>
+
+    <!-- MODAL LOGIN AKSES -->
+    <div id="modal-login" class="fixed inset-0 bg-slate-900/90 z-50 flex justify-center items-center p-4">
+        <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-2xl text-xs space-y-4">
+            <h3 class="font-bold text-base text-slate-800 text-center">🔐 Login Sistem Petugas / Pimpinan</h3>
+            <p class="text-slate-500 text-center text-[11px]">Masukkan password akses untuk masuk ke panel operasional.</p>
+            <div class="space-y-3">
+                <input type="password" id="login-pass" placeholder="Password akses..." class="w-full p-2.5 border border-slate-300 rounded outline-none text-sm text-center font-mono">
+                <button onclick="prosesLogin()" class="w-full bg-blue-900 text-white py-2.5 rounded font-bold hover:bg-blue-800 transition">Masuk Panel</button>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded text-[10px] text-slate-500 space-y-1">
+                <p><b>Petugas Teknis (Damkar/BPBD):</b> <code>sbt2026</code> (Bisa ubah status, isi instansi & nomor telpon)</p>
+                <p><b>Pimpinan / Kominfo:</b> <code>pimpinan</code> (Hanya memantau / Read-Only)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT UTAMA PETUGAS -->
+    <script>
+        const t1 = 'pk.eyJ1IjoiYWxtYXNjYXRpZSIsImEiOiJjb';
+        const t2 = 'HE3YzVhMGgwdzVjMmlwczVlaWhpMmJ2In';
+        const t3 = '0.C98KArIa5on5kkr9C3Plvg';
+        mapboxgl.accessToken = t1 + t2 + t3;
+
+        const SUPABASE_URL = 'MASUKKAN_SUPABASE_URL_ANDA_DISINI';
+        const SUPABASE_ANON_KEY = 'MASUKKAN_SUPABASE_ANON_KEY_ANDA_DISINI';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let laporanList = [];
+        let markers = [];
+        let activeTab = 'Baru';
+        let currentUserRole = null; // 'petugas' atau 'pimpinan'
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [130.4850, -3.1500],
+            zoom: 11
+        });
+
+        // Cek login saat pertama kali buka halaman
+        window.onload = () => {
+            const savedRole = localStorage.getItem('sbt_role');
+            if (savedRole) {
+                currentUserRole = savedRole;
+                document.getElementById('modal-login').classList.add('hidden');
+                updateHeaderRole();
+                ambilDataLaporan();
+            } else {
+                document.getElementById('modal-login').classList.remove('hidden');
+            }
+        };
+
+        function prosesLogin() {
+            const pass = document.getElementById('login-pass').value.trim();
+            if (pass === 'sbt2026') {
+                currentUserRole = 'petugas';
+                localStorage.setItem('sbt_role', 'petugas');
+                document.getElementById('modal-login').classList.add('hidden');
+                updateHeaderRole();
+                ambilDataLaporan();
+            } else if (pass === 'pimpinan') {
+                currentUserRole = 'pimpinan';
+                localStorage.setItem('sbt_role', 'pimpinan');
+                document.getElementById('modal-login').classList.add('hidden');
+                updateHeaderRole();
+                ambilDataLaporan();
+            } else {
+                alert('Password salah!');
+            }
+        }
+
+        function bukaModalLogin() {
+            localStorage.removeItem('sbt_role');
+            location.reload();
+        }
+
+        function updateHeaderRole() {
+            const title = document.getElementById('header-title');
+            if (currentUserRole === 'petugas') {
+                title.innerText = 'Dashboard Petugas Lapangan (Damkar / BPBD)';
+            } else {
+                title.innerText = 'Dashboard Monitoring Pimpinan / Kominfo (Read-Only)';
+            }
+        }
+
+        async function ambilDataLaporan() {
+            const { data, error } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
+            if (!error) {
+                laporanList = data || [];
+                hitungBadgeTab();
+                renderTabel();
+                renderMarkers();
+            }
+        }
+
+        function hitungBadgeTab() {
+            const baru = laporanList.filter(i => i.status === 'Baru').length;
+            const proses = laporanList.filter(i => i.status === 'Proses').length;
+            const selesai = laporanList.filter(i => i.status === 'Selesai').length;
+
+            document.getElementById('count-Baru').innerText = baru;
+            document.getElementById('count-Proses').innerText = proses;
+            document.getElementById('count-Selesai').innerText = selesai;
+        }
+
+        function gantiTab(tab) {
+            activeTab = tab;
+            ['Baru', 'Proses', 'Selesai', 'Semua'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = 'py-2.5 px-1 border-b-2 border-red-600 text-red-700 bg-white font-bold';
+                } else {
+                    btn.className = 'py-2.5 px-1 text-slate-600 hover:text-slate-900 font-normal';
+                }
+            });
+            renderTabel();
+        }
+
+        function renderTabel() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            let filtered = laporanList;
+            if (activeTab !== 'Semua') {
+                filtered = laporanList.filter(i => i.status === activeTab);
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Tidak ada data pada kategori ini.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
+                
+                let infoStatus = `<span class="text-yellow-600 font-bold">Baru</span>`;
+                if (item.status === 'Proses') {
+                    infoStatus = `<span class="text-blue-600 font-bold">Proses (${item.penanggung_jawab})</span><br><span class="text-[10px] text-slate-500">Telp: <a href="tel:${item.telp_petugas}" class="text-blue-600 underline">${item.telp_petugas}</a></span>`;
+                } else if (item.status === 'Selesai') {
+                    infoStatus = `<span class="text-green-600 font-bold">Selesai (${item.penanggung_jawab})</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-slate-50 cursor-pointer';
+                tr.innerHTML = `
+                    <td class="p-2 font-mono font-bold">${item.id}<br><span class="text-[9px] text-slate-400 font-normal">${new Date(item.created_at).toLocaleTimeString()}</span></td>
+                    <td class="p-2">${item.nama}<br><a href="tel:${item.telp}" class="text-blue-600 underline">${item.telp}</a></td>
+                    <td class="p-2"><b>${item.lokasi}</b><br><span class="text-[9px] px-1.5 py-0.5 rounded ${badgeColor}">${item.jenis}</span></td>
+                    <td class="p-2 text-center">
+                        <div class="mb-1">${infoStatus}</div>
+                        ${currentUserRole === 'petugas' ? `
+                            ${item.status === 'Baru' ? `<button onclick="ubahStatus('${item.id}', 'Proses')" class="bg-blue-600 text-white px-2 py-1 rounded font-bold hover:bg-blue-700 text-[10px]">Proses</button>` : ''}
+                            ${item.status === 'Proses' ? `<button onclick="ubahStatus('${item.id}', 'Selesai')" class="bg-green-600 text-white px-2 py-1 rounded font-bold hover:bg-green-700 text-[10px]">Selesai</button>` : ''}
+                        ` : '<span class="text-[10px] text-slate-400">Read-Only</span>'}
+                    </td>
+                `;
+                tr.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderMarkers() {
+            markers.forEach(m => m.remove());
+            markers = [];
+
+            laporanList.forEach(item => {
+                let color = '#eab308'; // Kuning untuk baru
+                if (item.status === 'Proses') color = '#3b82f6'; // Biru proses
+                if (item.status === 'Selesai') color = '#22c55e'; // Hijau selesai
+
+                const el = document.createElement('div');
+                el.className = 'rounded-full shadow-md cursor-pointer border-2 border-white';
+                el.style.width = '24px';
+                el.style.height = '24px';
+                el.style.backgroundColor = color;
+
+                const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+                    <div class="p-1 text-xs">
+                        <b class="text-slate-800">${item.lokasi}</b><br>
+                        <span>Jenis: <b>${item.jenis}</b></span><br>
+                        <span>Status: <b>${item.status}</b></span><br>
+                        <span>PJ: <b>${item.penanggung_jawab}</b></span>
+                    </div>
+                `);
+
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat([item.lng, item.lat])
+                    .setPopup(popup)
+                    .addTo(map);
+                markers.push(marker);
+            });
+        }
+
+        async function ubahStatus(id, statusBaru) {
+            let namaInstansi = 'Damkar Bula';
+            let telpPetugas = '-';
+            let estimasiWaktu = null;
+
+            if (statusBaru === 'Proses') {
+                let instansi = prompt('Masukkan nama instansi penanggung jawab (Contoh: Damkar Bula / BPBD SBT):', 'Damkar Bula');
+                if (!instansi) return;
+                let telp = prompt('Masukkan nomor telepon/WhatsApp petugas posko yang bertugas:', '0812XXXXXXXX');
+                if (!telp) return;
+                let jam = prompt('Masukkan estimasi waktu penanganan selesai (dalam jam, contoh: 2):', '2');
+                let durasiMs = (parseFloat(jam) || 1) * 3600000;
+
+                namaInstansi = instansi;
+                telpPetugas = telp;
+                estimasiWaktu = new Date(Date.now() + durasiMs).toISOString();
+            } else if (statusBaru === 'Selesai') {
+                const itemLama = laporanList.find(i => i.id === id);
+                namaInstansi = itemLama ? itemLama.penanggung_jawab : 'Damkar Bula';
+                telpPetugas = itemLama ? itemLama.telp_petugas : '-';
+            }
+
+            const updateData = {
+                status: statusBaru,
+                penanggung_jawab: namaInstansi,
+                telp_petugas: telpPetugas
+            };
+            if (estimasiWaktu) updateData.estimasi_selesai = estimasiWaktu;
+
+            const { error } = await supabaseClient.from('laporan').update(updateData).eq('id', id);
+            if (error) {
+                alert('Gagal memperbarui status: ' + error.message);
+            } else {
+                ambilDataLaporan();
+            }
+        }
+
+        map.on('load', () => {
+            ambilDataLaporan();
+            setInterval(ambilDataLaporan, 5000);
+        });
+    </script>
+</body>
+</html>
