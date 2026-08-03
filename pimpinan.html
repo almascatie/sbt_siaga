@@ -17,8 +17,54 @@
     <script>
         const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root { --primary:#0F4C81; --secondary:#0D9488; --accent:#22C55E; --warning:#F59E0B; --danger:#DC2626; --ink:#183B56; --muted:#5E7A90; --surface:#FFFFFF; --canvas:#F5F8FA; --line:#D6E4EC; }
+        * { box-sizing: border-box; }
+        body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: var(--canvas); color: var(--ink); }
         #map { width: 100%; height: 100%; }
+        .app-shell { min-height:100svh; background:linear-gradient(180deg,#eef7fa 0%,#f5f8fa 42%,#eef5f8 100%); }
+        .site-header { background:linear-gradient(112deg,#0F4C81 0%,#0e6590 51%,#0D9488 100%); box-shadow:0 8px 28px rgba(15,76,129,.18); }
+        .brand-mark { box-shadow:inset 0 1px 1px rgba(255,255,255,.45),0 7px 18px rgba(3,49,77,.24); }
+        .header-action { min-height:40px; transition:transform .2s ease,background .2s ease,box-shadow .2s ease; }
+        .header-action:hover { transform:translateY(-1px); box-shadow:0 6px 14px rgba(2,37,59,.2); }
+        .kpi-card { min-height:100px; transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease; }
+        .kpi-card:hover { transform:translateY(-3px); box-shadow:0 14px 26px rgba(24,59,86,.11); }
+        .kpi-icon { width:40px; height:40px; display:grid; place-items:center; border-radius:14px; font-size:18px; }
+        .map-card,.panel-card { background:rgba(255,255,255,.9); border:1px solid rgba(214,228,236,.95); box-shadow:0 14px 35px rgba(24,59,86,.10); }
+        .map-filter { box-shadow:0 12px 26px rgba(24,59,86,.14); }
+        .map-filter select { min-height:40px; color:var(--ink); background:#fff; border:1px solid var(--line); border-radius:12px; padding:0 30px 0 11px; outline:none; font-weight:600; transition:border-color .2s,box-shadow .2s; }
+        .map-filter select:focus { border-color:#1685ca; box-shadow:0 0 0 3px rgba(22,133,202,.15); }
+        .map-legend { color:var(--ink); border:1px solid rgba(214,228,236,.9); box-shadow:0 12px 26px rgba(24,59,86,.16); }
+        .panel-tabs { background:#f0f6f8; }
+        .panel-tabs button { border-radius:10px; min-height:42px; transition:all .2s ease; }
+        .panel-tabs button.bg-slate-900 { background:var(--primary)!important; border-color:var(--primary)!important; color:#fff!important; box-shadow:0 3px 10px rgba(15,76,129,.18); }
+        .panel-tabs button.bg-transparent { background:transparent!important; border-color:transparent!important; color:var(--muted)!important; }
+        #panel-konten { scrollbar-color:#9bb8c9 transparent; scrollbar-width:thin; }
+        #panel-konten::-webkit-scrollbar { width:8px; }
+        #panel-konten::-webkit-scrollbar-thumb { background:#a9c3d0; border-radius:99px; }
+        #panel-konten .bg-slate-800\/90 { background:#fff !important; border-color:var(--line)!important; box-shadow:0 7px 20px rgba(24,59,86,.075)!important; }
+        #panel-konten .bg-slate-900\/90,#panel-konten .bg-slate-900 { background:#f5f9fb!important; border-color:#dfeaf0!important; }
+        #panel-konten .bg-slate-950 { background:#f1f6f8!important; border-color:var(--line)!important; }
+        #panel-konten .border-slate-700,#panel-konten .border-slate-700\/60,#panel-konten .border-slate-700\/80,#panel-konten .border-slate-800 { border-color:var(--line)!important; }
+        #panel-konten .text-white { color:var(--ink)!important; }
+        #panel-konten .text-slate-200,#panel-konten .text-slate-300 { color:#31556e!important; }
+        #panel-konten .text-slate-400,#panel-konten .text-slate-500 { color:var(--muted)!important; }
+        #panel-konten .text-amber-300,#panel-konten .text-amber-400 { color:#b66307!important; }
+        #panel-konten .bg-amber-500\/20 { background:#fff3da!important; }
+        #panel-konten .bg-purple-500\/20 { background:#e7f0ff!important; }
+        #panel-konten .text-purple-300 { color:#1963a2!important; }
+        #panel-konten input { min-height:42px; background:#fff!important; color:var(--ink)!important; border-color:var(--line)!important; border-radius:12px!important; }
+        #panel-konten input:focus { border-color:#1685ca!important; box-shadow:0 0 0 3px rgba(22,133,202,.14); }
+        #panel-konten button.bg-amber-600 { min-height:42px; background:var(--primary)!important; color:#fff!important; border-radius:12px!important; box-shadow:0 5px 12px rgba(15,76,129,.22); }
+        #panel-konten button.bg-amber-600:hover { background:#0c3d69!important; transform:translateY(-1px); }
+        #panel-konten .bg-slate-700 { background:#eaf2f5!important; color:var(--ink)!important; }
+        #panel-konten tbody tr { transition:background .16s ease; }
+        #panel-konten tbody tr:hover { background:#edf8f7!important; }
+        #panel-konten table { min-width:620px; }
+        .mapboxgl-popup-content { border-radius:14px; box-shadow:0 12px 25px rgba(24,59,86,.18); }
         @keyframes pulse-red {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
@@ -26,55 +72,49 @@
         }
         .siaga-kritis { animation: pulse-red 1.5s infinite; }
     </style>
-</head>
-<body class="bg-slate-900 h-screen flex flex-col font-sans overflow-hidden text-slate-100">
-
-    <!-- Top Navigation Bar Pimpinan -->
-    <header class="bg-slate-950 border-b border-slate-800 px-5 py-3 flex justify-between items-center shadow-lg z-20">
-        <div class="flex items-center gap-3">
-            <span class="bg-amber-500 text-slate-950 text-[10px] px-2.5 py-1 rounded font-black uppercase tracking-wider">EKSEKUTIF / PIMPINAN</span>
-            <div>
-                <h1 class="font-bold text-xs md:text-sm text-white" id="header-sapaan">Pusat Pemantauan Pimpinan Daerah</h1>
-                <p class="text-[10px] text-slate-400">Kabupaten Seram Bagian Timur</p>
+ </head>
+<body class="min-h-screen overflow-x-hidden text-[#183B56]">
+    <div class="app-shell flex min-h-screen flex-col">
+    <header class="site-header relative z-20 px-4 py-4 text-white sm:px-6 lg:px-8">
+        <div class="mx-auto flex max-w-[1800px] items-center justify-between gap-4">
+            <div class="flex min-w-0 items-center gap-3 sm:gap-4">
+                <div class="brand-mark grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/95 text-center text-[11px] font-extrabold leading-tight text-[#0F4C81]">SBT</div>
+                <div class="min-w-0">
+                    <div class="mb-1 text-[10px] font-bold uppercase tracking-[.16em] text-cyan-100">Executive Command Center</div>
+                    <h1 class="truncate text-sm font-bold sm:text-base" id="header-sapaan">Pusat Pemantauan Pimpinan Daerah</h1>
+                    <p class="mt-0.5 text-xs text-cyan-100/90">Kabupaten Seram Bagian Timur</p>
+                </div>
             </div>
-        </div>
-        
-        <div class="flex items-center gap-2">
-            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
-                🌐 Web Publik
-            </a>
-            <button onclick="logoutSession()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
-                🚪 Keluar
-            </button>
+            <div class="flex shrink-0 items-center gap-2">
+                <a href="index.html" class="header-action inline-flex items-center rounded-xl bg-white/16 px-3 text-xs font-semibold text-white backdrop-blur hover:bg-white/25 sm:px-4">Web Publik</a>
+                <button onclick="logoutSession()" class="header-action inline-flex items-center rounded-xl bg-[#DC2626] px-3 text-xs font-semibold text-white hover:bg-[#bd1f1f] sm:px-4">Keluar</button>
+            </div>
         </div>
     </header>
 
-    <!-- Ringkasan Statistik Cepat (KPI Bar Interaktif) -->
-    <div class="bg-slate-900 border-b border-slate-800 px-5 py-2.5 grid grid-cols-4 gap-4 text-center text-xs">
-        <div onclick="filterDariStatistik('Verifikasi')" class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-700/60 transition">
-            <p class="text-slate-400 text-[10px] uppercase font-semibold">Dalam Verifikasi</p>
-            <p class="text-lg font-black text-amber-400" id="stat-verif">0</p>
+    <section class="px-4 py-4 sm:px-6 lg:px-8">
+        <div class="mx-auto grid max-w-[1800px] grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+            <button onclick="filterDariStatistik('Verifikasi')" class="kpi-card group flex items-center gap-3 rounded-2xl border border-[#D6E4EC] bg-white p-4 text-left shadow-sm sm:p-5">
+                <span class="kpi-icon bg-orange-100 text-[#D97706]">✓</span><span><span class="block text-xs font-semibold text-[#5E7A90]">Verifikasi</span><span class="mt-1 block text-2xl font-extrabold text-[#D97706]" id="stat-verif">0</span></span>
+            </button>
+            <button onclick="filterDariStatistik('Proses')" class="kpi-card group flex items-center gap-3 rounded-2xl border border-[#D6E4EC] bg-white p-4 text-left shadow-sm sm:p-5">
+                <span class="kpi-icon bg-blue-100 text-[#0F4C81]">↻</span><span><span class="block text-xs font-semibold text-[#5E7A90]">Dalam Proses</span><span class="mt-1 block text-2xl font-extrabold text-[#0F4C81]" id="stat-proses">0</span></span>
+            </button>
+            <button onclick="filterDariStatistik('Darurat')" class="kpi-card group flex items-center gap-3 rounded-2xl border border-[#D6E4EC] bg-white p-4 text-left shadow-sm sm:p-5">
+                <span class="kpi-icon bg-red-100 text-[#DC2626]">!</span><span><span class="block text-xs font-semibold text-[#5E7A90]">Darurat</span><span class="mt-1 block text-2xl font-extrabold text-[#DC2626]" id="stat-darurat">0</span></span>
+            </button>
+            <button onclick="filterDariStatistik('Selesai')" class="kpi-card group flex items-center gap-3 rounded-2xl border border-[#D6E4EC] bg-white p-4 text-left shadow-sm sm:p-5">
+                <span class="kpi-icon bg-emerald-100 text-[#15803D]">✓</span><span><span class="block text-xs font-semibold text-[#5E7A90]">Selesai</span><span class="mt-1 block text-2xl font-extrabold text-[#15803D]" id="stat-selesai">0</span></span>
+            </button>
         </div>
-        <div onclick="filterDariStatistik('Proses')" class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-700/60 transition">
-            <p class="text-slate-400 text-[10px] uppercase font-semibold">Sedang Diproses</p>
-            <p class="text-lg font-black text-blue-400" id="stat-proses">0</p>
-        </div>
-        <div onclick="filterDariStatistik('Darurat')" class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-700/60 transition">
-            <p class="text-slate-400 text-[10px] uppercase font-semibold">Darurat / Butuh Bantuan</p>
-            <p class="text-lg font-black text-red-500 animate-pulse" id="stat-darurat">0</p>
-        </div>
-        <div onclick="filterDariStatistik('Selesai')" class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-700/60 transition">
-            <p class="text-slate-400 text-[10px] uppercase font-semibold">Selesai Ditangani</p>
-            <p class="text-lg font-black text-emerald-400" id="stat-selesai">0</p>
-        </div>
-    </div>
+    </section>
 
-    <!-- Main Content Area -->
-    <div class="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
-        <!-- Peta Interaktif Komando Pimpinan dengan Filter Peta -->
-        <main class="flex-1 relative h-1/2 lg:h-full">
-            <!-- Filter Bar Peta -->
-            <div class="absolute top-4 left-4 right-4 md:right-auto z-10 flex gap-2 bg-slate-900/90 backdrop-blur p-2 rounded-lg border border-slate-700 shadow-xl text-xs">
+    <div class="mx-auto grid w-full max-w-[1800px] flex-1 grid-cols-1 gap-4 px-4 pb-4 sm:px-6 sm:pb-6 lg:grid-cols-5 lg:gap-5 lg:px-8 lg:pb-8">
+        <main class="map-card relative min-h-[480px] overflow-hidden rounded-2xl lg:col-span-3 lg:min-h-0">
+            <div class="absolute inset-x-0 top-0 z-10 flex items-center justify-between bg-white/94 px-4 py-3 backdrop-blur sm:px-5">
+                <div><h2 class="text-sm font-bold text-[#183B56]">Peta Situasi Wilayah</h2><p class="mt-0.5 text-[11px] text-[#5E7A90]">Pemantauan laporan dan penanganan terkini</p></div>
+            </div>
+            <div class="map-filter absolute left-4 right-4 top-20 z-10 flex flex-col gap-2 rounded-2xl border border-[#D6E4EC] bg-white/95 p-2 backdrop-blur sm:left-5 sm:right-auto sm:flex-row">
                 <select id="filter-status-peta" onchange="renderMarkers()" class="bg-slate-800 text-white p-1.5 rounded border border-slate-700 outline-none">
                     <option value="Semua">Semua Status Peta</option>
                     <option value="Verifikasi">Dalam Verifikasi</option>
@@ -93,29 +133,27 @@
 
             <div id="map"></div>
             
-            <div class="absolute bottom-6 left-4 bg-slate-900/90 backdrop-blur p-3 rounded-lg shadow-xl border border-slate-700 text-xs z-10 space-y-1.5 text-slate-200">
-                <p class="font-bold text-white border-b border-slate-700 pb-1">Keterangan Peta Eksekutif</p>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> <span>Dalam Verifikasi</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> <span>Proses Penanganan</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Darurat / Lintas Sektor</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> <span>Selesai</span></div>
+            <div class="map-legend absolute bottom-4 left-4 z-10 space-y-2 rounded-2xl bg-white/94 p-3 text-xs backdrop-blur sm:bottom-5 sm:left-5">
+                <p class="border-b border-[#D6E4EC] pb-2 font-bold text-[#183B56]">Keterangan Status</p>
+                <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-[#F59E0B]"></span><span>Dalam Verifikasi</span></div>
+                <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-[#0F4C81]"></span><span>Proses Penanganan</span></div>
+                <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-[#DC2626]"></span><span>Darurat</span></div>
+                <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-[#22C55E]"></span><span>Selesai</span></div>
             </div>
         </main>
 
-        <!-- Panel Samping: Log Aktivitas, Ringkasan Laporan, & Kolaborasi Lembaga -->
-        <aside class="w-full lg:w-[740px] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl h-1/2 lg:h-full">
-            <!-- Navigasi Tab Samping (3 Tab) -->
-            <div class="grid grid-cols-3 bg-slate-950 border-b border-slate-800 text-center text-xs font-bold">
-                <button onclick="gantiTab('LogAktivitas')" id="tab-LogAktivitas" class="py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900">📝 Log & Arahan Pimpinan</button>
-                <button onclick="gantiTab('SemuaLaporan')" id="tab-SemuaLaporan" class="py-3 px-1 text-slate-400 hover:text-white">📋 Ringkasan Laporan</button>
-                <button onclick="gantiTab('KolaborasiLembaga')" id="tab-KolaborasiLembaga" class="py-3 px-1 text-slate-400 hover:text-white">🤝 Kolaborasi Lembaga</button>
+        <aside class="panel-card flex min-h-[560px] flex-col overflow-hidden rounded-2xl lg:col-span-2 lg:min-h-0">
+            <div class="border-b border-[#D6E4EC] px-5 py-4"><h2 class="text-sm font-bold text-[#183B56]">Pusat Kendali Laporan</h2><p class="mt-0.5 text-[11px] text-[#5E7A90]">Arahan pimpinan dan koordinasi lintas lembaga</p></div>
+            <div class="panel-tabs m-3 grid grid-cols-3 gap-1 rounded-xl p-1 text-center text-[10px] font-semibold sm:text-xs">
+                <button onclick="gantiTab('LogAktivitas')" id="tab-LogAktivitas" class="bg-[#0F4C81] px-2 text-white shadow-sm">Log & Arahan</button>
+                <button onclick="gantiTab('SemuaLaporan')" id="tab-SemuaLaporan" class="px-2 text-[#5E7A90] hover:bg-white hover:text-[#0F4C81]">Laporan</button>
+                <button onclick="gantiTab('KolaborasiLembaga')" id="tab-KolaborasiLembaga" class="px-2 text-[#5E7A90] hover:bg-white hover:text-[#0F4C81]">Kolaborasi</button>
             </div>
-
-            <!-- Konten Tab -->
-            <div class="flex-1 overflow-y-auto p-3 space-y-3" id="panel-konten">
+            <div class="flex-1 overflow-x-auto overflow-y-auto px-3 pb-3 sm:px-4 sm:pb-4 space-y-3" id="panel-konten">
                 <!-- Diisi via script -->
             </div>
         </aside>
+    </div>
     </div>
 
     <!-- SCRIPT PIMPINAN -->
