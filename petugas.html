@@ -63,7 +63,7 @@
         </main>
 
         <!-- Panel Kontrol Berbasis Tab -->
-        <aside class="w-full lg:w-[620px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
+        <aside class="w-full lg:w-[640px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
             <div class="grid grid-cols-5 bg-slate-100 border-b border-slate-200 text-center text-[10px] md:text-[11px] font-bold">
                 <button onclick="gantiTab('Baru')" id="tab-Baru" class="py-2.5 px-1 border-b-2 border-red-600 text-red-700 bg-white">Baru (<span id="count-Baru">0</span>)</button>
                 <button onclick="gantiTab('Terverifikasi')" id="tab-Terverifikasi" class="py-2.5 px-1 text-slate-600 hover:text-amber-600">Verif (<span id="count-Terverifikasi">0</span>)</button>
@@ -86,7 +86,7 @@
                         <tr>
                             <th class="p-2">ID / Waktu</th>
                             <th class="p-2">Pelapor</th>
-                            <th class="p-2">Lokasi & Jenis</th>
+                            <th class="p-2">Lokasi, Jenis & Keterangan</th>
                             <th class="p-2 text-center">Aksi / Kolaborasi</th>
                         </tr>
                     </thead>
@@ -245,7 +245,6 @@
                 }
             });
 
-            // Tampilkan atau sembunyikan kotak filter lembaga khusus di tab "Semua"
             const filterContainer = document.getElementById('filter-container');
             if (tab === 'Semua') {
                 filterContainer.classList.remove('hidden');
@@ -257,7 +256,7 @@
             renderTabel();
         }
 
-        // Fungsi Tombol Ikon Kontak Aman (Tanpa menampilkan teks nomor telepon secara mentah)
+        // Fungsi Tombol Ikon Kontak Aman (Tanpa menampilkan teks nomor telepon)
         function renderTombolKontakAman(nomor) {
             if (!nomor) return '<span class="text-slate-400">-</span>';
             let cleanNum = nomor.replace(/[^0-9+]/g, '');
@@ -265,12 +264,12 @@
                 cleanNum = '62' + cleanNum.slice(1);
             }
             return `
-                <div class="inline-flex items-center gap-2 mt-1">
-                    <a href="tel:${nomor}" title="Panggilan Telepon" class="bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-lg shadow transition flex items-center justify-center">
-                        📞 <span class="text-[10px] font-semibold ml-1">Call</span>
+                <div class="inline-flex items-center gap-1.5 mt-1">
+                    <a href="tel:${nomor}" title="Panggilan Telepon" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded shadow transition flex items-center justify-center text-[10px] font-bold">
+                        📞 Call
                     </a>
-                    <a href="https://wa.me/${cleanNum}" target="_blank" title="WhatsApp Pelapor" class="bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-lg shadow transition flex items-center justify-center">
-                        💬 <span class="text-[10px] font-semibold ml-1">WhatsApp</span>
+                    <a href="https://wa.me/${cleanNum}" target="_blank" title="WhatsApp Pelapor" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded shadow transition flex items-center justify-center text-[10px] font-bold">
+                        💬 WhatsApp
                     </a>
                 </div>
             `;
@@ -284,7 +283,6 @@
             if (activeTab !== 'Semua') {
                 filtered = laporanList.filter(i => i.status === activeTab);
             } else {
-                // Filter tambahan berdasarkan pilihan lembaga di tab Semua
                 const selectedLembagaFilter = document.getElementById('select-filter-lembaga').value;
                 if (selectedLembagaFilter) {
                     filtered = filtered.filter(i => 
@@ -323,18 +321,27 @@
                     timelineHTML = `<div class="mt-1.5 p-1.5 bg-amber-50 border border-amber-200 rounded text-[10px] text-slate-700 whitespace-pre-line font-mono max-h-24 overflow-y-auto"><b>Log Lapangan:</b><br>${item.catatan_lapangan}</div>`;
                 }
 
+                // Field Keterangan / Detail Laporan dari Warga
+                const ketLaporan = item.ket ? `<div class="mt-1 text-slate-600 text-[11px] italic bg-slate-50 p-1.5 rounded border border-slate-100">"${item.ket}"</div>` : `<div class="mt-1 text-slate-400 text-[10px] italic">Tanpa keterangan tambahan</div>`;
+
                 const canEdit = currentUser && currentUser.role !== 'pimpinan';
 
                 const tr = document.createElement('tr');
                 tr.className = 'border-b hover:bg-slate-50 cursor-pointer';
                 tr.innerHTML = `
-                    <td class="p-2 font-mono font-bold">${item.id}<br><span class="text-[9px] text-slate-400 font-normal">${new Date(item.created_at).toLocaleTimeString()}</span></td>
-                    <td class="p-2">
+                    <td class="p-2 font-mono font-bold align-top">${item.id}<br><span class="text-[9px] text-slate-400 font-normal">${new Date(item.created_at).toLocaleTimeString()}</span></td>
+                    <td class="p-2 align-top">
                         <b>${item.nama || 'Warga'}</b><br>
                         ${renderTombolKontakAman(item.telp)}
                     </td>
-                    <td class="p-2"><b>${item.lokasi}</b><br><span class="text-[9px] px-1.5 py-0.5 rounded ${badgeColor}">${item.jenis}</span></td>
-                    <td class="p-2 text-center" onclick="event.stopPropagation()">
+                    <td class="p-2 align-top">
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <b>${item.lokasi}</b>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded ${badgeColor}">${item.jenis}</span>
+                        </div>
+                        ${ketLaporan}
+                    </td>
+                    <td class="p-2 text-center align-top" onclick="event.stopPropagation()">
                         <div class="mb-1">${infoStatus}</div>
                         ${timelineHTML}
                         ${canEdit ? `
@@ -386,11 +393,9 @@
 
                 const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
                     <div class="p-1 text-xs space-y-1">
-                        <b class="text-slate-800">${item.lokasi}</b><br>
-                        <span>Jenis: <b>${item.jenis}</b></span><br>
-                        <span>Status: <b class="text-red-600">${item.status}</b></span><br>
-                        <span>Pelapor: ${item.nama || 'Warga'}</span>
-                        ${isKritis ? '<br><span class="text-[10px] bg-red-100 text-red-700 font-bold px-1 rounded">⚠️ KRITIS: >30 Mnt Belum Verif!</span>' : ''}
+                        <b class="text-slate-800">${item.lokasi} (${item.jenis})</b><br>
+                        <p class="italic text-slate-600">"${item.ket || 'Tanpa keterangan'}"</p>
+                        <span>Status: <b class="text-red-600">${item.status}</b></span>
                     </div>
                 `);
 
