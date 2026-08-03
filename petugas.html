@@ -7,7 +7,6 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script>
@@ -22,7 +21,6 @@
         }
         .siaga-kritis { animation: pulse-red 1.5s infinite; }
         
-        /* Variabel Warna Identitas SBT */
         :root {
             --sbt-blue: #005577;
             --sbt-teal: #079591;
@@ -31,29 +29,28 @@
             --sbt-cream: #efe9dc;
         }
 
-        /* Styling Tambahan Sesuai Panduan Redesain */
         body { background-color: var(--sbt-light); font-family: system-ui, -apple-system, sans-serif; }
         .sbt-header { background-color: var(--sbt-blue); }
         
-        /* Mode Fokus: Meredupkan card lain jika ada yang aktif */
-        .laporan-item-dim { opacity: 0.4; transition: opacity 0.2s ease; }
-        .laporan-item-active { 
-            border: 2px solid var(--sbt-orange) !important; 
-            box-shadow: 0 10px 25px -5px rgba(198, 106, 61, 0.2) !important; 
-            background-color: #ffffff !important;
+        /* Mode Fokus Styling */
+        .laporan-row-dim { opacity: 0.4; transition: opacity 0.2s ease; }
+        .laporan-row-active { 
+            background-color: #ffffff !important; 
+            border-left: 4px solid var(--sbt-orange) !important;
+            box-shadow: 0 10px 25px -5px rgba(198, 106, 61, 0.15);
             opacity: 1 !important;
         }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden text-slate-800">
 
-    <!-- 1. HEADER (Disederhanakan, bersih, fokus kerja) -->
+    <!-- 1. HEADER (Dengan Logo Resmi & Sederhana) -->
     <header class="sbt-header text-white px-4 py-2 flex justify-between items-center shadow-md z-20 shrink-0">
-        <div class="flex items-center gap-3">
-            <span id="badge-role" class="bg-[var(--sbt-orange)] text-[10px] px-2.5 py-1 rounded font-bold uppercase tracking-wider text-white">OPERASIONAL</span>
+        <div class="flex items-center gap-2.5">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo Kabupaten Seram Bagian Timur" class="w-8 h-9 object-contain bg-white/10 p-0.5 rounded">
             <div>
-                <h1 class="font-bold text-xs md:text-sm" id="header-sapaan">Memuat Sesi...</h1>
-                <p class="text-[10px] text-blue-100/80">Kabupaten Seram Bagian Timur</p>
+                <h1 class="font-bold text-xs md:text-sm tracking-wide">SIAGA DARURAT SBT</h1>
+                <p class="text-[10px] text-blue-100/80" id="header-sapaan">Memuat Sesi...</p>
             </div>
         </div>
 
@@ -69,40 +66,52 @@
 
     <!-- Main Content Area -->
     <div class="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
-        <!-- 2. PETA & FILTER TUNGGAL (Digabung jadi satu panel transparan/blur di pojok) -->
+        <!-- 2 & 3. PETA, WARNING 30 MENIT & PANEL TERPADU -->
         <main class="flex-1 relative h-1/2 lg:h-full">
             <div id="map"></div>
 
-            <!-- Panel Legenda & Status Peta (Digabung rapi) -->
-            <div class="absolute bottom-6 left-4 bg-white/90 backdrop-blur-md p-3 rounded-xl shadow-lg border border-slate-200 text-[11px] z-10 space-y-1.5 max-w-xs">
-                <p class="font-bold text-slate-800 border-b pb-1 text-[12px]">🗺️ Indikator Peta & Status</p>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Baru / Belum Verif (>30m Kritis)</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> <span>Terverifikasi (Siap Proses)</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> <span>Proses (Lintas Sektor Bergerak)</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-600 inline-block"></span> <span>Selesai</span></div>
+            <!-- Warning Kritis >30 Menit di Pojok Kiri Atas Peta -->
+            <div id="warning-box-30m" class="absolute top-4 left-4 z-20 hidden bg-red-600 text-white px-3 py-2 rounded-xl shadow-2xl siaga-kritis flex items-center gap-2 text-xs font-bold">
+                <span class="text-base">🔴</span>
+                <div>
+                    <p class="leading-tight">PERINGATAN KRITIS</p>
+                    <p class="text-[10px] font-normal text-red-100">Ada laporan >30 Menit belum ditangani!</p>
+                </div>
             </div>
 
-            <!-- Panel Filter Peta Terpadu (Layer Peta) -->
-            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md p-2.5 rounded-xl shadow-md border border-slate-200 text-xs z-10 flex flex-col sm:flex-row gap-2 items-center">
-                <span class="font-bold text-slate-700 text-[11px]">⚙ Layer Peta:</span>
-                <select id="map-filter-status" onchange="renderMarkers()" class="p-1.5 border border-slate-300 rounded bg-white text-xs outline-none shadow-sm">
-                    <option value="Semua">Semua Status</option>
-                    <option value="Baru">Baru</option>
-                    <option value="Terverifikasi">Terverifikasi</option>
-                    <option value="Proses">Proses</option>
-                    <option value="Selesai">Selesai</option>
-                </select>
-                <select id="map-filter-jenis" onchange="renderMarkers()" class="p-1.5 border border-slate-300 rounded bg-white text-xs outline-none shadow-sm">
-                    <option value="Semua">Semua Jenis</option>
-                    <option value="Kebakaran">Karhutla / Kebakaran</option>
-                    <option value="Kekeringan">Krisis Air / Kekeringan</option>
-                </select>
+            <!-- Panel Terpadu (Legenda + Filter Peta jadi satu di pojok kanan atas) -->
+            <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-xl shadow-lg border border-slate-200 text-xs z-10 space-y-2 max-w-xs">
+                <div class="flex justify-between items-center border-b pb-1.5">
+                    <span class="font-bold text-slate-800 text-[11px]">🗺️ Layer & Indikator Peta</span>
+                </div>
+                <!-- Filter Peta -->
+                <div class="grid grid-cols-2 gap-1.5">
+                    <select id="map-filter-status" onchange="renderMarkers()" class="p-1 border border-slate-300 rounded bg-white text-[11px] outline-none">
+                        <option value="Semua">Status: Semua</option>
+                        <option value="Baru">Baru</option>
+                        <option value="Terverifikasi">Terverifikasi</option>
+                        <option value="Proses">Proses</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                    <select id="map-filter-jenis" onchange="renderMarkers()" class="p-1 border border-slate-300 rounded bg-white text-[11px] outline-none">
+                        <option value="Semua">Jenis: Semua</option>
+                        <option value="Kebakaran">Karhutla</option>
+                        <option value="Kekeringan">Air Bersih</option>
+                    </select>
+                </div>
+                <!-- Legenda -->
+                <div class="space-y-1 pt-1 text-[10.5px] text-slate-600 border-t border-slate-100">
+                    <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Baru / >30m Kritis</span></div>
+                    <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> <span>Terverifikasi</span></div>
+                    <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span> <span>Proses Berjalan</span></div>
+                    <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-600 inline-block"></span> <span>Selesai</span></div>
+                </div>
             </div>
         </main>
 
         <!-- Panel Kontrol Berbasis Tab -->
-        <aside class="w-full lg:w-[680px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
-            <!-- 4. TAB STATUS (Lebih lega, tinggi tab & padding nyaman) -->
+        <aside class="w-full lg:w-[700px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
+            <!-- 4. TAB STATUS -->
             <div class="grid grid-cols-5 bg-slate-100 border-b border-slate-200 text-center text-xs font-bold">
                 <button onclick="gantiTab('Baru')" id="tab-Baru" class="py-3 px-1 border-b-2 border-red-600 text-red-700 bg-white transition">Baru (<span id="count-Baru">0</span>)</button>
                 <button onclick="gantiTab('Terverifikasi')" id="tab-Terverifikasi" class="py-3 px-1 text-slate-600 hover:text-amber-600 transition">Verif (<span id="count-Terverifikasi">0</span>)</button>
@@ -119,24 +128,24 @@
                 </select>
             </div>
 
-            <!-- 5, 6, 7, 11, 14. TABEL & AREA KERJA (White space lega, hirarki tipografi jelas) -->
+            <!-- 5, 6, 7, 16. TABEL, HIERARKI WAKTU/ID, BLOK AKSI & MODE FOKUS -->
             <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/50">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead class="bg-slate-100/80 sticky top-0 text-[11px] text-slate-600 uppercase border-b border-slate-200 backdrop-blur-sm z-10">
                         <tr>
-                            <th class="p-3">Waktu & ID</th>
-                            <th class="p-3">Pelapor</th>
+                            <th class="p-3 w-28">Waktu & ID</th>
+                            <th class="p-3 w-32">Pelapor</th>
                             <th class="p-3">Lokasi, Jenis & Keterangan</th>
-                            <th class="p-3 text-center">Aksi & Kolaborasi</th>
+                            <th class="p-3 text-center w-48">Aksi & Kolaborasi</th>
                         </tr>
                     </thead>
                     <tbody id="table-body" class="divide-y divide-slate-200">
-                        <!-- Diisi via script -->
+                        <!-- Diisi via script dengan struktur blok & mode fokus -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- 12. FOOTER OPERASIONAL (Tipis, informasi sekunder, tidak mencolok) -->
+            <!-- 12. FOOTER OPERASIONAL -->
             <footer class="bg-slate-100 border-t border-slate-200 px-4 py-2 text-[10.5px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-1 shrink-0">
                 <div class="flex items-center gap-3">
                     <span>🛠️ Hotline Internal: <a href="tel:08114700111" class="font-mono underline text-slate-700">0811-4700-111</a></span>
