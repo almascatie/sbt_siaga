@@ -1,5 +1,3 @@
-  <!-- SCRIPT UTAMA -->
-    <script>
         mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 
         let laporanList = [];
@@ -179,4 +177,3 @@
             ambilDataLaporan();
             setInterval(ambilDataLaporan, 5000);
         });
-    </script>
