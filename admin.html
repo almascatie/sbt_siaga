@@ -48,7 +48,7 @@
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">No. Hotline / Telepon Resmi</label>
-                    <input type="tel" id="lembaga-hotline" required placeholder="0812XXXXXXXX / (0915)..." class="w-full p-2 border border-slate-300 rounded">
+                    <input type="tel" id="lembaga-hotline" required placeholder="0812XXXXXXXX" class="w-full p-2 border border-slate-300 rounded">
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">URL Logo Lembaga (Opsional)</label>
@@ -66,72 +66,94 @@
             </form>
         </div>
 
-        <!-- Kotak 2: Tambah Akun Petugas / Pimpinan -->
-        <div class="bg-white rounded-xl shadow-md p-5 border border-slate-200">
-            <h2 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
-                ➕ Tambah Akun Petugas / Pimpinan / Operator 112
-            </h2>
-            <form id="form-tambah-user" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">Pilih Lembaga Terkait</label>
-                    <select id="new-lembaga-id" required class="w-full p-2 border border-slate-300 rounded bg-white">
-                        <option value="">-- Pilih Lembaga --</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">Nama Lengkap Petugas</label>
-                    <input type="text" id="new-nama" required placeholder="Contoh: Almas" class="w-full p-2 border border-slate-300 rounded">
-                </div>
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">Username Login</label>
-                    <input type="text" id="new-user" required placeholder="mis: almas_damkar" class="w-full p-2 border border-slate-300 rounded font-mono">
-                </div>
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">Password</label>
-                    <input type="password" id="new-pass" required placeholder="password" class="w-full p-2 border border-slate-300 rounded font-mono">
-                </div>
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">Role Akses</label>
-                    <select id="new-role" class="w-full p-2 border border-slate-300 rounded">
-                        <option value="petugas">Petugas Lapangan</option>
-                        <option value="pimpinan">Pimpinan Lembaga</option>
-                        <option value="operator112">Operator 112</option>
-                        <option value="superadmin">Super Admin</option>
-                    </select>
-                </div>
-                <div class="sm:col-span-2 md:col-span-5">
-                    <button type="submit" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded shadow transition text-xs">
-                        💾 Buat & Simpan Akun Petugas
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Kotak 3: Daftar Akun Terdaftar -->
+        <!-- Kotak 2: Daftar Lembaga yang Sudah Ada -->
         <div class="bg-white rounded-xl shadow-md p-5 border border-slate-200">
             <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold text-sm text-slate-800">📋 Daftar Akun Petugas & Instansi</h2>
-                <button onclick="muatDataAdmin()" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded font-semibold text-slate-700">🔄 Refresh Data</button>
+                <h2 class="font-bold text-sm text-slate-800">📋 Daftar Master Lembaga Terdaftar</h2>
+                <button onclick="muatDaftarLembaga()" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded font-semibold text-slate-700">🔄 Refresh Lembaga</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead class="bg-slate-50 border-b text-[10px] text-slate-700 uppercase">
                         <tr>
-                            <th class="p-2">Nama Lengkap</th>
-                            <th class="p-2">Username</th>
-                            <th class="p-2">Lembaga / Instansi</th>
-                            <th class="p-2">Role</th>
+                            <th class="p-2">Nama Instansi</th>
+                            <th class="p-2">Hotline Resmi</th>
+                            <th class="p-2">Alamat Kantor</th>
                             <th class="p-2 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="tabel-user-body" class="divide-y divide-slate-200">
-                        <tr><td colspan="5" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+                    <tbody id="tabel-lembaga-body" class="divide-y divide-slate-200">
+                        <tr><td colspan="4" class="p-4 text-center text-slate-400">Memuat data lembaga...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Kotak 4: Rekapitulasi & Ekspor Data Laporan -->
+        <!-- Kotak 3: Tambah Akun Instansi / User Baru -->
+        <div class="bg-white rounded-xl shadow-md p-5 border border-slate-200">
+            <h2 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
+                ➕ Tambah Akun Instansi / Pimpinan / Operator Baru
+            </h2>
+            <form id="form-tambah-user" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Username Login</label>
+                    <input type="text" id="new-user" required placeholder="mis: polri, pks" class="w-full p-2 border border-slate-300 rounded font-mono">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Password</label>
+                    <input type="text" id="new-pass" required placeholder="password" class="w-full p-2 border border-slate-300 rounded font-mono">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Nama Lembaga / Instansi</label>
+                    <input type="text" id="new-nama" required placeholder="Polres SBT / PKS SBT" class="w-full p-2 border border-slate-300 rounded">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Role Akses</label>
+                    <select id="new-role" class="w-full p-2 border border-slate-300 rounded">
+                        <option value="petugas">Petugas Lapangan</option>
+                        <option value="pimpinan">Pimpinan (Read-Only)</option>
+                        <option value="operator112">Operator 112</option>
+                        <option value="superadmin">Super Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">No. Telp Posko Utama</label>
+                    <input type="tel" id="new-telp" placeholder="0812XXXXXXXX" class="w-full p-2 border border-slate-300 rounded">
+                </div>
+                <div class="sm:col-span-2 md:col-span-5">
+                    <button type="submit" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded shadow transition text-xs">
+                        💾 Buat & Simpan Akun Baru
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Kotak 4: Daftar Akun Terdaftar -->
+        <div class="bg-white rounded-xl shadow-md p-5 border border-slate-200">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-sm text-slate-800">📋 Daftar Akun Instansi & Pimpinan</h2>
+                <button onclick="muatDaftarUser()" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded font-semibold text-slate-700">🔄 Refresh Akun</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 border-b text-[10px] text-slate-700 uppercase">
+                        <tr>
+                            <th class="p-2">ID</th>
+                            <th class="p-2">Username</th>
+                            <th class="p-2">Nama Lembaga</th>
+                            <th class="p-2">Role</th>
+                            <th class="p-2">Telp Posko</th>
+                            <th class="p-2 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-user-body" class="divide-y divide-slate-200">
+                        <tr><td colspan="6" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Kotak 5: Rekapitulasi & Ekspor Data Laporan -->
         <div class="bg-white rounded-xl shadow-md p-5 border border-slate-200">
             <h2 class="font-bold text-sm text-slate-800 mb-3">📊 Rekapitulasi & Ekspor Laporan Darurat</h2>
             <p class="text-xs text-slate-600 mb-4">Unduh rekapitulasi penanganan seluruh krisis di Seram Bagian Timur untuk laporan resmi instansi.</p>
@@ -152,7 +174,7 @@
             <div class="space-y-3">
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Username Admin</label>
-                    <input type="text" id="admin-user" placeholder="username" class="w-full p-2.5 border border-slate-300 rounded outline-none text-xs font-mono">
+                    <input type="text" id="admin-user" placeholder="admin" class="w-full p-2.5 border border-slate-300 rounded outline-none text-xs font-mono">
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Password</label>
@@ -172,7 +194,7 @@
             const isAuth = sessionStorage.getItem('sbt_admin_auth');
             if (isAuth === 'true') {
                 document.getElementById('modal-admin-login').classList.add('hidden');
-                muatDataAdmin();
+                muatSemuaData();
             } else {
                 document.getElementById('modal-admin-login').classList.remove('hidden');
             }
@@ -182,94 +204,116 @@
             const u = document.getElementById('admin-user').value.trim();
             const p = document.getElementById('admin-pass').value.trim();
 
-            // Cek ke tabel petugas berdasarkan username dan role superadmin
             const { data, error } = await supabaseClient
-                .from('petugas')
+                .from('users')
                 .select('*')
                 .eq('username', u)
+                .eq('password', p)
                 .eq('role', 'superadmin')
                 .single();
 
             if (error || !data) {
-                alert('Akses Ditolak! Pastikan username Super Admin sudah benar.');
-                return;
-            }
-
-            // Verifikasi password lewat Supabase Auth
-            const { error: authError } = await supabaseClient.auth.signInWithPassword({
-                email: `${u}@sbt.lokal`,
-                password: p
-            });
-
-            if (authError) {
-                alert('Password salah atau akun tidak ditemukan.');
+                alert('Akses Ditolak! Pastikan username dan password Super Admin sudah benar.');
             } else {
                 sessionStorage.setItem('sbt_admin_auth', 'true');
                 document.getElementById('modal-admin-login').classList.add('hidden');
-                muatDataAdmin();
+                muatSemuaData();
             }
         }
 
-        async function logoutAdmin() {
-            await supabaseClient.auth.signOut();
+        function logoutAdmin() {
             sessionStorage.removeItem('sbt_admin_auth');
             window.location.href = 'index.html';
         }
 
-        async function muatDataAdmin() {
-            muatDropdownLembaga();
+        function muatSemuaData() {
             muatDaftarUser();
+            muatDaftarLembaga();
         }
 
-        async function muatDropdownLembaga() {
-            const select = document.getElementById('new-lembaga-id');
-            const { data, error } = await supabaseClient.from('lembaga').select('id, nama_lembaga');
-            
-            if (error) return;
-
-            select.innerHTML = '<option value="">-- Pilih Lembaga Terkait --</option>';
-            data.forEach(item => {
-                let opt = document.createElement('option');
-                opt.value = item.id;
-                opt.textContent = item.nama_lembaga;
-                select.appendChild(opt);
-            });
-        }
-
+        // 1. Muat Tabel Akun Users
         async function muatDaftarUser() {
             const tbody = document.getElementById('tabel-user-body');
-            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Memuat data akun...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Memuat data akun...</td></tr>`;
 
-            // Ambil data petugas beserta relasi nama lembaga
-            const { data, error } = await supabaseClient
-                .from('petugas')
-                .select('id, username, nama_lengkap, role, lembaga(nama_lembaga)')
-                .order('nama_lengkap', { ascending: true });
-
+            const { data, error } = await supabaseClient.from('users').select('*').order('id', { ascending: true });
             if (error) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-500">Gagal memuat: ${error.message}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">Gagal memuat: ${error.message}.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             data.forEach(user => {
-                const namaLembaga = user.lembaga ? user.lembaga.nama_lembaga : '-';
                 const tr = document.createElement('tr');
                 tr.className = 'border-b hover:bg-slate-50';
                 tr.innerHTML = `
-                    <td class="p-2 font-bold text-slate-800">${user.nama_lengkap}</td>
-                    <td class="p-2 font-mono text-purple-900">${user.username}</td>
-                    <td class="p-2">${namaLembaga}</td>
+                    <td class="p-2 font-mono">${user.id}</td>
+                    <td class="p-2 font-bold font-mono text-purple-900">${user.username}</td>
+                    <td class="p-2">${user.nama_lembaga || '-'}</td>
                     <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${user.role === 'superadmin' ? 'bg-purple-100 text-purple-700' : user.role === 'pimpinan' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}">${user.role}</span></td>
+                    <td class="p-2">${user.telp_posko || '-'}</td>
                     <td class="p-2 text-center">
-                        <button onclick="hapusUser('${user.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-[10px] font-bold">🗑️ Hapus</button>
+                        ${user.username !== 'admin' ? `<button onclick="hapusUser(${user.id})" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-[10px] font-bold">🗑️ Hapus</button>` : '<span class="text-[10px] text-slate-400">Utama</span>'}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Tambah Lembaga Baru
+        // 2. Muat Tabel Daftar Lembaga
+        async function muatDaftarLembaga() {
+            const tbody = document.getElementById('tabel-lembaga-body');
+            tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Memuat data lembaga...</td></tr>`;
+
+            const { data, error } = await supabaseClient.from('lembaga').select('*').order('nama_lembaga', { ascending: true });
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Gagal memuat: ${error.message}.</td></tr>`;
+                return;
+            }
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada data lembaga terdaftar.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-slate-50';
+                tr.innerHTML = `
+                    <td class="p-2 font-bold text-slate-800">${item.nama_lembaga}</td>
+                    <td class="p-2 font-mono">${item.hotline_telepon}</td>
+                    <td class="p-2">${item.alamat_kantor || '-'}</td>
+                    <td class="p-2 text-center">
+                        <button onclick="hapusLembaga('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-[10px] font-bold">🗑️ Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Simpan Akun Baru ke Tabel users
+        document.getElementById('form-tambah-user').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const akunBaru = {
+                username: document.getElementById('new-user').value.trim(),
+                password: document.getElementById('new-pass').value.trim(),
+                nama_lembaga: document.getElementById('new-nama').value.trim(),
+                role: document.getElementById('new-role').value,
+                telp_posko: document.getElementById('new-telp').value.trim() || '-'
+            };
+
+            const { error } = await supabaseClient.from('users').insert([akunBaru]);
+            if (error) {
+                alert('Gagal membuat akun: ' + error.message);
+            } else {
+                alert('Akun berhasil dibuat!');
+                document.getElementById('form-tambah-user').reset();
+                muatDaftarUser();
+            }
+        });
+
+        // Simpan Lembaga Baru ke Tabel lembaga
         document.getElementById('form-tambah-lembaga').addEventListener('submit', async (e) => {
             e.preventDefault();
             const lembagaBaru = {
@@ -285,57 +329,22 @@
             } else {
                 alert('Master lembaga berhasil ditambahkan!');
                 document.getElementById('form-tambah-lembaga').reset();
-                muatDropdownLembaga();
-            }
-        });
-
-        // Tambah Akun Petugas Baru
-        document.getElementById('form-tambah-user').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const lembagaId = document.getElementById('new-lembaga-id').value;
-            const nama = document.getElementById('new-nama').value.trim();
-            const username = document.getElementById('new-user').value.trim();
-            const password = document.getElementById('new-pass').value.trim();
-            const role = document.getElementById('new-role').value;
-
-            const dummyEmail = `${username}@sbt.lokal`;
-
-            // Buat akun auth Supabase
-            const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-                email: dummyEmail,
-                password: password
-            });
-
-            if (authError) {
-                alert('Gagal membuat akun auth: ' + authError.message);
-                return;
-            }
-
-            const userId = authData.user ? authData.user.id : null;
-            if (!userId) {
-                alert('Gagal mendapatkan ID pengguna.');
-                return;
-            }
-
-            // Masukkan ke tabel petugas
-            const { error: profileError } = await supabaseClient.from('petugas').insert([
-                { id: userId, lembaga_id: lembagaId, nama_lengkap: nama, username: username, role: role }
-            ]);
-
-            if (profileError) {
-                alert('Gagal menyimpan profil petugas: ' + profileError.message);
-            } else {
-                alert(`Akun petugas ${nama} berhasil dibuat!`);
-                document.getElementById('form-tambah-user').reset();
-                muatDaftarUser();
+                muatDaftarLembaga();
             }
         });
 
         async function hapusUser(id) {
-            if (!confirm('Yakin ingin menghapus akun petugas ini?')) return;
-            const { error } = await supabaseClient.from('petugas').delete().eq('id', id);
+            if (!confirm('Yakin ingin menghapus akun ini?')) return;
+            const { error } = await supabaseClient.from('users').delete().eq('id', id);
             if (error) alert('Gagal menghapus: ' + error.message);
             else muatDaftarUser();
+        }
+
+        async function hapusLembaga(id) {
+            if (!confirm('Yakin ingin menghapus lembaga ini?')) return;
+            const { error } = await supabaseClient.from('lembaga').delete().eq('id', id);
+            if (error) alert('Gagal menghapus: ' + error.message);
+            else muatDaftarLembaga();
         }
 
         async function exportKeCSV() {
@@ -357,8 +366,8 @@
                     row.jenis || '',
                     `"${row.lokasi || ''}"`,
                     row.status || '',
-                    `"${row.nama_petugas_verif || ''}"`,
-                    `"${row.nama_petugas_proses || ''}"`,
+                    `"${row.lembaga_verifikasi || ''}"`,
+                    `"${row.lembaga_proses || ''}"`,
                     `"${row.ket || ''}"`
                 ];
                 csvContent += baris.join(",") + "\n";
