@@ -8,8 +8,8 @@
         const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v12',
-            center: [130.4850, -3.1500],
-            zoom: 11
+            center: [130.48809, -3.10517],
+            zoom: 12.32
         });
 
         async function ambilDataLaporan() {
