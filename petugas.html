@@ -101,7 +101,7 @@
             <form id="form-proses" class="space-y-2.5">
                 <input type="hidden" id="proses-id-laporan">
                 <div>
-                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon Petugas/Posko Lapangan</label>
+                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon Posko Lapangan</label>
                     <input type="tel" id="input-telp-petugas" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="0812XXXXXXXX">
                 </div>
                 <div>
@@ -126,34 +126,12 @@
             <form id="form-catatan" class="space-y-2.5">
                 <input type="hidden" id="catatan-id-laporan">
                 <div>
-                    <textarea id="input-teks-catatan" rows="3" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Contoh: Polri kirim 1 tangki air bersih, warga antre tertib..."></textarea>
+                    <textarea id="input-teks-catatan" rows="3" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Contoh: Kirim 1 tangki air bersih, warga antre tertib..."></textarea>
                 </div>
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded shadow transition">
                     ➕ Kirim Catatan Perkembangan
                 </button>
             </form>
-        </div>
-    </div>
-
-    <!-- MODAL LOGIN BERBASIS TABEL USERS SUPABASE -->
-    <div id="modal-login" class="fixed inset-0 bg-slate-900/95 z-50 flex justify-center items-center p-4">
-        <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-2xl text-xs space-y-4">
-            <h3 class="font-bold text-base text-slate-800 text-center">🔐 Login Sistem Petugas & Pimpinan</h3>
-            <p class="text-slate-500 text-center text-[11px]">Masukkan Username dan Password instansi Anda.</p>
-            <div class="space-y-3">
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">Username Instansi</label>
-                    <input type="text" id="login-user" placeholder="Contoh: polri, pks, damkar, pimpinan..." class="w-full p-2.5 border border-slate-300 rounded outline-none text-xs font-mono">
-                </div>
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">Password</label>
-                    <input type="password" id="login-pass" placeholder="Password akses..." class="w-full p-2.5 border border-slate-300 rounded outline-none text-xs font-mono">
-                </div>
-                <button onclick="prosesLoginSupabase()" class="w-full bg-blue-900 text-white py-2.5 rounded font-bold hover:bg-blue-800 transition">Masuk Command Center</button>
-            </div>
-            <div class="bg-slate-50 p-2.5 rounded text-[10px] text-slate-500 text-center">
-                Belum punya akun? Minta Super Admin untuk mendaftarkannya di halaman Super Admin.
-            </div>
         </div>
     </div>
 
@@ -174,47 +152,34 @@
         });
 
         window.onload = () => {
-            const savedUser = localStorage.getItem('sbt_current_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                document.getElementById('modal-login').classList.add('hidden');
+            // Ambil data sesi dari sessionStorage yang dikirim oleh login.html
+            const isLogged = sessionStorage.getItem('sbt_logged_in');
+            if (isLogged === 'true') {
+                currentUser = {
+                    id: sessionStorage.getItem('sbt_user_id'),
+                    username: sessionStorage.getItem('sbt_username'),
+                    nama_lembaga: sessionStorage.getItem('sbt_nama_lembaga'),
+                    role: sessionStorage.getItem('sbt_role'),
+                    telp_posko: sessionStorage.getItem('sbt_telp_posko')
+                };
+                
+                // Jika superadmin mencoba buka halaman petugas, arahkan balik ke admin.html
+                if (currentUser.role === 'superadmin') {
+                    window.location.href = 'admin.html';
+                    return;
+                }
+
                 inisialisasiSesiHeader();
                 ambilDataLaporan();
             } else {
-                document.getElementById('modal-login').classList.remove('hidden');
+                // Jika belum login, tendang kembali ke halaman login.html
+                window.location.href = 'login.html';
             }
         };
 
-        async function prosesLoginSupabase() {
-            const u = document.getElementById('login-user').value.trim();
-            const p = document.getElementById('login-pass').value.trim();
-
-            if (!u || !p) {
-                alert('Username dan password wajib diisi!');
-                return;
-            }
-
-            const { data, error } = await supabaseClient
-                .from('users')
-                .select('*')
-                .eq('username', u)
-                .eq('password', p)
-                .single();
-
-            if (error || !data) {
-                alert('Login Gagal! Username atau password salah.');
-            } else {
-                currentUser = data;
-                localStorage.setItem('sbt_current_user', JSON.stringify(data));
-                document.getElementById('modal-login').classList.add('hidden');
-                inisialisasiSesiHeader();
-                ambilDataLaporan();
-            }
-        }
-
         function logoutSession() {
-            localStorage.removeItem('sbt_current_user');
-            location.reload();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
         }
 
         function inisialisasiSesiHeader() {
@@ -225,10 +190,6 @@
                 sapaan.innerText = `Mode Pimpinan: ${currentUser.nama_lembaga}`;
                 badge.innerText = 'MONITORING PIMPINAN';
                 badge.className = 'bg-amber-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase';
-            } else if (currentUser.role === 'superadmin') {
-                sapaan.innerText = `Super Admin: ${currentUser.nama_lembaga}`;
-                badge.innerText = 'SUPER ADMIN';
-                badge.className = 'bg-purple-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase';
             } else {
                 sapaan.innerText = `Hi, ${currentUser.nama_lembaga}`;
                 badge.innerText = 'OPERASIONAL LAPANGAN';
@@ -285,11 +246,11 @@
                 
                 let infoStatus = `<span class="text-red-600 font-bold">Baru (Belum Verif)</span>`;
                 if (item.status === 'Terverifikasi') {
-                    infoStatus = `<span class="text-amber-600 font-bold">Terverif oleh: ${item.lembaga_verifikasi}</span>`;
+                    infoStatus = `<span class="text-amber-600 font-bold">Terverif oleh: ${item.nama_petugas_verif || item.lembaga_verifikasi || '-'}</span>`;
                 } else if (item.status === 'Proses') {
-                    infoStatus = `<span class="text-blue-600 font-bold">Proses: ${item.lembaga_proses}</span><br><span class="text-[10px] text-slate-500">Posko: <a href="tel:${item.telp_petugas}" class="text-blue-600 underline">${item.telp_petugas}</a></span>`;
+                    infoStatus = `<span class="text-blue-600 font-bold">Proses: ${item.nama_petugas_proses || item.lembaga_proses || '-'}</span><br><span class="text-[10px] text-slate-500">Posko: <a href="tel:${item.telp_petugas}" class="text-blue-600 underline">${item.telp_petugas}</a></span>`;
                 } else if (item.status === 'Selesai') {
-                    infoStatus = `<span class="text-green-600 font-bold">Selesai Ditangani</span>`;
+                    infoStatus = `<span class="text-green-600 font-bold">Selesai (${item.nama_petugas_selesai || '-'})</span>`;
                 }
 
                 let timelineHTML = '';
@@ -378,7 +339,8 @@
 
             const { error } = await supabaseClient.from('laporan').update({ 
                 status: 'Terverifikasi',
-                lembaga_verifikasi: currentUser.nama_lembaga
+                lembaga_verifikasi: currentUser.nama_lembaga,
+                nama_petugas_verif: `${currentUser.nama_lembaga} (${currentUser.username})`
             }).eq('id', id);
 
             if (error) alert('Gagal: ' + error.message);
@@ -408,6 +370,7 @@
             const { error } = await supabaseClient.from('laporan').update({
                 status: 'Proses',
                 lembaga_proses: currentUser.nama_lembaga,
+                nama_petugas_proses: `${currentUser.nama_lembaga} (${currentUser.username})`,
                 penanggung_jawab: currentUser.nama_lembaga,
                 telp_petugas: telp,
                 catatan_lapangan: gabungLog,
@@ -458,6 +421,7 @@
 
             const { error } = await supabaseClient.from('laporan').update({
                 status: 'Selesai',
+                nama_petugas_selesai: `${currentUser.nama_lembaga} (${currentUser.username})`,
                 catatan_lapangan: gabungLog
             }).eq('id', id);
 
