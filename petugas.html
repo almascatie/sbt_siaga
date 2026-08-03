@@ -225,14 +225,22 @@
                     role: sessionStorage.getItem('sbt_role'),
                     telp_posko: sessionStorage.getItem('sbt_telp_posko')
                 };
-
+                
                 if (currentUser.role === 'superadmin') {
                     window.location.href = 'admin.html';
                     return;
                 }
 
+                // PENJAGA: Jika akun kolaborator nekat masuk ke petugas.html, lempar balik ke halamannya
+                if (currentUser.role === 'petugas_kolaborasi') {
+                    window.location.href = 'kolaborator.html';
+                    return;
+                }
+
                 inisialisasiSesiHeader();
                 muatFilterLembaga();
+                ambilDataLaporan();
+                setInterval(ambilDataLaporan, 5000);
             } else {
                 window.location.href = 'login.html';
             }
