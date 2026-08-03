@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pemantauan Pimpinan - Kabupaten SBT</title>
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Konfigurasi Pusat -->
+    <script src="config.js"></script>
+    <!-- Inisialisasi Klien Global -->
+    <script>
+        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    </script>
+    <style>
+        #map { width: 100%; height: 100%; }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .siaga-kritis { animation: pulse-red 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-slate-900 h-screen flex flex-col font-sans overflow-hidden text-slate-100">
+
+    <!-- Top Navigation Bar Pimpinan -->
+    <header class="bg-slate-950 border-b border-slate-800 px-5 py-3 flex justify-between items-center shadow-lg z-20">
+        <div class="flex items-center gap-3">
+            <span class="bg-amber-500 text-slate-950 text-[10px] px-2.5 py-1 rounded font-black uppercase tracking-wider">EKSEKUTIF / PIMPINAN</span>
+            <div>
+                <h1 class="font-bold text-xs md:text-sm text-white" id="header-sapaan">Pusat Pemantauan Pimpinan Daerah</h1>
+                <p class="text-[10px] text-slate-400">Kabupaten Seram Bagian Timur</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                🌐 Web Publik
+            </a>
+            <button onclick="logoutSession()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                🚪 Keluar
+            </button>
+        </div>
+    </header>
+
+    <!-- Ringkasan Statistik Cepat (KPI Bar) -->
+    <div class="bg-slate-900 border-b border-slate-800 px-5 py-2.5 grid grid-cols-4 gap-4 text-center text-xs">
+        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
+            <p class="text-slate-400 text-[10px] uppercase font-semibold">Dalam Verifikasi</p>
+            <p class="text-lg font-black text-amber-400" id="stat-verif">0</p>
+        </div>
+        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
+            <p class="text-slate-400 text-[10px] uppercase font-semibold">Sedang Diproses</p>
+            <p class="text-lg font-black text-blue-400" id="stat-proses">0</p>
+        </div>
+        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
+            <p class="text-slate-400 text-[10px] uppercase font-semibold">Darurat / Butuh Bantuan</p>
+            <p class="text-lg font-black text-red-500 animate-pulse" id="stat-darurat">0</p>
+        </div>
+        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
+            <p class="text-slate-400 text-[10px] uppercase font-semibold">Selesai Ditangani</p>
+            <p class="text-lg font-black text-emerald-400" id="stat-selesai">0</p>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
+        <!-- Peta Interaktif Komando Pimpinan -->
+        <main class="flex-1 relative h-1/2 lg:h-full">
+            <div id="map"></div>
+            
+            <div class="absolute bottom-6 left-4 bg-slate-900/90 backdrop-blur p-3 rounded-lg shadow-xl border border-slate-700 text-xs z-10 space-y-1.5 text-slate-200">
+                <p class="font-bold text-white border-b border-slate-700 pb-1">Keterangan Peta Eksekutif</p>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> <span>Dalam Verifikasi</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> <span>Proses Penanganan</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Darurat / Lintas Sektor</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> <span>Selesai</span></div>
+            </div>
+        </main>
+
+        <!-- Panel Samping: Log Aktivitas & Pemantauan Laporan -->
+        <aside class="w-full lg:w-[650px] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl h-1/2 lg:h-full">
+            <!-- Navigasi Tab Samping -->
+            <div class="grid grid-cols-2 bg-slate-950 border-b border-slate-800 text-center text-xs font-bold">
+                <button onclick="gantiTab('LogAktivitas')" id="tab-LogAktivitas" class="py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900">📝 Log Aktivitas & Lapangan</button>
+                <button onclick="gantiTab('SemuaLaporan')" id="tab-SemuaLaporan" class="py-3 px-1 text-slate-400 hover:text-white">📋 Ringkasan Semua Laporan</button>
+            </div>
+
+            <!-- Konten Tab -->
+            <div class="flex-1 overflow-y-auto p-3 space-y-3" id="panel-konten">
+                <!-- Diisi via script -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- SCRIPT PIMPINAN -->
+    <script>
+        mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
+
+        let laporanList = [];
+        let markers = [];
+        let activeTab = 'LogAktivitas';
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v11', // Tema gelap elegan khusus pimpinan
+            center: [130.4850, -3.1500],
+            zoom: 11
+        });
+
+        window.onload = () => {
+            const isLogged = sessionStorage.getItem('sbt_logged_in');
+            if (isLogged === 'true') {
+                const role = sessionStorage.getItem('sbt_role');
+                const namaLembaga = sessionStorage.getItem('sbt_nama_lembaga');
+
+                // Pengamanan akses (Hanya pimpinan / superadmin yang boleh akses halaman ini)
+                if (role !== 'pimpinan' && role !== 'superadmin' && role !== 'pimpinan / eksekutif') {
+                    // Jika bukan pimpinan, kembalikan ke role masing-masing
+                    if (role === 'petugas_kolaborasi') {
+                        window.location.href = 'kolaborator.html';
+                        return;
+                    } else if (role === 'petugas_utama') {
+                        window.location.href = 'petugas.html';
+                        return;
+                    }
+                }
+
+                document.getElementById('header-sapaan').innerText = `Pemantauan Eksekutif: ${namaLembaga}`;
+                
+                ambilDataPimpinan();
+                setInterval(ambilDataPimpinan, 5000);
+            } else {
+                window.location.href = 'login.html';
+            }
+        };
+
+        function logoutSession() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function ambilDataPimpinan() {
+            try {
+                const { data } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
+                laporanList = data || [];
+
+                hitungStatistik();
+                renderPanel();
+                renderMarkers();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function hitungStatistik() {
+            let verif = 0, proses = 0, darurat = 0, selesai = 0;
+
+            laporanList.forEach(i => {
+                const st = (i.status || '').toLowerCase();
+                if (st.includes('verif') || st.includes('pending') || st.includes('menunggu')) {
+                    verif++;
+                } else if (st.includes('proses')) {
+                    proses++;
+                    if (i.minta_bantuan) darurat++;
+                } else if (st.includes('selesai')) {
+                    selesai++;
+                }
+            });
+
+            document.getElementById('stat-verif').innerText = verif;
+            document.getElementById('stat-proses').innerText = proses;
+            document.getElementById('stat-darurat').innerText = darurat;
+            document.getElementById('stat-selesai').innerText = selesai;
+        }
+
+        function gantiTab(tab) {
+            activeTab = tab;
+            ['LogAktivitas', 'SemuaLaporan'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = 'py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900 font-bold';
+                } else {
+                    btn.className = 'py-3 px-1 text-slate-400 hover:text-white font-normal bg-transparent';
+                }
+            });
+            renderPanel();
+        }
+
+        function renderPanel() {
+            const container = document.getElementById('panel-konten');
+            container.innerHTML = '';
+
+            if (activeTab === 'LogAktivitas') {
+                // Filter laporan yang memiliki catatan lapangan atau update progres
+                const laporanAdaLog = laporanList.filter(i => i.catatan_lapangan && i.catatan_lapangan.trim() !== '');
+
+                if (laporanAdaLog.length === 0) {
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Belum ada catatan aktivitas lapangan yang tercatat dari petugas atau kolaborator.</div>`;
+                    return;
+                }
+
+                laporanAdaLog.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-800/80 border border-slate-700/60 rounded-xl p-3.5 space-y-2 text-xs hover:border-slate-600 transition cursor-pointer';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start border-b border-slate-700/50 pb-2">
+                            <div>
+                                <span class="bg-blue-950 text-blue-300 font-mono text-[10px] px-2 py-0.5 rounded font-bold">${item.id}</span>
+                                <span class="text-slate-400 text-[10px] ml-1.5">Lokasi: <b>${item.lokasi}</b></span>
+                            </div>
+                            <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${item.jenis}</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">Linimasa Log Lapangan:</p>
+                            <pre class="bg-slate-950/80 text-emerald-400 p-2.5 rounded-lg text-[11px] font-mono whitespace-pre-wrap border border-slate-800">${item.catatan_lapangan}</pre>
+                        </div>
+                    `;
+                    card.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
+                    container.appendChild(card);
+                });
+
+            } else {
+                // Tab Ringkasan Semua Laporan
+                if (laporanList.length === 0) {
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Tidak ada data laporan.</div>`;
+                    return;
+                }
+
+                const tableWrap = document.createElement('div');
+                tableWrap.innerHTML = `
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-slate-950 sticky top-0 text-[10px] text-slate-400 uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-2">ID / Waktu</th>
+                                <th class="p-2">Pelapor</th>
+                                <th class="p-2">Lokasi & Jenis</th>
+                                <th class="p-2 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800" id="tabel-semua-body"></tbody>
+                    </table>
+                `;
+                container.appendChild(tableWrap);
+
+                const tbody = document.getElementById('tabel-semua-body');
+                laporanList.forEach(item => {
+                    let badgeStatus = `<span class="bg-blue-950 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold">${item.status}</span>`;
+                    const stLower = (item.status || '').toLowerCase();
+                    if (stLower.includes('verif')) {
+                        badgeStatus = `<span class="bg-amber-950 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold">Verifikasi</span>`;
+                    } else if (item.minta_bantuan) {
+                        badgeStatus = `<span class="bg-red-950 text-red-400 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse">Darurat</span>`;
+                    } else if (stLower.includes('selesai')) {
+                        badgeStatus = `<span class="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold">Selesai</span>`;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-800/50 cursor-pointer';
+                    tr.innerHTML = `
+                        <td class="p-2 font-mono">${item.id}<br><span class="text-[9px] text-slate-500">${new Date(item.created_at).toLocaleTimeString()}</span></td>
+                        <td class="p-2 font-semibold">${item.nama || 'Warga'}</td>
+                        <td class="p-2">${item.lokasi}<br><span class="text-[10px] text-slate-400">${item.jenis}</span></td>
+                        <td class="p-2 text-center">${badgeStatus}</td>
+                    `;
+                    tr.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function renderMarkers() {
+            markers.forEach(m => m.remove());
+            markers = [];
+
+            laporanList.forEach(item => {
+                const el = document.createElement('div');
+                const stLower = (item.status || '').toLowerCase();
+
+                if (stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu')) {
+                    el.className = `rounded-full shadow-md cursor-pointer border-2 border-slate-900`;
+                    el.style.width = '24px';
+                    el.style.height = '24px';
+                    el.style.backgroundColor = '#f59e0b'; // Amber
+                } else if (stLower.includes('proses')) {
+                    if (item.minta_bantuan) {
+                        el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-slate-900 siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
+                        el.style.width = '34px';
+                        el.style.height = '34px';
+                        el.style.backgroundColor = '#dc2626';
+                        el.innerText = '🆘';
+                    } else {
+                        el.className = `rounded-full shadow-md cursor-pointer border-2 border-slate-900`;
+                        el.style.width = '26px';
+                        el.style.height = '26px';
+                        el.style.backgroundColor = '#3b82f6'; // Blue
+                    }
+                } else if (stLower.includes('selesai')) {
+                    el.className = `rounded-full shadow-md cursor-pointer border-2 border-slate-900`;
+                    el.style.width = '22px';
+                    el.style.height = '22px';
+                    el.style.backgroundColor = '#10b981'; // Green
+                } else {
+                    return;
+                }
+
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat([item.lng, item.lat])
+                    .setPopup(new mapboxgl.Popup().setHTML(`<b>${item.lokasi}</b><br>${item.jenis} (${item.status})`))
+                    .addTo(map);
+                markers.push(marker);
+            });
+        }
+    </script>
+</body>
+</html>
