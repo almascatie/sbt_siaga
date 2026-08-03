@@ -428,8 +428,11 @@
                 const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
 
                 if (item.status === 'Baru') {
-                    if (selisihMenit > 30) isKritis = true;
                     color = '#ef4444';
+                    // HANYA berkedip jika status masih 'Baru' DAN waktu sudah melewati 30 menit tanpa verifikasi
+                    if (selisihMenit > 30) {
+                        isKritis = true;
+                    }
                 } else if (item.status === 'Terverifikasi') {
                     color = '#f59e0b';
                 } else if (item.status === 'Proses') {
@@ -438,15 +441,17 @@
                     color = '#22c55e';
                 }
 
-                // Elemen Marker HTML kustom yang lebih besar dan mencolok jika Kritis
+                // Elemen Marker HTML kustom
                 const el = document.createElement('div');
                 if (isKritis) {
+                    // Berkedip mencolok hanya jika lewat 30 menit belum diverifikasi
                     el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
                     el.style.width = '38px';
                     el.style.height = '38px';
                     el.style.backgroundColor = '#dc2626';
                     el.innerText = '🚨';
                 } else {
+                    // Normal (tidak berkedip) jika baru masuk atau sudah direspons/diproses
                     el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
                     el.style.width = '28px';
                     el.style.height = '28px';
@@ -458,7 +463,7 @@
                         <b class="text-slate-800">${item.lokasi} (${item.jenis})</b><br>
                         <p class="italic text-slate-600">"${item.ket || 'Tanpa keterangan'}"</p>
                         <span>Status: <b class="text-red-600">${item.status}</b></span>
-                        ${isKritis ? '<br><span class="text-[10px] bg-red-100 text-red-700 font-bold px-1 rounded">⚠️ KRITIS: >30 Mnt Belum Verif!</span>' : ''}
+                        ${isKritis ? '<br><span class="text-[10px] bg-red-100 text-red-700 font-bold px-1 rounded">⚠️ TERLAMBAT: >30 Mnt Belum Verif!</span>' : ''}
                     </div>
                 `);
 
