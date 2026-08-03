@@ -103,10 +103,10 @@
         </main>
 
         <!-- Panel Samping: Log Aktivitas, Ringkasan Laporan, & Kolaborasi Lembaga -->
-        <aside class="w-full lg:w-[700px] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl h-1/2 lg:h-full">
+        <aside class="w-full lg:w-[720px] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl h-1/2 lg:h-full">
             <!-- Navigasi Tab Samping (3 Tab) -->
             <div class="grid grid-cols-3 bg-slate-950 border-b border-slate-800 text-center text-xs font-bold">
-                <button onclick="gantiTab('LogAktivitas')" id="tab-LogAktivitas" class="py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900">📝 Log & Arahan</button>
+                <button onclick="gantiTab('LogAktivitas')" id="tab-LogAktivitas" class="py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900">📝 Log & Arahan Pimpinan</button>
                 <button onclick="gantiTab('SemuaLaporan')" id="tab-SemuaLaporan" class="py-3 px-1 text-slate-400 hover:text-white">📋 Ringkasan Laporan</button>
                 <button onclick="gantiTab('KolaborasiLembaga')" id="tab-KolaborasiLembaga" class="py-3 px-1 text-slate-400 hover:text-white">🤝 Kolaborasi Lembaga</button>
             </div>
@@ -126,7 +126,7 @@
         let daftarKolaborasi = [];
         let markers = [];
         let activeTab = 'LogAktivitas';
-        let filterStatusTabel = 'Semua'; // Untuk filter klik KPI card
+        let filterStatusTabel = 'Semua';
         let currentUser = null;
 
         const map = new mapboxgl.Map({
@@ -226,23 +226,31 @@
 
                 laporanList.forEach(item => {
                     const card = document.createElement('div');
-                    card.className = 'bg-slate-800/80 border border-slate-700/60 rounded-xl p-3.5 space-y-2 text-xs hover:border-slate-600 transition';
+                    card.className = 'bg-slate-800/90 border border-slate-700 rounded-xl p-4 space-y-3 shadow-lg';
+                    
+                    // Format catatan agar lebih enak dibaca (menghilangkan format kaku terminal)
+                    let catatanBersih = item.catatan_lapangan || 'Belum ada aktivitas penanganan lapangan tercatat.';
+                    
                     card.innerHTML = `
-                        <div class="flex justify-between items-start border-b border-slate-700/50 pb-2 cursor-pointer" onclick="map.flyTo({ center: [${item.lng}, ${item.lat}], zoom: 14 })">
+                        <div class="flex justify-between items-start border-b border-slate-700/60 pb-2 cursor-pointer" onclick="map.flyTo({ center: [${item.lng}, ${item.lat}], zoom: 14 })">
                             <div>
-                                <span class="bg-blue-950 text-blue-300 font-mono text-[10px] px-2 py-0.5 rounded font-bold">${item.id}</span>
-                                <span class="text-slate-300 text-[11px] ml-1.5 font-bold">Lokasi: ${item.lokasi}</span>
+                                <span class="bg-amber-500/20 text-amber-300 font-bold text-[10px] px-2 py-0.5 rounded uppercase">${item.jenis}</span>
+                                <h3 class="text-white font-bold text-sm mt-1">📍 Lokasi: ${item.lokasi}</h3>
+                                <p class="text-slate-400 text-[11px]">Pelapor: <b class="text-slate-200">${item.nama || 'Warga'}</b> | Waktu: ${new Date(item.created_at).toLocaleTimeString()}</p>
                             </div>
-                            <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${item.jenis}</span>
+                            <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-1 rounded font-semibold">${item.status}</span>
                         </div>
-                        <div>
-                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">Linimasa Log Lapangan & Arahan:</p>
-                            <pre class="bg-slate-950/80 text-emerald-400 p-2.5 rounded-lg text-[11px] font-mono whitespace-pre-wrap border border-slate-800 max-h-36 overflow-y-auto">${item.catatan_lapangan || 'Belum ada catatan aktivitas.'}</pre>
+                        
+                        <!-- Log Lapangan yang Bersih & Nyaman Dibaca -->
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 space-y-1.5">
+                            <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Kronologi & Aktivitas Lapangan:</p>
+                            <div class="text-slate-200 text-xs whitespace-pre-line leading-relaxed font-sans">${catatanBersih}</div>
                         </div>
-                        <!-- Form Tambah Komentar / Apresiasi Pimpinan -->
+
+                        <!-- Form Komentar / Apresiasi Pimpinan -->
                         <div class="pt-1 flex gap-2">
-                            <input type="text" id="input-komentar-${item.id}" placeholder="Tulis instruksi / apresiasi pimpinan..." class="flex-1 bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white outline-none focus:border-amber-500">
-                            <button onclick="kirimKomentarPimpinan('${item.id}')" class="bg-amber-600 hover:bg-amber-700 text-slate-950 font-bold px-3 py-1.5 rounded transition text-[11px]">Kirim Pesan</button>
+                            <input type="text" id="input-komentar-${item.id}" placeholder="Tulis instruksi atau apresiasi pimpinan..." class="flex-1 bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white outline-none focus:border-amber-500">
+                            <button onclick="kirimKomentarPimpinan('${item.id}')" class="bg-amber-600 hover:bg-amber-700 text-slate-950 font-bold px-4 py-2 rounded transition text-xs shadow">Kirim Pesan</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -258,8 +266,8 @@
                 const filterBar = document.createElement('div');
                 filterBar.className = 'flex justify-between items-center mb-2 px-1 text-xs';
                 filterBar.innerHTML = `
-                    <span class="text-slate-300 font-semibold">Menampilkan: <b class="text-amber-400">${filterStatusTabel}</b></span>
-                    <button onclick="filterStatusTabel='Semua'; renderPanel();" class="text-slate-400 hover:text-white text-[11px] underline">Reset Filter</button>
+                    <span class="text-slate-300 font-semibold">Filter Status: <b class="text-amber-400">${filterStatusTabel}</b></span>
+                    <button onclick="filterStatusTabel='Semua'; renderPanel();" class="text-slate-400 hover:text-white text-[11px] underline">Tampilkan Semua</button>
                 `;
                 container.appendChild(filterBar);
 
@@ -268,10 +276,10 @@
                     <table class="w-full text-left border-collapse text-xs">
                         <thead class="bg-slate-950 sticky top-0 text-[10px] text-slate-400 uppercase border-b border-slate-800">
                             <tr>
-                                <th class="p-2">ID / Waktu</th>
-                                <th class="p-2">Pelapor</th>
-                                <th class="p-2">Lokasi & Jenis</th>
-                                <th class="p-2 text-center">Status</th>
+                                <th class="p-2.5">Waktu Laporan</th>
+                                <th class="p-2.5">Pelapor</th>
+                                <th class="p-2.5">Lokasi & Kejadian</th>
+                                <th class="p-2.5 text-center">Status / Penanganan</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800" id="tabel-semua-body"></tbody>
@@ -281,7 +289,6 @@
 
                 const tbody = document.getElementById('tabel-semua-body');
                 
-                // Proses Filter Berdasarkan Klik Statistik
                 const laporanFiltered = laporanList.filter(item => {
                     const stLower = (item.status || '').toLowerCase();
                     if (filterStatusTabel === 'Verifikasi') return stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu');
@@ -292,7 +299,7 @@
                 });
 
                 if (laporanFiltered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">Tidak ada laporan dengan kategori "${filterStatusTabel}".</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">Tidak ada laporan dengan filter "${filterStatusTabel}".</td></tr>`;
                     return;
                 }
 
@@ -310,23 +317,21 @@
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-800/50 cursor-pointer';
                     tr.innerHTML = `
-                        <td class="p-2 font-mono">${item.id}<br><span class="text-[9px] text-slate-500">${new Date(item.created_at).toLocaleTimeString()}</span></td>
-                        <td class="p-2 font-semibold">${item.nama || 'Warga'}</td>
-                        <td class="p-2">${item.lokasi}<br><span class="text-[10px] text-slate-400">${item.jenis}</span></td>
-                        <td class="p-2 text-center">${badgeStatus}</td>
+                        <td class="p-2.5 font-mono text-[11px] text-slate-300">${new Date(item.created_at).toLocaleString()}</td>
+                        <td class="p-2.5 font-semibold text-white">${item.nama || 'Warga'}</td>
+                        <td class="p-2.5"><b class="text-amber-300">${item.lokasi}</b><br><span class="text-[10px] text-slate-400">${item.jenis}</span></td>
+                        <td class="p-2.5 text-center">${badgeStatus}</td>
                     `;
                     tr.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
                     tbody.appendChild(tr);
                 });
 
             } else if (activeTab === 'KolaborasiLembaga') {
-                // Tab Khusus Kolaborasi Lembaga Lintas Sektor
                 if (daftarKolaborasi.length === 0) {
                     container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Belum ada data instansi kolaborator yang diterjunkan ke lapangan.</div>`;
                     return;
                 }
 
-                // Kelompokkan bantuan berdasarkan laporan_id
                 const kolabMap = {};
                 daftarKolaborasi.forEach(k => {
                     if (!kolabMap[k.laporan_id]) kolabMap[k.laporan_id] = [];
@@ -343,29 +348,34 @@
                 laporanAdaKolab.forEach(item => {
                     const listBantuan = kolabMap[item.id];
                     const card = document.createElement('div');
-                    card.className = 'bg-slate-800/80 border border-slate-700/60 rounded-xl p-3.5 space-y-2 text-xs hover:border-slate-600 transition';
+                    card.className = 'bg-slate-800/90 border border-slate-700 rounded-xl p-4 space-y-3 shadow-lg';
                     
                     let daftarLembagaHtml = '';
                     listBantuan.forEach(b => {
                         daftarLembagaHtml += `
-                            <div class="bg-slate-900/90 border border-slate-700 p-2 rounded-lg space-y-0.5">
-                                <p class="text-amber-300 font-bold">🏛️ ${b.nama_lembaga} <span class="text-[10px] text-slate-400 font-normal">(${b.username_petugas})</span></p>
-                                <p class="text-slate-300 text-[11px]">Dukungan: <b class="text-white">${b.jenis_bantuan}</b></p>
+                            <div class="bg-slate-900 border border-slate-700/80 p-2.5 rounded-lg flex justify-between items-center text-xs">
+                                <div>
+                                    <span class="text-amber-400 font-black">🏛️ ${b.nama_lembaga}</span> 
+                                    <span class="text-slate-400 text-[11px] ml-1">menyalurkan bantuan:</span>
+                                    <b class="text-white block mt-0.5">${b.jenis_bantuan}</b>
+                                </div>
                             </div>
                         `;
                     });
 
                     card.innerHTML = `
-                        <div class="flex justify-between items-start border-b border-slate-700/50 pb-2 cursor-pointer" onclick="map.flyTo({ center: [${item.lng}, ${item.lat}], zoom: 14 })">
+                        <div class="flex justify-between items-start border-b border-slate-700/60 pb-2 cursor-pointer" onclick="map.flyTo({ center: [${item.lng}, ${item.lat}], zoom: 14 })">
                             <div>
-                                <span class="bg-purple-950 text-purple-300 font-mono text-[10px] px-2 py-0.5 rounded font-bold">${item.id}</span>
-                                <span class="text-slate-300 text-[11px] ml-1.5 font-bold">Lokasi: ${item.lokasi}</span>
+                                <span class="bg-purple-500/20 text-purple-300 font-bold text-[10px] px-2 py-0.5 rounded uppercase">${item.jenis}</span>
+                                <h3 class="text-white font-bold text-sm mt-1">📍 Lokasi: ${item.lokasi}</h3>
+                                <p class="text-slate-400 text-[11px]">Waktu Laporan: ${new Date(item.created_at).toLocaleString()} | Pelapor: <b class="text-slate-200">${item.nama || 'Warga'}</b></p>
                             </div>
-                            <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${item.jenis}</span>
+                            <span class="text-[10px] bg-purple-950 text-purple-300 border border-purple-800 px-2 py-1 rounded font-semibold">Lintas Sektor</span>
                         </div>
-                        <div class="space-y-1.5">
-                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Daftar Lembaga & Bantuan Terjun:</p>
-                            <div class="space-y-1.5">
+                        
+                        <div class="space-y-2">
+                            <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Daftar Lembaga yang Terjun & Bantuan:</p>
+                            <div class="space-y-2">
                                 ${daftarLembagaHtml}
                             </div>
                         </div>
@@ -442,10 +452,9 @@
 
                 const popupContent = `
                     <div class="text-slate-900 text-xs space-y-1 p-1">
-                        <p class="font-bold border-b pb-1 text-purple-900">ID: ${item.id} (${item.status})</p>
+                        <p class="font-bold border-b pb-1 text-purple-900">Lokasi: ${item.lokasi} (${item.status})</p>
                         <p><b>Pelapor:</b> ${item.nama || 'Warga'}</p>
-                        <p><b>Lokasi:</b> ${item.lokasi}</p>
-                        <p><b>Jenis:</b> ${item.jenis}</p>
+                        <p><b>Jenis Kejadian:</b> ${item.jenis}</p>
                         <p class="italic text-slate-600">"${item.ket || '-'}"</p>
                     </div>
                 `;
