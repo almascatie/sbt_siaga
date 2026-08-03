@@ -19,7 +19,7 @@
     </script>
     <style>
         #map { width: 100%; height: 100%; }
-        @keyframes pulse-red {
+@keyframes pulse-red {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
@@ -316,6 +316,10 @@
         function bukaModalKolaborasi(id) {
             document.getElementById('kolaborasi-id-laporan').value = id;
             document.getElementById('label-lembaga-kolaborasi').innerText = currentUser.nama_lembaga;
+            
+            // RESET FORM AGAR KOSONG SETIAP KALI DIBUKA
+            document.getElementById('form-kolaborasi').reset();
+            
             document.getElementById('modal-kolaborasi').classList.remove('hidden');
         }
         function tutupModalKolaborasi() { document.getElementById('modal-kolaborasi').classList.add('hidden'); }
@@ -344,7 +348,10 @@
 
         function bukaModalCatatan(id) {
             document.getElementById('catatan-id-laporan').value = id;
-            document.getElementById('input-teks-catatan').value = '';
+            
+            // RESET FORM CATATAN AGAR KOSONG SETIAP KALI DIBUKA
+            document.getElementById('form-catatan').reset();
+            
             document.getElementById('modal-catatan').classList.remove('hidden');
         }
         function tutupModalCatatan() { document.getElementById('modal-catatan').classList.add('hidden'); }
