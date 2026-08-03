@@ -104,8 +104,10 @@
                     <input type="text" id="new-pass" required placeholder="password" class="w-full p-2 border border-slate-300 rounded font-mono">
                 </div>
                 <div>
-                    <label class="block font-medium text-slate-600 mb-1">Nama Lembaga / Instansi</label>
-                    <input type="text" id="new-nama" required placeholder="Polres SBT / PKS SBT" class="w-full p-2 border border-slate-300 rounded">
+                    <label class="block font-medium text-slate-600 mb-1">Pilih Lembaga / Instansi</label>
+                    <select id="new-nama" required class="w-full p-2 border border-slate-300 rounded bg-white">
+                        <option value="">-- Pilih Lembaga --</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Role Akses</label>
@@ -260,24 +262,31 @@
             });
         }
 
-        // 2. Muat Tabel Daftar Lembaga
+        // 2. Muat Tabel Daftar Lembaga & Dropdown Form Akun
         async function muatDaftarLembaga() {
             const tbody = document.getElementById('tabel-lembaga-body');
+            const selectDropdown = document.getElementById('new-nama');
+            
             tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Memuat data lembaga...</td></tr>`;
 
             const { data, error } = await supabaseClient.from('lembaga').select('*').order('nama_lembaga', { ascending: true });
             if (error) {
                 tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Gagal memuat: ${error.message}.</td></tr>`;
+                selectDropdown.innerHTML = `<option value="">-- Gagal memuat lembaga --</option>`;
                 return;
             }
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada data lembaga terdaftar.</td></tr>`;
+                selectDropdown.innerHTML = `<option value="">-- Belum ada lembaga tersedia --</option>`;
                 return;
             }
 
             tbody.innerHTML = '';
+            selectDropdown.innerHTML = `<option value="">-- Pilih Lembaga Terkait --</option>`;
+
             data.forEach(item => {
+                // Isi ke tabel daftar lembaga
                 const tr = document.createElement('tr');
                 tr.className = 'border-b hover:bg-slate-50';
                 tr.innerHTML = `
@@ -289,6 +298,12 @@
                     </td>
                 `;
                 tbody.appendChild(tr);
+
+                // Masukkan ke pilihan dropdown form tambah akun
+                const opt = document.createElement('option');
+                opt.value = item.nama_lembaga;
+                opt.textContent = item.nama_lembaga;
+                selectDropdown.appendChild(opt);
             });
         }
 
@@ -298,7 +313,7 @@
             const akunBaru = {
                 username: document.getElementById('new-user').value.trim(),
                 password: document.getElementById('new-pass').value.trim(),
-                nama_lembaga: document.getElementById('new-nama').value.trim(),
+                nama_lembaga: document.getElementById('new-nama').value,
                 role: document.getElementById('new-role').value,
                 telp_posko: document.getElementById('new-telp').value.trim() || '-'
             };
