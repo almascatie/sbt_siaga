@@ -117,22 +117,32 @@
         window.onload = () => {
             const isLogged = sessionStorage.getItem('sbt_logged_in');
             if (isLogged === 'true') {
-                const role = sessionStorage.getItem('sbt_role');
-                const namaLembaga = sessionStorage.getItem('sbt_nama_lembaga');
+                currentUser = {
+                    id: sessionStorage.getItem('sbt_user_id'),
+                    username: sessionStorage.getItem('sbt_username'),
+                    nama_lembaga: sessionStorage.getItem('sbt_nama_lembaga'),
+                    role: (sessionStorage.getItem('sbt_role') || '').toLowerCase().trim(),
+                    telp_posko: sessionStorage.getItem('sbt_telp_posko')
+                };
 
-                // Pengamanan akses (Hanya pimpinan / superadmin yang boleh akses halaman ini)
-                if (role !== 'pimpinan' && role !== 'superadmin' && role !== 'pimpinan / eksekutif') {
-                    // Jika bukan pimpinan, kembalikan ke role masing-masing
-                    if (role === 'petugas_kolaborasi') {
+                // Jika superadmin, arahkan ke admin.html
+                if (currentUser.role.includes('superadmin')) {
+                    window.location.href = 'admin.html';
+                    return;
+                }
+                
+                // PENGAMANAN: Pastikan hanya role pimpinan / superadmin yang boleh di sini
+                // Jika bukan pimpinan, lempar ke halaman yang sesuai
+                if (!currentUser.role.includes('pimpinan') && !currentUser.role.includes('eksekutif')) {
+                    if (currentUser.role.includes('kolaborasi')) {
                         window.location.href = 'kolaborator.html';
-                        return;
-                    } else if (role === 'petugas_utama') {
+                    } else {
                         window.location.href = 'petugas.html';
-                        return;
                     }
+                    return;
                 }
 
-                document.getElementById('header-sapaan').innerText = `Pemantauan Eksekutif: ${namaLembaga}`;
+                document.getElementById('header-sapaan').innerText = `Pemantauan Eksekutif: ${sessionStorage.getItem('sbt_nama_lembaga')}`;
                 
                 ambilDataPimpinan();
                 setInterval(ambilDataPimpinan, 5000);
