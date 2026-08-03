@@ -5,7 +5,7 @@ let markers = [];
 let activeTab = 'Semua';
 let currentUser = null;
 let daftarKolaborasi = [];
-let selectedReportId = null; // Menyimpan ID laporan yang sedang aktif (Mode Fokus)
+let selectedReportId = null;
 
 const map = new mapboxgl.Map({
     container: 'map',
@@ -30,7 +30,6 @@ window.onload = () => {
             return;
         }
 
-        // PENJAGA: Jika akun kolaborator nekat masuk ke petugas.html, lempar balik ke halamannya
         if (currentUser.role === 'petugas_kolaborasi') {
             window.location.href = 'kolaborator.html';
             return;
@@ -119,7 +118,6 @@ function hitungBadgeTab() {
     if (elSelesai) elSelesai.innerText = laporanList.filter(i => i.status === 'Selesai').length;
 }
 
-// Pengecekan Warning Kritis >30 Menit untuk ditampilkan di kotak pojok kiri atas peta
 function cekWarningKritis() {
     const sekarang = new Date().getTime();
     const adaKritis = laporanList.some(item => {
@@ -133,11 +131,8 @@ function cekWarningKritis() {
 
     const warningBox = document.getElementById('warning-box-30m');
     if (warningBox) {
-        if (adaKritis) {
-            warningBox.classList.remove('hidden');
-        } else {
-            warningBox.classList.add('hidden');
-        }
+        if (adaKritis) warningBox.classList.remove('hidden');
+        else warningBox.classList.add('hidden');
     }
 }
 
@@ -176,14 +171,16 @@ function renderTombolKontakAman(nomor) {
     }
     return `
         <div class="inline-flex items-center gap-1.5 mt-1">
-            <a href="tel:${nomor}" title="Panggilan Telepon" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded shadow-sm transition flex items-center justify-center text-[10px] font-bold">
-                📞 Call
-            </a>
-            <a href="https://wa.me/${cleanNum}" target="_blank" title="WhatsApp Pelapor" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded shadow-sm transition flex items-center justify-center text-[10px] font-bold">
-                💬 WhatsApp
-            </a>
+            <a href="tel:${nomor}" title="Panggilan Telepon" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded shadow-sm transition flex items-center justify-center text-[10px] font-bold">📞 Call</a>
+            <a href="https://wa.me/${cleanNum}" target="_blank" title="WhatsApp Pelapor" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded shadow-sm transition flex items-center justify-center text-[10px] font-bold">💬 WhatsApp</a>
         </div>
     `;
+}
+
+// Fungsi pembantu membuat format identitas ringkas (Contoh: Budi - Damkar)
+function formatIdentitasRingkas(namaUser, namaLembaga) {
+    const lSingkat = namaLembaga ? namaLembaga.split(' ')[0] : 'Sektor';
+    return `${namaUser || 'Petugas'} (${lSingkat})`;
 }
 
 function renderTabel() {
@@ -217,7 +214,6 @@ function renderTabel() {
     filtered.forEach(item => {
         const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
 
-        // Format waktu & ID (Hierarki: Jam menonjol di atas, ID kecil di bawah)
         const jamLapor = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const waktuIdHTML = `
             <div class="leading-tight">
@@ -226,7 +222,6 @@ function renderTabel() {
             </div>
         `;
 
-        // TOMBOL KONTAK HANYA MUNCUL DI TAB BARU DAN TERVERIFIKASI
         let tombolKontakHTML = '';
         if (item.status === 'Baru' || item.status === 'Terverifikasi') {
             tombolKontakHTML = renderTombolKontakAman(item.telp);
@@ -237,9 +232,7 @@ function renderTabel() {
             infoStatus = `
                 <div class="text-[11px] space-y-0.5">
                     <span class="text-amber-600 font-bold">Diverifikasi Oleh:</span><br>
-                    <span class="text-slate-700 font-medium">
-                        ${item.nama_petugas_verif || '-'}
-                    </span>   
+                    <span class="text-slate-700 font-medium">${item.nama_petugas_verif || '-'}</span>   
                 </div>
             `;
         } else if (item.status === 'Proses') {
@@ -265,8 +258,7 @@ function renderTabel() {
                 <div class="space-y-1 text-[11px]">
                     <div class="bg-blue-50/70 p-2 rounded-lg border border-blue-100">
                         <p class="font-bold text-blue-900 text-[10px] uppercase">👨‍🚒 Penanggung Jawab Utama</p>
-                        <p class="font-semibold text-slate-800">${item.lembaga_proses || item.nama_petugas_proses || '-'}</p>
-                        <p class="text-[10px] text-slate-500 font-mono">Hotline: ${item.telp_petugas || '-'}</p>
+                        <p class="font-semibold text-slate-800">${item.lembaga_proses || '-'}</p>
                     </div>
                     ${alertDaruratHTML}
                     ${kolabBlokHTML}
@@ -281,14 +273,17 @@ function renderTabel() {
             `;
         }
 
-        // Log Lapangan Ringkas
+        // Log Lapangan Ringkas + Tombol "Lihat Semua Log"
         let logRingkasHTML = '';
         if (item.catatan_lapangan) {
             const barisLog = item.catatan_lapangan.trim().split('\n');
             const updateTerakhir = barisLog[barisLog.length - 1];
             logRingkasHTML = `
                 <div class="mt-2 p-2 bg-amber-50/60 border border-amber-200/80 rounded-lg text-[10.5px] text-slate-700">
-                    <p class="font-bold text-amber-800 text-[10px] mb-0.5">📝 Update Log Lapangan:</p>
+                    <div class="flex justify-between items-center mb-0.5">
+                        <p class="font-bold text-amber-800 text-[10px]">📝 Update Log Lapangan:</p>
+                        <button onclick="event.stopPropagation(); bukaModalDetailLog('${item.id}')" class="text-[10px] text-blue-600 hover:underline font-bold">🔍 Lihat Semua (${barisLog.length})</button>
+                    </div>
                     <p class="font-mono text-[10px] text-slate-600 leading-tight">${updateTerakhir}</p>
                 </div>
             `;
@@ -345,8 +340,6 @@ function renderTabel() {
         }
 
         const tr = document.createElement('tr');
-        
-        // Mode Fokus: Periksa apakah baris ini sedang aktif dipilih
         const isSelected = selectedReportId === item.id;
         tr.className = `border-b transition-all duration-200 cursor-pointer ${
             selectedReportId !== null 
@@ -374,11 +367,10 @@ function renderTabel() {
             </td>
         `;
 
-        // Interaksi klik baris tabel untuk mengaktifkan Mode Fokus & geser peta
         tr.onclick = () => {
             selectedReportId = item.id;
-            renderTabel(); // Render ulang tabel untuk efek redup/aktif
-            renderMarkers(); // Perbarui tampilan marker di peta
+            renderTabel();
+            renderMarkers();
             map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
         };
 
@@ -420,7 +412,6 @@ function renderMarkers() {
         const el = document.createElement('div');
         const isSelectedMarker = selectedReportId === item.id;
 
-        // Mode Fokus pada Marker: Jika dipilih, ukuran membesar dengan ring putih khas
         if (isSelectedMarker) {
             el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white flex items-center justify-center font-black text-white text-xs`;
             el.style.width = '42px';
@@ -450,7 +441,6 @@ function renderMarkers() {
             </div>
         `);
 
-        // Event klik marker juga mengaktifkan Mode Fokus
         el.addEventListener('click', () => {
             selectedReportId = item.id;
             renderTabel();
@@ -469,12 +459,12 @@ function renderMarkers() {
 async function aksiVerifikasi(id) {
     if (!confirm(`Verifikasi laporan ini atas nama instansi [${currentUser.nama_lembaga}]?`)) return;
 
-    const detailPetugas = `${currentUser.nama_lembaga} (Petugas: ${currentUser.username})`;
+    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
 
     const { error } = await supabaseClient.from('laporan').update({
         status: 'Terverifikasi',
         lembaga_verifikasi: currentUser.nama_lembaga,
-        nama_petugas_verif: detailPetugas
+        nama_petugas_verif: ringkas
     }).eq('id', id);
 
     if (error) alert('Gagal: ' + error.message);
@@ -500,8 +490,8 @@ document.getElementById('form-proses').addEventListener('submit', async (e) => {
     const telp = currentUser.telp_posko || '-';
     const jam = parseFloat(document.getElementById('input-estimasi-jam').value) || 1;
 
-    const detailPetugas = `${currentUser.nama_lembaga} (Petugas: ${currentUser.username})`;
-    const logBaru = `[${new Date().toLocaleTimeString()}] ${detailPetugas} mulai menangani utama (Hotline Posko: ${telp})\n`;
+    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
+    const logBaru = `[${new Date().toLocaleTimeString()}] ${ringkas} mulai menangani utama\n`;
 
     const itemLama = laporanList.find(i => i.id === id);
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
@@ -509,7 +499,7 @@ document.getElementById('form-proses').addEventListener('submit', async (e) => {
     const { error } = await supabaseClient.from('laporan').update({
         status: 'Proses',
         lembaga_proses: currentUser.nama_lembaga,
-        nama_petugas_proses: detailPetugas,
+        nama_petugas_proses: ringkas,
         penanggung_jawab: currentUser.nama_lembaga,
         telp_petugas: telp,
         catatan_lapangan: gabungLog,
@@ -529,11 +519,11 @@ async function aksiMintaBantuan(id, statusBantuan) {
     const pesan = statusBantuan ? 'Aktifkan status Minta Bantuan / Butuh Kolaborasi untuk laporan ini?' : 'Nonaktifkan status Minta Bantuan?';
     if (!confirm(pesan)) return;
 
-    const detailPetugas = `${currentUser.nama_lembaga} (${currentUser.username})`;
+    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
     const itemLama = laporanList.find(i => i.id === id);
     const logBaru = statusBantuan
-        ? `[${new Date().toLocaleTimeString()}] 🆘 ${detailPetugas} MENYATAKAN BUTUH BANTUAN LINTAS SEKTOR.\n`
-        : `[${new Date().toLocaleTimeString()}] ✓ ${detailPetugas} mencabut status minta bantuan.\n`;
+        ? `[${new Date().toLocaleTimeString()}] 🆘 ${ringkas} BUTUH BANTUAN LINTAS SEKTOR.\n`
+        : `[${new Date().toLocaleTimeString()}] ✓ ${ringkas} mencabut status minta bantuan.\n`;
 
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
@@ -563,7 +553,7 @@ document.getElementById('form-kolaborasi').addEventListener('submit', async (e) 
     const jenisBantuan = document.getElementById('input-jenis-bantuan').value;
     const ketBantuan = document.getElementById('input-ket-bantuan').value.trim();
 
-    const detailPetugas = `${currentUser.nama_lembaga} (${currentUser.username})`;
+    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
 
     const { error: errKolaborasi } = await supabaseClient.from('bantuan_kolaborasi').insert([{
         laporan_id: id,
@@ -578,15 +568,11 @@ document.getElementById('form-kolaborasi').addEventListener('submit', async (e) 
     }
 
     const itemLama = laporanList.find(i => i.id === id);
-    const logBaru = `[${new Date().toLocaleTimeString()}] 🤝 Bantuan Kolaborasi dari ${detailPetugas}: [${jenisBantuan}] ${ketBantuan}\n`;
+    const logBaru = `[${new Date().toLocaleTimeString()}] 🤝 Kolaborasi dari ${ringkas}: [${jenisBantuan}] ${ketBantuan}\n`;
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
-    const updatePayload = {
-        catatan_lapangan: gabungLog
-    };
-    if (itemLama.minta_bantuan) {
-        updatePayload.minta_bantuan = false;
-    }
+    const updatePayload = { catatan_lapangan: gabungLog };
+    if (itemLama.minta_bantuan) updatePayload.minta_bantuan = false;
 
     const { error: errUpdate } = await supabaseClient.from('laporan').update(updatePayload).eq('id', id);
 
@@ -612,9 +598,9 @@ document.getElementById('form-catatan').addEventListener('submit', async (e) => 
     const id = document.getElementById('catatan-id-laporan').value;
     const teks = document.getElementById('input-teks-catatan').value;
 
-    const detailPetugas = `${currentUser.nama_lembaga} (${currentUser.username})`;
+    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
     const itemLama = laporanList.find(i => i.id === id);
-    const logBaru = `[${new Date().toLocaleTimeString()}] (${detailPetugas}): ${teks}\n`;
+    const logBaru = `[${new Date().toLocaleTimeString()}] (${ringkas}): ${teks}\n`;
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
     const { error } = await supabaseClient.from('laporan').update({
@@ -631,22 +617,22 @@ document.getElementById('form-catatan').addEventListener('submit', async (e) => 
 async function aksiSelesai(id) {
     if (!confirm('Tandai laporan ini sudah SELESAI penanganannya?')) return;
 
-    const detailPetugas = `${currentUser.nama_lembaga} (Petugas: ${currentUser.username})`;
+    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
     const itemLama = laporanList.find(i => i.id === id);
 
     const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === id);
-    let daftarLembagaBantu = itemLama.lembaga_proses || 'Lembaga Utama';
+    let daftarLembagaBantu = currentUser.nama_lembaga;
     if (kolabLaporan.length > 0) {
         const namaKolabUnik = [...new Set(kolabLaporan.map(k => k.nama_lembaga))];
         daftarLembagaBantu += ', ' + namaKolabUnik.join(', ');
     }
 
-    const logBaru = `[${new Date().toLocaleTimeString()}] (${detailPetugas}): Penanganan SELESAI ditangani oleh [${daftarLembagaBantu}].\n`;
+    const logBaru = `[${new Date().toLocaleTimeString()}] (${ringkas}): SELESAI ditangani oleh [${daftarLembagaBantu}].\n`;
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
     const { error } = await supabaseClient.from('laporan').update({
         status: 'Selesai',
-        nama_petugas_selesai: `${detailPetugas} (Dibantu: ${daftarLembagaBantu})`,
+        nama_petugas_selesai: `${ringkas} (Dibantu: ${daftarLembagaBantu})`,
         catatan_lapangan: gabungLog,
         minta_bantuan: false
     }).eq('id', id);
@@ -657,6 +643,39 @@ async function aksiSelesai(id) {
         gantiTab('Selesai');
         ambilDataLaporan();
     }
+}
+
+// Modal Transparan untuk Melihat Seluruh Riwayat Log Lapangan
+function bukaModalDetailLog(id) {
+    const item = laporanList.find(i => i.id === id);
+    if (!item) return;
+
+    // Buat atau gunakan elemen modal dinamis untuk menampilkan semua log
+    let modal = document.getElementById('modal-view-log');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modal-view-log';
+        modal.className = 'fixed inset-0 bg-black/50 z-50 flex justify-center items-center p-3';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div class="bg-white rounded-xl max-w-lg w-full p-5 shadow-2xl text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div>
+                    <h3 class="font-bold text-sm text-slate-800">📄 Riwayat Lengkap Log Lapangan</h3>
+                    <p class="text-[10px] text-slate-500">ID Laporan: <span class="font-mono">${item.id}</span> - ${item.lokasi}</p>
+                </div>
+                <button onclick="document.getElementById('modal-view-log').remove()" class="text-slate-400 hover:text-slate-600 font-bold text-base px-2">✕</button>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-700 max-h-72 overflow-y-auto whitespace-pre-line leading-relaxed">
+                ${item.catatan_lapangan || 'Belum ada catatan log lapangan.'}
+            </div>
+            <div class="text-right">
+                <button onclick="document.getElementById('modal-view-log').remove()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-xs">Tutup</button>
+            </div>
+        </div>
+    `;
 }
 
 map.on('load', () => {
