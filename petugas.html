@@ -21,10 +21,10 @@
         #map { width: 100%; height: 100%; }
         @keyframes pulse-red {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-        .siaga-kritis { animation: pulse-red 2s infinite; }
+        .siaga-kritis { animation: pulse-red 1.5s infinite; }
     </style>
 </head>
 <body class="bg-slate-50 h-screen flex flex-col font-sans overflow-hidden">
@@ -39,8 +39,12 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
+            <!-- Tombol Pintas ke Halaman Input Laporan Mandiri -->
+            <a href="tambah_laporan.html" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition flex items-center gap-1">
+                📝 Input Laporan Mandiri
+            </a>
             <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
-                🌐 Ke Web Publik
+                🌐 Web Publik
             </a>
             <button onclick="logoutSession()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
                 🚪 Keluar
@@ -55,7 +59,7 @@
             <div id="map"></div>
             <div class="absolute top-4 left-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-md border border-slate-200 text-xs z-10 space-y-1.5">
                 <p class="font-bold text-slate-800">Indikator Peta & Status</p>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Baru / Belum Verif (&gt;30m Kritis)</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Baru / Belum Verif (&gt;30m Kritis Kedip)</span></div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> <span>Terverifikasi (Siap Proses)</span></div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> <span>Proses (Lintas Sektor Bergerak)</span></div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-600 inline-block"></span> <span>Selesai</span></div>
@@ -256,7 +260,6 @@
             renderTabel();
         }
 
-        // Fungsi Tombol Ikon Kontak Aman (Tanpa menampilkan teks nomor telepon)
         function renderTombolKontakAman(nomor) {
             if (!nomor) return '<span class="text-slate-400">-</span>';
             let cleanNum = nomor.replace(/[^0-9+]/g, '');
@@ -321,7 +324,6 @@
                     timelineHTML = `<div class="mt-1.5 p-1.5 bg-amber-50 border border-amber-200 rounded text-[10px] text-slate-700 whitespace-pre-line font-mono max-h-24 overflow-y-auto"><b>Log Lapangan:</b><br>${item.catatan_lapangan}</div>`;
                 }
 
-                // Field Keterangan / Detail Laporan dari Warga
                 const ketLaporan = item.ket ? `<div class="mt-1 text-slate-600 text-[11px] italic bg-slate-50 p-1.5 rounded border border-slate-100">"${item.ket}"</div>` : `<div class="mt-1 text-slate-400 text-[10px] italic">Tanpa keterangan tambahan</div>`;
 
                 const canEdit = currentUser && currentUser.role !== 'pimpinan';
@@ -374,8 +376,11 @@
                 const waktuLapor = new Date(item.created_at).getTime();
                 const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
 
+                // LOGIKA KEDAP-KEDIP KRITIS: Hanya menyala jika status "Baru" DAN waktu > 30 menit
                 if (item.status === 'Baru') {
-                    if (selisihMenit > 30) isKritis = true;
+                    if (selisihMenit > 30) {
+                        isKritis = true;
+                    }
                     color = '#ef4444';
                 } else if (item.status === 'Terverifikasi') {
                     color = '#f59e0b';
@@ -386,6 +391,7 @@
                 }
 
                 const el = document.createElement('div');
+                // Kelas 'siaga-kritis' hanya ditambahkan jika benar-benar kritis (>30 menit & status Baru)
                 el.className = `rounded-full shadow-md cursor-pointer border-2 border-white ${isKritis ? 'siaga-kritis' : ''}`;
                 el.style.width = '26px';
                 el.style.height = '26px';
@@ -396,6 +402,7 @@
                         <b class="text-slate-800">${item.lokasi} (${item.jenis})</b><br>
                         <p class="italic text-slate-600">"${item.ket || 'Tanpa keterangan'}"</p>
                         <span>Status: <b class="text-red-600">${item.status}</b></span>
+                        ${isKritis ? '<br><span class="text-[10px] bg-red-100 text-red-700 font-bold px-1 rounded">⚠️ KRITIS: >30 Mnt Belum Verif!</span>' : ''}
                     </div>
                 `);
 
