@@ -102,12 +102,13 @@
             </div>
         </main>
 
-        <!-- Panel Samping: Log Aktivitas & Pemantauan Laporan -->
-        <aside class="w-full lg:w-[680px] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl h-1/2 lg:h-full">
-            <!-- Navigasi Tab Samping -->
-            <div class="grid grid-cols-2 bg-slate-950 border-b border-slate-800 text-center text-xs font-bold">
-                <button onclick="gantiTab('LogAktivitas')" id="tab-LogAktivitas" class="py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900">📝 Log Aktivitas & Komentar Pimpinan</button>
-                <button onclick="gantiTab('SemuaLaporan')" id="tab-SemuaLaporan" class="py-3 px-1 text-slate-400 hover:text-white">📋 Ringkasan Semua Laporan</button>
+        <!-- Panel Samping: Log Aktivitas, Ringkasan Laporan, & Kolaborasi Lembaga -->
+        <aside class="w-full lg:w-[700px] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl h-1/2 lg:h-full">
+            <!-- Navigasi Tab Samping (3 Tab) -->
+            <div class="grid grid-cols-3 bg-slate-950 border-b border-slate-800 text-center text-xs font-bold">
+                <button onclick="gantiTab('LogAktivitas')" id="tab-LogAktivitas" class="py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900">📝 Log & Arahan</button>
+                <button onclick="gantiTab('SemuaLaporan')" id="tab-SemuaLaporan" class="py-3 px-1 text-slate-400 hover:text-white">📋 Ringkasan Laporan</button>
+                <button onclick="gantiTab('KolaborasiLembaga')" id="tab-KolaborasiLembaga" class="py-3 px-1 text-slate-400 hover:text-white">🤝 Kolaborasi Lembaga</button>
             </div>
 
             <!-- Konten Tab -->
@@ -122,8 +123,10 @@
         mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 
         let laporanList = [];
+        let daftarKolaborasi = [];
         let markers = [];
         let activeTab = 'LogAktivitas';
+        let filterStatusTabel = 'Semua'; // Untuk filter klik KPI card
         let currentUser = null;
 
         const map = new mapboxgl.Map({
@@ -158,8 +161,11 @@
 
         async function ambilDataPimpinan() {
             try {
-                const { data } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
-                laporanList = data || [];
+                const { data: dataLaporan } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
+                const { data: dataKolab } = await supabaseClient.from('bantuan_kolaborasi').select('*');
+
+                laporanList = dataLaporan || [];
+                daftarKolaborasi = dataKolab || [];
 
                 hitungStatistik();
                 renderPanel();
@@ -191,13 +197,13 @@
         }
 
         function filterDariStatistik(kategori) {
+            filterStatusTabel = kategori;
             gantiTab('SemuaLaporan');
-            // Berikan filter otomatis atau fokus pada tabel
         }
 
         function gantiTab(tab) {
             activeTab = tab;
-            ['LogAktivitas', 'SemuaLaporan'].forEach(t => {
+            ['LogAktivitas', 'SemuaLaporan', 'KolaborasiLembaga'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (t === tab) {
                     btn.className = 'py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900 font-bold';
@@ -242,11 +248,20 @@
                     container.appendChild(card);
                 });
 
-            } else {
+            } else if (activeTab === 'SemuaLaporan') {
                 if (laporanList.length === 0) {
                     container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Tidak ada data laporan.</div>`;
                     return;
                 }
+
+                // Filter Header Bar untuk Tabel Ringkasan
+                const filterBar = document.createElement('div');
+                filterBar.className = 'flex justify-between items-center mb-2 px-1 text-xs';
+                filterBar.innerHTML = `
+                    <span class="text-slate-300 font-semibold">Menampilkan: <b class="text-amber-400">${filterStatusTabel}</b></span>
+                    <button onclick="filterStatusTabel='Semua'; renderPanel();" class="text-slate-400 hover:text-white text-[11px] underline">Reset Filter</button>
+                `;
+                container.appendChild(filterBar);
 
                 const tableWrap = document.createElement('div');
                 tableWrap.innerHTML = `
@@ -265,7 +280,23 @@
                 container.appendChild(tableWrap);
 
                 const tbody = document.getElementById('tabel-semua-body');
-                laporanList.forEach(item => {
+                
+                // Proses Filter Berdasarkan Klik Statistik
+                const laporanFiltered = laporanList.filter(item => {
+                    const stLower = (item.status || '').toLowerCase();
+                    if (filterStatusTabel === 'Verifikasi') return stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu');
+                    if (filterStatusTabel === 'Proses') return stLower.includes('proses') && !item.minta_bantuan;
+                    if (filterStatusTabel === 'Darurat') return stLower.includes('proses') && item.minta_bantuan;
+                    if (filterStatusTabel === 'Selesai') return stLower.includes('selesai');
+                    return true;
+                });
+
+                if (laporanFiltered.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">Tidak ada laporan dengan kategori "${filterStatusTabel}".</td></tr>`;
+                    return;
+                }
+
+                laporanFiltered.forEach(item => {
                     let badgeStatus = `<span class="bg-blue-950 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold">${item.status}</span>`;
                     const stLower = (item.status || '').toLowerCase();
                     if (stLower.includes('verif')) {
@@ -286,6 +317,60 @@
                     `;
                     tr.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
                     tbody.appendChild(tr);
+                });
+
+            } else if (activeTab === 'KolaborasiLembaga') {
+                // Tab Khusus Kolaborasi Lembaga Lintas Sektor
+                if (daftarKolaborasi.length === 0) {
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Belum ada data instansi kolaborator yang diterjunkan ke lapangan.</div>`;
+                    return;
+                }
+
+                // Kelompokkan bantuan berdasarkan laporan_id
+                const kolabMap = {};
+                daftarKolaborasi.forEach(k => {
+                    if (!kolabMap[k.laporan_id]) kolabMap[k.laporan_id] = [];
+                    kolabMap[k.laporan_id].push(k);
+                });
+
+                const laporanAdaKolab = laporanList.filter(i => kolabMap[i.id]);
+
+                if (laporanAdaKolab.length === 0) {
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Belum ada laporan yang ditangani secara kolaboratif.</div>`;
+                    return;
+                }
+
+                laporanAdaKolab.forEach(item => {
+                    const listBantuan = kolabMap[item.id];
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-800/80 border border-slate-700/60 rounded-xl p-3.5 space-y-2 text-xs hover:border-slate-600 transition';
+                    
+                    let daftarLembagaHtml = '';
+                    listBantuan.forEach(b => {
+                        daftarLembagaHtml += `
+                            <div class="bg-slate-900/90 border border-slate-700 p-2 rounded-lg space-y-0.5">
+                                <p class="text-amber-300 font-bold">🏛️ ${b.nama_lembaga} <span class="text-[10px] text-slate-400 font-normal">(${b.username_petugas})</span></p>
+                                <p class="text-slate-300 text-[11px]">Dukungan: <b class="text-white">${b.jenis_bantuan}</b></p>
+                            </div>
+                        `;
+                    });
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start border-b border-slate-700/50 pb-2 cursor-pointer" onclick="map.flyTo({ center: [${item.lng}, ${item.lat}], zoom: 14 })">
+                            <div>
+                                <span class="bg-purple-950 text-purple-300 font-mono text-[10px] px-2 py-0.5 rounded font-bold">${item.id}</span>
+                                <span class="text-slate-300 text-[11px] ml-1.5 font-bold">Lokasi: ${item.lokasi}</span>
+                            </div>
+                            <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${item.jenis}</span>
+                        </div>
+                        <div class="space-y-1.5">
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Daftar Lembaga & Bantuan Terjun:</p>
+                            <div class="space-y-1.5">
+                                ${daftarLembagaHtml}
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
                 });
             }
         }
@@ -321,7 +406,6 @@
             laporanList.forEach(item => {
                 const stLower = (item.status || '').toLowerCase();
 
-                // Logika Filter Peta
                 if (filterJenis !== 'Semua' && item.jenis !== filterJenis) return;
                 if (filterStatus === 'Verifikasi' && !(stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu'))) return;
                 if (filterStatus === 'Proses' && !(stLower.includes('proses') && !item.minta_bantuan)) return;
@@ -356,7 +440,6 @@
                     return;
                 }
 
-                // Popup yang kaya informasi (Nama pelapor, lokasi, jenis, status, dan keterangan)
                 const popupContent = `
                     <div class="text-slate-900 text-xs space-y-1 p-1">
                         <p class="font-bold border-b pb-1 text-purple-900">ID: ${item.id} (${item.status})</p>
