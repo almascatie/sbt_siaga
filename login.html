@@ -87,16 +87,19 @@
                 sessionStorage.setItem('sbt_role', data.role);
                 sessionStorage.setItem('sbt_telp_posko', data.telp_posko || '');
 
-                alert(`Selamat datang, ${data.nama_lembaga} (${data.role.toUpperCase()})!`);
+                alert(`Selamat datang, ${data.nama_lembaga} (${(data.role || '').toUpperCase()})!`);
 
-                // Arahkan halaman berdasarkan role pengguna secara presisi
-                if (data.role === 'superadmin') {
+                // Normalisasi role ke huruf kecil agar tahan terhadap perbedaan huruf besar/kecil di database
+                const roleLower = (data.role || '').toLowerCase();
+
+                // Arahkan halaman berdasarkan role pengguna secara aman
+                if (roleLower === 'superadmin') {
                     sessionStorage.setItem('sbt_admin_auth', 'true'); // Penyelaras izin admin
                     window.location.href = 'admin.html';
-                } else if (data.role === 'PETUGAS_KOLABORASI') {
-                    window.location.href = 'kolaborator.html';
+                } else if (roleLower.includes('kolaborasi')) {
+                    window.location.href = 'kolaborator.html'; // Menangkap 'petugas_kolaborasi' atau variasi lainnya
                 } else {
-                    window.location.href = 'petugas.html';
+                    window.location.href = 'petugas.html'; // Petugas utama / damkar / bpbd
                 }
 
             } catch (err) {
