@@ -94,7 +94,7 @@
             <h2 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
                 ➕ Tambah Akun Instansi / Pimpinan / Operator Baru
             </h2>
-            <form id="form-tambah-user" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+            <form id="form-tambah-user" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Username Login</label>
                     <input type="text" id="new-user" required placeholder="mis: polri, pks" class="w-full p-2 border border-slate-300 rounded font-mono">
@@ -118,13 +118,9 @@
                         <option value="superadmin">Super Admin</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block font-medium text-slate-600 mb-1">No. Telp Posko Utama</label>
-                    <input type="tel" id="new-telp" placeholder="0812XXXXXXXX" class="w-full p-2 border border-slate-300 rounded">
-                </div>
-                <div class="sm:col-span-2 md:col-span-5">
+                <div class="sm:col-span-2 md:col-span-4">
                     <button type="submit" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded shadow transition text-xs">
-                        💾 Buat & Simpan Akun Baru
+                        💾 Buat & Simpan Akun Baru (Hotline Otomatis Terikat)
                     </button>
                 </div>
             </form>
@@ -144,7 +140,7 @@
                             <th class="p-2">Username</th>
                             <th class="p-2">Nama Lembaga</th>
                             <th class="p-2">Role</th>
-                            <th class="p-2">Telp Posko</th>
+                            <th class="p-2">Telp Posko (Hotline)</th>
                             <th class="p-2 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -192,6 +188,9 @@
 
     <!-- SCRIPT SUPER ADMIN -->
     <script>
+        // Variabel penampung data lembaga untuk referensi nomor hotline otomatis
+        let petaLembagaHotline = {};
+
         window.onload = () => {
             const isAuth = sessionStorage.getItem('sbt_admin_auth');
             if (isAuth === 'true') {
@@ -253,7 +252,7 @@
                     <td class="p-2 font-bold font-mono text-purple-900">${user.username}</td>
                     <td class="p-2">${user.nama_lembaga || '-'}</td>
                     <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${user.role === 'superadmin' ? 'bg-purple-100 text-purple-700' : user.role === 'pimpinan' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}">${user.role}</span></td>
-                    <td class="p-2">${user.telp_posko || '-'}</td>
+                    <td class="p-2 font-mono text-slate-600">${user.telp_posko || '-'}</td>
                     <td class="p-2 text-center">
                         ${user.username !== 'admin' ? `<button onclick="hapusUser(${user.id})" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-[10px] font-bold">🗑️ Hapus</button>` : '<span class="text-[10px] text-slate-400">Utama</span>'}
                     </td>
@@ -262,7 +261,7 @@
             });
         }
 
-        // 2. Muat Tabel Daftar Lembaga & Dropdown Form Akun
+        // 2. Muat Tabel Daftar Lembaga & Dropdown Form Akun (Otomatis Ikat Hotline)
         async function muatDaftarLembaga() {
             const tbody = document.getElementById('tabel-lembaga-body');
             const selectDropdown = document.getElementById('new-nama');
@@ -284,8 +283,12 @@
 
             tbody.innerHTML = '';
             selectDropdown.innerHTML = `<option value="">-- Pilih Lembaga Terkait --</option>`;
+            petaLembagaHotline = {}; // Reset peta cache hotline
 
             data.forEach(item => {
+                // Simpan pasang nama lembaga dan nomor hotline-nya ke memori sementara
+                petaLembagaHotline[item.nama_lembaga] = item.hotline_telepon;
+
                 // Isi ke tabel daftar lembaga
                 const tr = document.createElement('tr');
                 tr.className = 'border-b hover:bg-slate-50';
@@ -302,27 +305,32 @@
                 // Masukkan ke pilihan dropdown form tambah akun
                 const opt = document.createElement('option');
                 opt.value = item.nama_lembaga;
-                opt.textContent = item.nama_lembaga;
+                opt.textContent = `${item.nama_lembaga} (Hotline: ${item.hotline_telepon})`;
                 selectDropdown.appendChild(opt);
             });
         }
 
-        // Simpan Akun Baru ke Tabel users
+        // Simpan Akun Baru ke Tabel users (Nomor Telp Posko ditarik otomatis dari lembaga yang dipilih)
         document.getElementById('form-tambah-user').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const selectedLembaga = document.getElementById('new-nama').value;
+            
+            // Ambil nomor hotline secara otomatis berdasarkan nama lembaga yang dipilih
+            const otomatisHotline = petaLembagaHotline[selectedLembaga] || '-';
+
             const akunBaru = {
                 username: document.getElementById('new-user').value.trim(),
                 password: document.getElementById('new-pass').value.trim(),
-                nama_lembaga: document.getElementById('new-nama').value,
+                nama_lembaga: selectedLembaga,
                 role: document.getElementById('new-role').value,
-                telp_posko: document.getElementById('new-telp').value.trim() || '-'
+                telp_posko: otomatisHotline // Otomatis terikat dari lembaga!
             };
 
             const { error } = await supabaseClient.from('users').insert([akunBaru]);
             if (error) {
                 alert('Gagal membuat akun: ' + error.message);
             } else {
-                alert('Akun berhasil dibuat!');
+                alert(`Akun berhasil dibuat! Hotline Posko otomatis terikat: ${otomatisHotline}`);
                 document.getElementById('form-tambah-user').reset();
                 muatDaftarUser();
             }
