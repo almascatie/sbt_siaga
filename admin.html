@@ -22,9 +22,9 @@
             <a href="petugas.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
                 🚀 Ke Command Center
             </a>
-            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
-                🌐 Web Publik
-            </a>
+            <button onclick="logoutAdmin()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                🚪 Keluar Admin
+            </button>
         </div>
     </header>
 
@@ -88,7 +88,7 @@
                         </tr>
                     </thead>
                     <tbody id="tabel-user-body" class="divide-y divide-slate-200">
-                        <!-- Diisi via script -->
+                        <tr><td colspan="6" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -107,13 +107,67 @@
 
     </main>
 
+    <!-- MODAL LOGIN KHUSUS SUPER ADMIN -->
+    <div id="modal-admin-login" class="fixed inset-0 bg-slate-900/95 z-50 flex justify-center items-center p-4">
+        <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-2xl text-xs space-y-4">
+            <h3 class="font-bold text-base text-slate-800 text-center">🔐 Autentikasi Super Admin</h3>
+            <p class="text-slate-500 text-center text-[11px]">Masukkan akun dengan hak akses Super Admin untuk melanjutkan.</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Username Admin</label>
+                    <input type="text" id="admin-user" placeholder="admin" class="w-full p-2.5 border border-slate-300 rounded outline-none text-xs font-mono">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Password</label>
+                    <input type="password" id="admin-pass" placeholder="password" class="w-full p-2.5 border border-slate-300 rounded outline-none text-xs font-mono">
+                </div>
+                <button onclick="prosesLoginAdmin()" class="w-full bg-purple-900 text-white py-2.5 rounded font-bold hover:bg-purple-800 transition">Buka Panel Admin</button>
+            </div>
+            <div class="text-center">
+                <a href="index.html" class="text-blue-600 underline text-[11px]">← Kembali ke Beranda Publik</a>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPT SUPER ADMIN -->
     <script>
         const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
         window.onload = () => {
-            muatDaftarUser();
+            const isAuth = sessionStorage.getItem('sbt_admin_auth');
+            if (isAuth === 'true') {
+                document.getElementById('modal-admin-login').classList.add('hidden');
+                muatDaftarUser();
+            } else {
+                document.getElementById('modal-admin-login').classList.remove('hidden');
+            }
         };
+
+        async function prosesLoginAdmin() {
+            const u = document.getElementById('admin-user').value.trim();
+            const p = document.getElementById('admin-pass').value.trim();
+
+            const { data, error } = await supabaseClient
+                .from('users')
+                .select('*')
+                .eq('username', u)
+                .eq('password', p)
+                .eq('role', 'superadmin')
+                .single();
+
+            if (error || !data) {
+                alert('Akses Ditolak! Pastikan username dan password Super Admin sudah benar.');
+            } else {
+                sessionStorage.setItem('sbt_admin_auth', 'true');
+                document.getElementById('modal-admin-login').classList.add('hidden');
+                muatDaftarUser();
+            }
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('sbt_admin_auth');
+            location.reload();
+        }
 
         async function muatDaftarUser() {
             const tbody = document.getElementById('tabel-user-body');
@@ -121,7 +175,7 @@
 
             const { data, error } = await supabaseClient.from('users').select('*').order('id', { ascending: true });
             if (error) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">Gagal memuat: ${error.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">Gagal memuat: ${error.message}. Periksa kembali config.js Anda.</td></tr>`;
                 return;
             }
 
