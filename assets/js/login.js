@@ -31,7 +31,7 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
                 sessionStorage.setItem('sbt_role', data.role);
                 sessionStorage.setItem('sbt_telp_posko', data.telp_posko || '');
 
-                alert(`Selamat datang, ${data.nama_lembaga} (${data.role})!`);
+                alert(`Selamat datang, ${data.nama_lembaga}!`);
 
                 // Normalisasi teks role dari database ke huruf kecil untuk pengarahan halaman yang aman
                 const roleUser = (data.role || '').toLowerCase().trim();
