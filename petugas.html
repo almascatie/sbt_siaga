@@ -277,15 +277,24 @@
         }
 
         async function ambilDataLaporan() {
-            const { data: dataLaporan, error: errLaporan } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
-            const { data: dataKolaborasi, error: errKolab } = await supabaseClient.from('bantuan_kolaborasi').select('*');
+            try {
+                const { data: dataLaporan, error: errLaporan } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
+                if (errLaporan) console.error('Error laporan:', errLaporan.message);
 
-            if (!errLaporan) {
+                let dataKolaborasi = [];
+                const { data: dataKolab, error: errKolab } = await supabaseClient.from('bantuan_kolaborasi').select('*');
+                if (!errKolab && dataKolab) {
+                    dataKolaborasi = dataKolab;
+                }
+
                 laporanList = dataLaporan || [];
-                daftarKolaborasi = dataKolab || [];
+                daftarKolaborasi = dataKolaborasi;
+                
                 hitungBadgeTab();
                 renderTabel();
                 renderMarkers();
+            } catch (err) {
+                console.error('Terjadi kesalahan saat memuat data:', err);
             }
         }
 
