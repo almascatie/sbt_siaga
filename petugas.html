@@ -64,7 +64,7 @@
         <main class="flex-1 relative h-1/2 lg:h-full">
             <div id="map"></div>
             
-            <!-- Posisi Legenda dipindah ke bawah/agak tengah agar tidak menutupi pojok kiri atas -->
+            <!-- Posisi Legenda -->
             <div class="absolute bottom-6 left-4 bg-white/95 backdrop-blur p-3 rounded-lg shadow-lg border border-slate-200 text-xs z-10 space-y-1.5">
                 <p class="font-bold text-slate-800 border-b pb-1">Indikator Peta & Status</p>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Baru / Belum Verif (&gt;30m Kritis Kedip)</span></div>
@@ -127,18 +127,18 @@
         </aside>
     </div>
 
-    <!-- MODAL INPUT PROSES PENANGANAN LINTAS SEKTOR -->
+    <!-- MODAL INPUT PROSES PENANGANAN UTAMA -->
     <div id="modal-proses" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
         <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs space-y-3">
             <div class="flex justify-between items-center mb-1">
-                <h3 class="font-bold text-sm text-slate-800">Formulir Penanganan Lintas Sektor</h3>
+                <h3 class="font-bold text-sm text-slate-800">Formulir Penanganan Utama</h3>
                 <button onclick="tutupModalProses()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
             </div>
-            <p class="text-[11px] text-slate-500">Lembaga Anda (<b id="label-lembaga-aktif">-</b>) akan diterjunkan untuk menangani laporan ini.</p>
+            <p class="text-[11px] text-slate-500">Lembaga Utama (<b id="label-lembaga-aktif">-</b>) akan diterjunkan sebagai eksekutor laporan ini.</p>
             <form id="form-proses" class="space-y-2.5">
                 <input type="hidden" id="proses-id-laporan">
                 <div>
-                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon / Hotline Posko (Terkunci Otomatis)</label>
+                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon / Hotline Posko</label>
                     <input type="text" id="input-telp-petugas" disabled class="w-full p-2 border border-slate-200 bg-slate-100 rounded outline-none font-mono font-bold text-slate-700">
                 </div>
                 <div>
@@ -146,7 +146,37 @@
                     <input type="number" id="input-estimasi-jam" required class="w-full p-2 border border-slate-300 rounded outline-none" value="2" min="1">
                 </div>
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded shadow transition">
-                    🚀 Mulai Aksi Penanganan
+                    🚀 Mulai Aksi Penanganan Utama
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL IKUT KOLABORASI / BANTUAN LINTAS SEKTOR -->
+    <div id="modal-kolaborasi" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center mb-1">
+                <h3 class="font-bold text-sm text-slate-800">🤝 Ikut Terjun & Kolaborasi Lintas Sektor</h3>
+                <button onclick="tutupModalKolaborasi()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+            </div>
+            <p class="text-[11px] text-slate-500">Instansi Anda (<b id="label-lembaga-kolaborasi">-</b>) akan ikut membantu menangani laporan yang sedang berjalan ini.</p>
+            <form id="form-kolaborasi" class="space-y-2.5">
+                <input type="hidden" id="kolaborasi-id-laporan">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Jenis Bantuan / Dukungan</label>
+                    <select id="input-jenis-bantuan" required class="w-full p-2 border border-slate-300 rounded bg-white outline-none">
+                        <option value="SDM / Personel Tambahan">👥 SDM / Personel Tambahan</option>
+                        <option value="Logistik / Konsumsi">📦 Logistik / Makanan / Konsumsi</option>
+                        <option value="Air Bersih / Armada Tangki">💧 Air Bersih / Armada Tangki</option>
+                        <option value="Alat Medis / Kesehatan">💊 Bantuan Medis / Kesehatan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Catatan / Detail Bantuan</label>
+                    <textarea id="input-ket-bantuan" rows="2" placeholder="Contoh: Kirim 5 personel dan 1 unit ambulans..." class="w-full p-2 border border-slate-300 rounded outline-none"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded shadow transition">
+                    ✨ Konfirmasi Bergabung Kolaborasi
                 </button>
             </form>
         </div>
@@ -159,11 +189,11 @@
                 <h3 class="font-bold text-sm text-slate-800">Tambah Catatan / Logistik Lapangan</h3>
                 <button onclick="tutupModalCatatan()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
             </div>
-            <p class="text-[11px] text-slate-500">Tulis perkembangan terbaru penanganan di titik ini agar bisa dilihat lembaga lain & pimpinan.</p>
+            <p class="text-[11px] text-slate-500">Tulis perkembangan terbaru penanganan di titik ini agar bisa dilihat instansi lain & pimpinan.</p>
             <form id="form-catatan" class="space-y-2.5">
                 <input type="hidden" id="catatan-id-laporan">
                 <div>
-                    <textarea id="input-teks-catatan" rows="3" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Contoh: Kirim 1 tangki air bersih, warga antre tertib..."></textarea>
+                    <textarea id="input-teks-catatan" rows="3" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Contoh: Penyaluran logistik tahap 1 selesai..."></textarea>
                 </div>
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded shadow transition">
                     ➕ Kirim Catatan Perkembangan
@@ -180,6 +210,7 @@
         let markers = [];
         let activeTab = 'Baru';
         let currentUser = null; 
+        let daftarKolaborasi = []; // Menyimpan data bantuan kolaborasi lintas sektor
 
         const map = new mapboxgl.Map({
             container: 'map',
@@ -231,7 +262,7 @@
                 badge.className = 'bg-purple-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase';
             } else {
                 sapaan.innerText = `Hi, ${currentUser.nama_lembaga} (${currentUser.username})`;
-                badge.innerText = 'OPERASIONAL LAPANGAN';
+                badge.innerText = 'OPERASIONAL & KOLABORATOR';
                 badge.className = 'bg-red-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase';
             }
         }
@@ -251,9 +282,14 @@
         }
 
         async function ambilDataLaporan() {
-            const { data, error } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
-            if (!error) {
-                laporanList = data || [];
+            // Ambil data laporan utama
+            const { data: dataLaporan, error: errLaporan } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
+            // Ambil data bantuan kolaborasi lintas sektor
+            const { data: dataKolaborasi, error: errKolab } = await supabaseClient.from('bantuan_kolaborasi').select('*');
+
+            if (!errLaporan) {
+                laporanList = dataLaporan || [];
+                daftarKolaborasi = dataKolab || [];
                 hitungBadgeTab();
                 renderTabel();
                 renderMarkers();
@@ -320,9 +356,7 @@
                     filtered = filtered.filter(i => 
                         (i.lembaga_verifikasi && i.lembaga_verifikasi.includes(selectedLembagaFilter)) ||
                         (i.lembaga_proses && i.lembaga_proses.includes(selectedLembagaFilter)) ||
-                        (i.nama_petugas_verif && i.nama_petugas_verif.includes(selectedLembagaFilter)) ||
-                        (i.nama_petugas_proses && i.nama_petugas_proses.includes(selectedLembagaFilter)) ||
-                        (i.nama_petugas_selesai && i.nama_petugas_selesai.includes(selectedLembagaFilter))
+                        daftarKolaborasi.some(k => k.laporan_id === i.id && k.nama_lembaga.includes(selectedLembagaFilter))
                     );
                 }
             }
@@ -332,7 +366,6 @@
                 return;
             }
 
-            // Deteksi apakah akun yang login adalah Call Center 112
             const is112 = currentUser && currentUser.nama_lembaga && currentUser.nama_lembaga.toLowerCase().includes('112');
             const isPimpinan = currentUser && currentUser.role === 'pimpinan';
 
@@ -343,10 +376,20 @@
                 if (item.status === 'Terverifikasi') {
                     infoStatus = `<span class="text-amber-600 font-bold">Terverifikasi oleh:</span><br><span class="text-[11px] text-slate-700">${item.nama_petugas_verif || item.lembaga_verifikasi || '-'}</span>`;
                 } else if (item.status === 'Proses') {
+                    // Cek daftar lembaga yang ikut kolaborasi di laporan ini
+                    const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === item.id);
+                    let badgeKolabHTML = '';
+                    if (kolabLaporan.length > 0) {
+                        badgeKolabHTML = `<div class="mt-1 pt-1 border-t border-blue-100 text-[10px] text-purple-700 font-semibold">🤝 Kolaborasi: ` + 
+                            kolabLaporan.map(k => `[${k.nama_lembaga}: ${k.jenis_bantuan}]`).join(', ') + 
+                            `</div>`;
+                    }
+
                     infoStatus = `
-                        <span class="text-blue-600 font-bold">Ditangani oleh:</span><br>
+                        <span class="text-blue-600 font-bold">Ditangani Utama:</span><br>
                         <span class="text-[11px] text-slate-700">${item.nama_petugas_proses || item.lembaga_proses || '-'}</span><br>
                         <span class="text-[10px] text-slate-500">Posko: ${item.telp_petugas || '-'}</span>
+                        ${badgeKolabHTML}
                     `;
                 } else if (item.status === 'Selesai') {
                     infoStatus = `<span class="text-green-600 font-bold">Selesai Ditangani</span><br><span class="text-[10px] text-slate-500">${item.nama_petugas_selesai || ''}</span>`;
@@ -363,22 +406,37 @@
                 if (isPimpinan) {
                     aksiHTML = '<span class="text-[10px] text-slate-400 italic">Read-Only (Pimpinan)</span>';
                 } else if (is112) {
-                    // Call Center 112 HANYA BERHAK VERIFIKASI, selebihnya read-only
+                    // Call Center 112 HANYA BERHAK VERIFIKASI
                     if (item.status === 'Baru') {
                         aksiHTML = `<button onclick="aksiVerifikasi('${item.id}')" class="bg-amber-600 text-white px-2.5 py-1 rounded font-bold hover:bg-amber-700 text-[10px]">✅ Verifikasi (112)</button>`;
                     } else {
                         aksiHTML = `<span class="text-[10px] text-purple-700 font-semibold bg-purple-50 px-2 py-0.5 rounded">Terkunci (Diteruskan ke Sektor)</span>`;
                     }
                 } else {
-                    // Akun Sektor/Petugas Lapangan Normal
+                    // Akun Petugas / Sektor / Kolaborator
+                    let tombolKolaborasiHTML = '';
+                    if (item.status === 'Proses') {
+                        // Cek apakah lembaga user yang sedang login sudah pernah klik kolaborasi di laporan ini
+                        const sudahKolab = daftarKolaborasi.some(k => k.laporan_id === item.id && k.nama_lembaga === currentUser.nama_lembaga);
+                        const isLembagaUtama = item.lembaga_proses === currentUser.nama_lembaga;
+
+                        if (sudahKolab) {
+                            tombolKolaborasiHTML = `<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-[10px] font-bold">✓ Sudah Tergabung Kolaborasi</span>`;
+                        } else if (!isLembagaUtama) {
+                            // Munculkan tombol kolaborasi untuk lembaga lain yang ingin ikut membantu
+                            tombolKolaborasiHTML = `<button onclick="bukaModalKolaborasi('${item.id}')" class="bg-purple-600 text-white px-2.5 py-1 rounded font-bold hover:bg-purple-700 text-[10px]">🤝 Ikut Kolaborasi</button>`;
+                        }
+                    }
+
                     aksiHTML = `
-                        <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                        <div class="mt-2 flex flex-wrap gap-1 justify-center items-center">
                             ${item.status === 'Baru' ? `<button onclick="aksiVerifikasi('${item.id}')" class="bg-amber-600 text-white px-2.5 py-1 rounded font-bold hover:bg-amber-700 text-[10px]">✅ Verifikasi</button>` : ''}
                             ${item.status === 'Terverifikasi' ? `<button onclick="bukaModalProses('${item.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded font-bold hover:bg-blue-700 text-[10px]">🚀 Mulai Proses</button>` : ''}
                             ${item.status === 'Proses' ? `
                                 <button onclick="bukaModalCatatan('${item.id}')" class="bg-emerald-600 text-white px-2.5 py-1 rounded font-bold hover:bg-emerald-700 text-[10px]">➕ Log Catatan</button>
-                                <button onclick="aksiSelesai('${item.id}')" class="bg-green-600 text-white px-2.5 py-1 rounded font-bold hover:bg-green-700 text-[10px]">🏁 Selesai</button>
+                                ${item.lembaga_proses === currentUser.nama_lembaga ? `<button onclick="aksiSelesai('${item.id}')" class="bg-green-600 text-white px-2.5 py-1 rounded font-bold hover:bg-green-700 text-[10px]">🏁 Selesai</button>` : ''}
                             ` : ''}
+                            ${tombolKolaborasiHTML}
                         </div>
                     `;
                 }
@@ -429,7 +487,6 @@
 
                 if (item.status === 'Baru') {
                     color = '#ef4444';
-                    // HANYA berkedip jika status masih 'Baru' DAN waktu sudah melewati 30 menit tanpa verifikasi
                     if (selisihMenit > 30) {
                         isKritis = true;
                     }
@@ -441,17 +498,14 @@
                     color = '#22c55e';
                 }
 
-                // Elemen Marker HTML kustom
                 const el = document.createElement('div');
                 if (isKritis) {
-                    // Berkedip mencolok hanya jika lewat 30 menit belum diverifikasi
                     el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
                     el.style.width = '38px';
                     el.style.height = '38px';
                     el.style.backgroundColor = '#dc2626';
                     el.innerText = '🚨';
                 } else {
-                    // Normal (tidak berkedip) jika baru masuk atau sudah direspons/diproses
                     el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
                     el.style.width = '28px';
                     el.style.height = '28px';
@@ -506,7 +560,7 @@
             const jam = parseFloat(document.getElementById('input-estimasi-jam').value) || 1;
 
             const detailPetugas = `${currentUser.nama_lembaga} (Petugas: ${currentUser.username})`;
-            const logBaru = `[${new Date().toLocaleTimeString()}] ${detailPetugas} mulai menangani (Hotline Posko: ${telp})\n`;
+            const logBaru = `[${new Date().toLocaleTimeString()}] ${detailPetugas} mulai menangani utama (Hotline Posko: ${telp})\n`;
             
             const itemLama = laporanList.find(i => i.id === id);
             const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
@@ -524,6 +578,57 @@
             if (error) alert('Gagal: ' + error.message);
             else {
                 tutupModalProses();
+                ambilDataLaporan();
+            }
+        });
+
+        // --- FUNGSI KOLABORASI LINTAS SEKTOR ---
+        function bukaModalKolaborasi(id) {
+            document.getElementById('kolaborasi-id-laporan').value = id;
+            document.getElementById('label-lembaga-kolaborasi').innerText = currentUser.nama_lembaga;
+            document.getElementById('input-ket-bantuan').value = '';
+            document.getElementById('modal-kolaborasi').classList.remove('hidden');
+        }
+
+        function tutupModalKolaborasi() {
+            document.getElementById('modal-kolaborasi').classList.add('hidden');
+        }
+
+        document.getElementById('form-kolaborasi').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('kolaborasi-id-laporan').value;
+            const jenisBantuan = document.getElementById('input-jenis-bantuan').value;
+            const ketBantuan = document.getElementById('input-ket-bantuan').value.trim();
+
+            const detailPetugas = `${currentUser.nama_lembaga} (${currentUser.username})`;
+            
+            // 1. Simpan ke tabel bantuan_kolaborasi
+            const { error: errKolaborasi } = await supabaseClient.from('bantuan_kolaborasi').insert([{
+                laporan_id: id,
+                nama_lembaga: currentUser.nama_lembaga,
+                username_petugas: currentUser.username,
+                jenis_bantuan: `${jenisBantuan}${ketBantuan ? ' - ' + ketBantuan : ''}`
+            }]);
+
+            if (errKolaborasi) {
+                alert('Gagal mencatat kolaborasi: ' + errKolaborasi.message);
+                return;
+            }
+
+            // 2. Tambahkan otomatis ke log lapangan laporan utama
+            const itemLama = laporanList.find(i => i.id === id);
+            const logBaru = `[${new Date().toLocaleTimeString()}] 🤝 Bantuan Kolaborasi dari ${detailPetugas}: [${jenisBantuan}] ${ketBantuan}\n`;
+            const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
+
+            const { error: errUpdate } = await supabaseClient.from('laporan').update({
+                catatan_lapangan: gabungLog
+            }).eq('id', id);
+
+            if (errUpdate) {
+                alert('Gagal memperbarui log laporan: ' + errUpdate.message);
+            } else {
+                tutupModalKolaborasi();
+                alert('Berhasil bergabung dalam kolaborasi penanganan laporan ini!');
                 ambilDataLaporan();
             }
         });
@@ -562,7 +667,7 @@
 
             const detailPetugas = `${currentUser.nama_lembaga} (Petugas: ${currentUser.username})`;
             const itemLama = laporanList.find(i => i.id === id);
-            const logBaru = `[${new Date().toLocaleTimeString()}] (${detailPetugas}): Penanganan SELESAI.\n`;
+            const logBaru = `[${new Date().toLocaleTimeString()}] (${detailPetugas}): Penanganan Utama SELESAI.\n`;
             const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
             const { error } = await supabaseClient.from('laporan').update({
