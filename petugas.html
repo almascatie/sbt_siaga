@@ -418,7 +418,6 @@
             const filterJenis = document.getElementById('map-filter-jenis').value;
 
             laporanList.forEach(item => {
-                // Terapkan Filter Peta
                 if (filterStatus !== 'Semua' && item.status !== filterStatus) return;
                 if (filterJenis !== 'Semua' && item.jenis !== filterJenis) return;
 
@@ -439,11 +438,20 @@
                     color = '#22c55e';
                 }
 
+                // Elemen Marker HTML kustom yang lebih besar dan mencolok jika Kritis
                 const el = document.createElement('div');
-                el.className = `rounded-full shadow-md cursor-pointer border-2 border-white ${isKritis ? 'siaga-kritis' : ''}`;
-                el.style.width = '26px';
-                el.style.height = '26px';
-                el.style.backgroundColor = color;
+                if (isKritis) {
+                    el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
+                    el.style.width = '38px';
+                    el.style.height = '38px';
+                    el.style.backgroundColor = '#dc2626';
+                    el.innerText = '🚨';
+                } else {
+                    el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
+                    el.style.width = '28px';
+                    el.style.height = '28px';
+                    el.style.backgroundColor = color;
+                }
 
                 const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
                     <div class="p-1 text-xs space-y-1">
