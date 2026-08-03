@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Kolaborasi Lintas Sektor - SBT</title>
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Konfigurasi Pusat -->
+    <script src="config.js"></script>
+    <!-- Inisialisasi Klien Global -->
+    <script>
+        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    </script>
+    <style>
+        #map { width: 100%; height: 100%; }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .siaga-kritis { animation: pulse-red 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col font-sans overflow-hidden">
+
+    <!-- Top Navigation Bar Kolaborator -->
+    <header class="bg-purple-950 text-white px-4 py-2.5 flex justify-between items-center shadow-md z-20">
+        <div class="flex items-center gap-3">
+            <span class="bg-purple-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase tracking-wider">MITRA KOLABORASI</span>
+            <div>
+                <h1 class="font-bold text-xs md:text-sm" id="header-sapaan">Memuat Sesi Kolaborator...</h1>
+                <p class="text-[10px] text-purple-200">Kabupaten Seram Bagian Timur</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                🌐 Web Publik
+            </a>
+            <button onclick="logoutSession()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                🚪 Keluar
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
+        <!-- Peta Interaktif -->
+        <main class="flex-1 relative h-1/2 lg:h-full">
+            <div id="map"></div>
+            
+            <div class="absolute bottom-6 left-4 bg-white/95 backdrop-blur p-3 rounded-lg shadow-lg border border-slate-200 text-xs z-10 space-y-1.5">
+                <p class="font-bold text-slate-800 border-b pb-1">Keterangan Peta Kolaborasi</p>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> <span>Laporan Sedang Diproses Sektor Utama</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Darurat: Butuh Bantuan Lintas Sektor!</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-600 inline-block"></span> <span>Selesai Ditangani</span></div>
+            </div>
+        </main>
+
+        <!-- Panel Samping Khusus Kolaborator -->
+        <aside class="w-full lg:w-[600px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
+            <div class="grid grid-cols-3 bg-slate-100 border-b border-slate-200 text-center text-xs font-bold">
+                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-white">Sedang Proses (<span id="count-Proses">0</span>)</button>
+                <button onclick="gantiTab('Darurat')" id="tab-Darurat" class="py-3 px-1 text-slate-600 hover:text-red-600">🚨 Butuh Bantuan (<span id="count-Darurat">0</span>)</button>
+                <button onclick="gantiTab('BantuanSaya')" id="tab-BantuanSaya" class="py-3 px-1 text-slate-600 hover:text-slate-900">✨ Bantuan Saya</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-2">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 sticky top-0 text-[10px] text-slate-700 uppercase border-b">
+                        <tr>
+                            <th class="p-2">Waktu / ID</th>
+                            <th class="p-2">Pelapor</th>
+                            <th class="p-2">Lokasi & Keterangan</th>
+                            <th class="p-2 text-center">Aksi Kolaborasi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-200">
+                        <!-- Diisi via script -->
+                    </tbody>
+                </table>
+            </div>
+        </aside>
+    </div>
+
+    <!-- MODAL IKUT KOLABORASI -->
+    <div id="modal-kolaborasi" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center mb-1">
+                <h3 class="font-bold text-sm text-slate-800">🤝 Ikut Terjun & Kolaborasi</h3>
+                <button onclick="tutupModalKolaborasi()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+            </div>
+            <p class="text-[11px] text-slate-500">Instansi Anda (<b id="label-lembaga-kolaborasi">-</b>) akan ikut membantu menangani laporan ini.</p>
+            <form id="form-kolaborasi" class="space-y-2.5">
+                <input type="hidden" id="kolaborasi-id-laporan">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Jenis Bantuan / Dukungan</label>
+                    <select id="input-jenis-bantuan" required class="w-full p-2 border border-slate-300 rounded bg-white outline-none">
+                        <option value="SDM / Personel Tambahan">👥 SDM / Personel Tambahan</option>
+                        <option value="Logistik / Konsumsi / Keagamaan">📦 Logistik / Bantuan Sosial / Keagamaan</option>
+                        <option value="Air Bersih / Armada Tangki">💧 Air Bersih / Armada Tangki</option>
+                        <option value="Alat Medis / Kesehatan">💊 Bantuan Medis / Kesehatan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Catatan / Detail Bantuan</label>
+                    <textarea id="input-ket-bantuan" rows="2" placeholder="Contoh: Menyalurkan bantuan logistik dan pemuka agama..." class="w-full p-2 border border-slate-300 rounded outline-none"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded shadow transition">
+                    ✨ Konfirmasi Bergabung
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CATATAN LAPANGAN -->
+    <div id="modal-catatan" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center mb-1">
+                <h3 class="font-bold text-sm text-slate-800">Tambah Catatan / Laporan Lapangan</h3>
+                <button onclick="tutupModalCatatan()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+            </div>
+            <form id="form-catatan" class="space-y-2.5">
+                <input type="hidden" id="catatan-id-laporan">
+                <div>
+                    <textarea id="input-teks-catatan" rows="3" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Tulis perkembangan di lokasi..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded shadow transition">
+                    ➕ Kirim Catatan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT KOLABORATOR -->
+    <script>
+        mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
+
+        let laporanList = [];
+        let markers = [];
+        let activeTab = 'Proses';
+        let currentUser = null;
+        let daftarKolaborasi = [];
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [130.4850, -3.1500],
+            zoom: 11
+        });
+
+        window.onload = () => {
+            const isLogged = sessionStorage.getItem('sbt_logged_in');
+            if (isLogged === 'true') {
+                currentUser = {
+                    id: sessionStorage.getItem('sbt_user_id'),
+                    username: sessionStorage.getItem('sbt_username'),
+                    nama_lembaga: sessionStorage.getItem('sbt_nama_lembaga'),
+                    role: sessionStorage.getItem('sbt_role'),
+                    telp_posko: sessionStorage.getItem('sbt_telp_posko')
+                };
+
+                // PENGAMANAN ROLE YANG KETAT
+                if (currentUser.role === 'superadmin') {
+                    window.location.href = 'admin.html';
+                    return;
+                }
+                // Jika bukan role kolaborator (artinya dia petugas utama / damkar / bpbd), lempar ke petugas.html
+                if (currentUser.role !== 'PETUGAS_KOLABORASI') {
+                    window.location.href = 'petugas.html';
+                    return;
+                }
+
+                document.getElementById('header-sapaan').innerText = `Mitra: ${currentUser.nama_lembaga} (${currentUser.username})`;
+                
+                ambilDataLaporan();
+                setInterval(ambilDataLaporan, 5000);
+            } else {
+                window.location.href = 'login.html';
+            }
+        };
+
+        function logoutSession() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function ambilDataLaporan() {
+            try {
+                const { data: dataLaporan } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
+                const { data: dataKolab } = await supabaseClient.from('bantuan_kolaborasi').select('*');
+
+                laporanList = dataLaporan || [];
+                daftarKolaborasi = dataKolab || [];
+
+                hitungBadgeTab();
+                renderTabel();
+                renderMarkers();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function hitungBadgeTab() {
+            document.getElementById('count-Proses').innerText = laporanList.filter(i => i.status === 'Proses' && !i.minta_bantuan).length;
+            document.getElementById('count-Darurat').innerText = laporanList.filter(i => i.status === 'Proses' && i.minta_bantuan).length;
+        }
+
+        function gantiTab(tab) {
+            activeTab = tab;
+            ['Proses', 'Darurat', 'BantuanSaya'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = 'py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-white font-bold';
+                } else {
+                    btn.className = 'py-3 px-1 text-slate-600 hover:text-slate-900 font-normal';
+                }
+            });
+            renderTabel();
+        }
+
+        function renderTabel() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            let filtered = laporanList.filter(i => i.status === 'Proses');
+
+            if (activeTab === 'Darurat') {
+                filtered = filtered.filter(i => i.minta_bantuan === true);
+            } else if (activeTab === 'BantuanSaya') {
+                const idsDibantu = daftarKolaborasi.filter(k => k.nama_lembaga === currentUser.nama_lembaga).map(k => k.laporan_id);
+                filtered = laporanList.filter(i => idsDibantu.includes(i.id));
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Tidak ada data laporan pada kategori ini.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === item.id);
+                const sudahTerdaftar = kolabLaporan.some(k => k.nama_lembaga === currentUser.nama_lembaga);
+
+                let badgeKolab = '';
+                if (kolabLaporan.length > 0) {
+                    badgeKolab = `<div class="mt-1 text-[10px] text-purple-700 font-semibold">🤝 Tim Terjun: ` + kolabLaporan.map(k => `[${k.nama_lembaga}]`).join(', ') + `</div>`;
+                }
+
+                let statusDaruratHTML = item.minta_bantuan ? `<div class="mt-1 bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse">🚨 BUTUH BANTUAN SEKTOR!</div>` : '';
+
+                let aksiHTML = '';
+                if (sudahTerdaftar) {
+                    aksiHTML = `
+                        <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-[10px] font-bold block mb-1">✓ Anda Telah Bergabung</span>
+                        <button onclick="bukaModalCatatan('${item.id}')" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold hover:bg-emerald-700">➕ Log Catatan</button>
+                    `;
+                } else {
+                    aksiHTML = `<button onclick="bukaModalKolaborasi('${item.id}')" class="bg-purple-600 text-white px-2.5 py-1.5 rounded text-[10px] font-bold hover:bg-purple-700 shadow">🤝 Ikut Terjun</button>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-slate-50 cursor-pointer';
+                tr.innerHTML = `
+                    <td class="p-2 font-mono align-top">${item.id}<br><span class="text-[9px] text-slate-400">${new Date(item.created_at).toLocaleTimeString()}</span></td>
+                    <td class="p-2 align-top"><b>${item.nama || 'Warga'}</b></td>
+                    <td class="p-2 align-top">
+                        <b>${item.lokasi}</b> <span class="text-[9px] bg-blue-100 text-blue-700 px-1 rounded">${item.jenis}</span><br>
+                        <span class="text-slate-600 text-[11px] italic">"${item.ket || '-'}"</span>
+                        ${statusDaruratHTML}
+                        ${badgeKolab}
+                    </td>
+                    <td class="p-2 text-center align-top" onclick="event.stopPropagation()">
+                        ${aksiHTML}
+                    </td>
+                `;
+                tr.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderMarkers() {
+            markers.forEach(m => m.remove());
+            markers = [];
+
+            laporanList.forEach(item => {
+                if (item.status !== 'Proses') return;
+
+                const el = document.createElement('div');
+                if (item.minta_bantuan) {
+                    el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
+                    el.style.width = '36px';
+                    el.style.height = '36px';
+                    el.style.backgroundColor = '#dc2626';
+                    el.innerText = '🆘';
+                } else {
+                    el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
+                    el.style.width = '26px';
+                    el.style.height = '26px';
+                    el.style.backgroundColor = '#3b82f6';
+                }
+
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat([item.lng, item.lat])
+                    .setPopup(new mapboxgl.Popup().setHTML(`<b>${item.lokasi}</b><br>${item.jenis}`))
+                    .addTo(map);
+                markers.push(marker);
+            });
+        }
+
+        function bukaModalKolaborasi(id) {
+            document.getElementById('kolaborasi-id-laporan').value = id;
+            document.getElementById('label-lembaga-kolaborasi').innerText = currentUser.nama_lembaga;
+            document.getElementById('modal-kolaborasi').classList.remove('hidden');
+        }
+        function tutupModalKolaborasi() { document.getElementById('modal-kolaborasi').classList.add('hidden'); }
+
+        document.getElementById('form-kolaborasi').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('kolaborasi-id-laporan').value;
+            const jenisBantuan = document.getElementById('input-jenis-bantuan').value;
+            const ketBantuan = document.getElementById('input-ket-bantuan').value.trim();
+
+            const { error } = await supabaseClient.from('bantuan_kolaborasi').insert([{
+                laporan_id: id,
+                nama_lembaga: currentUser.nama_lembaga,
+                username_petugas: currentUser.username,
+                jenis_bantuan: `${jenisBantuan}${ketBantuan ? ' - ' + ketBantuan : ''}`
+            }]);
+
+            if (error) {
+                alert('Gagal: ' + error.message);
+            } else {
+                tutupModalKolaborasi();
+                alert('Berhasil bergabung dalam penanganan!');
+                ambilDataLaporan();
+            }
+        });
+
+        function bukaModalCatatan(id) {
+            document.getElementById('catatan-id-laporan').value = id;
+            document.getElementById('input-teks-catatan').value = '';
+            document.getElementById('modal-catatan').classList.remove('hidden');
+        }
+        function tutupModalCatatan() { document.getElementById('modal-catatan').classList.add('hidden'); }
+
+        document.getElementById('form-catatan').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('catatan-id-laporan').value;
+            const teks = document.getElementById('input-teks-catatan').value;
+
+            const itemLama = laporanList.find(i => i.id === id);
+            const logBaru = `[${new Date().toLocaleTimeString()}] (${currentUser.nama_lembaga}): ${teks}\n`;
+            
+            await supabaseClient.from('laporan').update({
+                catatan_lapangan: (itemLama.catatan_lapangan || '') + logBaru
+            }).eq('id', id);
+
+            tutupModalCatatan();
+            ambilDataLaporan();
+        });
+    </script>
+</body>
+</html>
