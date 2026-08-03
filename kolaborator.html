@@ -19,7 +19,7 @@
     </script>
     <style>
         #map { width: 100%; height: 100%; }
-@keyframes pulse-red {
+        @keyframes pulse-red {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
@@ -57,17 +57,18 @@
             
             <div class="absolute bottom-6 left-4 bg-white/95 backdrop-blur p-3 rounded-lg shadow-lg border border-slate-200 text-xs z-10 space-y-1.5">
                 <p class="font-bold text-slate-800 border-b pb-1">Keterangan Peta Kolaborasi</p>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> <span>Laporan Dalam Verifikasi</span></div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> <span>Laporan Sedang Diproses Sektor Utama</span></div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Darurat: Butuh Bantuan Lintas Sektor!</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-600 inline-block"></span> <span>Selesai Ditangani</span></div>
             </div>
         </main>
 
-        <!-- Panel Samping Khusus Kolaborator -->
-        <aside class="w-full lg:w-[600px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
-            <div class="grid grid-cols-3 bg-slate-100 border-b border-slate-200 text-center text-xs font-bold">
-                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-white">Sedang Proses (<span id="count-Proses">0</span>)</button>
-                <button onclick="gantiTab('Darurat')" id="tab-Darurat" class="py-3 px-1 text-slate-600 hover:text-red-600">🚨 Butuh Bantuan (<span id="count-Darurat">0</span>)</button>
+        <!-- Panel Samping Khusus Kolaborator (4 Tab) -->
+        <aside class="w-full lg:w-[620px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
+            <div class="grid grid-cols-4 bg-slate-100 border-b border-slate-200 text-center text-[11px] font-bold">
+                <button onclick="gantiTab('Verifikasi')" id="tab-Verifikasi" class="py-3 px-1 text-slate-600 hover:text-slate-900">🔍 Verif (<span id="count-Verifikasi">0</span>)</button>
+                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-white">Proses (<span id="count-Proses">0</span>)</button>
+                <button onclick="gantiTab('Darurat')" id="tab-Darurat" class="py-3 px-1 text-slate-600 hover:text-red-600">🚨 Darurat (<span id="count-Darurat">0</span>)</button>
                 <button onclick="gantiTab('BantuanSaya')" id="tab-BantuanSaya" class="py-3 px-1 text-slate-600 hover:text-slate-900">✨ Bantuan Saya</button>
             </div>
 
@@ -78,7 +79,7 @@
                             <th class="p-2">Waktu / ID</th>
                             <th class="p-2">Pelapor</th>
                             <th class="p-2">Lokasi & Keterangan</th>
-                            <th class="p-2 text-center">Aksi Kolaborasi</th>
+                            <th class="p-2 text-center" id="header-kolom-aksi">Aksi Kolaborasi</th>
                         </tr>
                     </thead>
                     <tbody id="table-body" class="divide-y divide-slate-200">
@@ -110,7 +111,7 @@
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Catatan / Detail Bantuan</label>
-                    <textarea id="input-ket-bantuan" rows="2" placeholder="Contoh: Menyalurkan bantuan logistik dan pemuka agama..." class="w-full p-2 border border-slate-300 rounded outline-none"></textarea>
+                    <textarea id="input-ket-bantuan" rows="2" placeholder="Contoh: Menyalurkan bantuan logistik..." class="w-full p-2 border border-slate-300 rounded outline-none"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded shadow transition">
                     ✨ Konfirmasi Bergabung
@@ -166,7 +167,6 @@
                     telp_posko: sessionStorage.getItem('sbt_telp_posko')
                 };
 
-                // PENGAMANAN ROLE: Sinkron dengan format 'petugas_kolaborasi' di database
                 if (currentUser.role === 'superadmin') {
                     window.location.href = 'admin.html';
                     return;
@@ -208,13 +208,14 @@
         }
 
         function hitungBadgeTab() {
+            document.getElementById('count-Verifikasi').innerText = laporanList.filter(i => i.status === 'Verifikasi').length;
             document.getElementById('count-Proses').innerText = laporanList.filter(i => i.status === 'Proses' && !i.minta_bantuan).length;
             document.getElementById('count-Darurat').innerText = laporanList.filter(i => i.status === 'Proses' && i.minta_bantuan).length;
         }
 
         function gantiTab(tab) {
             activeTab = tab;
-            ['Proses', 'Darurat', 'BantuanSaya'].forEach(t => {
+            ['Verifikasi', 'Proses', 'Darurat', 'BantuanSaya'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (t === tab) {
                     btn.className = 'py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-white font-bold';
@@ -227,15 +228,26 @@
 
         function renderTabel() {
             const tbody = document.getElementById('table-body');
+            const thAksi = document.getElementById('header-kolom-aksi');
             tbody.innerHTML = '';
 
-            let filtered = laporanList.filter(i => i.status === 'Proses');
+            let filtered = [];
+            const idsDibantu = daftarKolaborasi.filter(k => k.nama_lembaga === currentUser.nama_lembaga).map(k => k.laporan_id);
 
-            if (activeTab === 'Darurat') {
-                filtered = filtered.filter(i => i.minta_bantuan === true);
-            } else if (activeTab === 'BantuanSaya') {
-                const idsDibantu = daftarKolaborasi.filter(k => k.nama_lembaga === currentUser.nama_lembaga).map(k => k.laporan_id);
-                filtered = laporanList.filter(i => idsDibantu.includes(i.id));
+            if (activeTab === 'Verifikasi') {
+                filtered = laporanList.filter(i => i.status === 'Verifikasi');
+                thAksi.style.display = 'none'; // Sembunyikan kolom aksi di tab verifikasi karena belum bisa dibantu
+            } else {
+                thAksi.style.display = '';
+                if (activeTab === 'Proses') {
+                    // Sembunyikan laporan yang sudah dibantu oleh instansi ini, dan abaikan yang minta bantuan
+                    filtered = laporanList.filter(i => i.status === 'Proses' && !i.minta_bantuan && !idsDibantu.includes(i.id));
+                } else if (activeTab === 'Darurat') {
+                    // Sembunyikan laporan darurat yang sudah dibantu instansi ini
+                    filtered = laporanList.filter(i => i.status === 'Proses' && i.minta_bantuan && !idsDibantu.includes(i.id));
+                } else if (activeTab === 'BantuanSaya') {
+                    filtered = laporanList.filter(i => idsDibantu.includes(i.id));
+                }
             }
 
             if (filtered.length === 0) {
@@ -252,16 +264,23 @@
                     badgeKolab = `<div class="mt-1 text-[10px] text-purple-700 font-semibold">🤝 Tim Terjun: ` + kolabLaporan.map(k => `[${k.nama_lembaga}]`).join(', ') + `</div>`;
                 }
 
-                let statusDaruratHTML = item.minta_bantuan ? `<div class="mt-1 bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse">🚨 BUTUH BANTUAN SEKTOR!</div>` : '';
+                let statusBadge = '';
+                if (item.status === 'Verifikasi') {
+                    statusBadge = `<div class="mt-1 bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold inline-block">🔍 DALAM VERIFIKASI</div>`;
+                } else if (item.minta_bantuan) {
+                    statusBadge = `<div class="mt-1 bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse inline-block">🚨 BUTUH BANTUAN SEKTOR!</div>`;
+                }
 
                 let aksiHTML = '';
-                if (sudahTerdaftar) {
-                    aksiHTML = `
-                        <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-[10px] font-bold block mb-1">✓ Anda Telah Bergabung</span>
-                        <button onclick="bukaModalCatatan('${item.id}')" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold hover:bg-emerald-700">➕ Log Catatan</button>
-                    `;
-                } else {
-                    aksiHTML = `<button onclick="bukaModalKolaborasi('${item.id}')" class="bg-purple-600 text-white px-2.5 py-1.5 rounded text-[10px] font-bold hover:bg-purple-700 shadow">🤝 Ikut Terjun</button>`;
+                if (activeTab !== 'Verifikasi') {
+                    if (sudahTerdaftar) {
+                        aksiHTML = `
+                            <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-[10px] font-bold block mb-1">✓ Anda Telah Bergabung</span>
+                            <button onclick="bukaModalCatatan('${item.id}')" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold hover:bg-emerald-700">➕ Log Catatan</button>
+                        `;
+                    } else {
+                        aksiHTML = `<button onclick="bukaModalKolaborasi('${item.id}')" class="bg-purple-600 text-white px-2.5 py-1.5 rounded text-[10px] font-bold hover:bg-purple-700 shadow">🤝 Ikut Terjun</button>`;
+                    }
                 }
 
                 const tr = document.createElement('tr');
@@ -272,7 +291,7 @@
                     <td class="p-2 align-top">
                         <b>${item.lokasi}</b> <span class="text-[9px] bg-blue-100 text-blue-700 px-1 rounded">${item.jenis}</span><br>
                         <span class="text-slate-600 text-[11px] italic">"${item.ket || '-'}"</span>
-                        ${statusDaruratHTML}
+                        ${statusBadge}
                         ${badgeKolab}
                     </td>
                     <td class="p-2 text-center align-top" onclick="event.stopPropagation()">
@@ -289,25 +308,32 @@
             markers = [];
 
             laporanList.forEach(item => {
-                if (item.status !== 'Proses') return;
-
                 const el = document.createElement('div');
-                if (item.minta_bantuan) {
-                    el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
-                    el.style.width = '36px';
-                    el.style.height = '36px';
-                    el.style.backgroundColor = '#dc2626';
-                    el.innerText = '🆘';
-                } else {
+                if (item.status === 'Verifikasi') {
                     el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
-                    el.style.width = '26px';
-                    el.style.height = '26px';
-                    el.style.backgroundColor = '#3b82f6';
+                    el.style.width = '24px';
+                    el.style.height = '24px';
+                    el.style.backgroundColor = '#f59e0b'; // Amber
+                } else if (item.status === 'Proses') {
+                    if (item.minta_bantuan) {
+                        el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
+                        el.style.width = '36px';
+                        el.style.height = '36px';
+                        el.style.backgroundColor = '#dc2626';
+                        el.innerText = '🆘';
+                    } else {
+                        el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
+                        el.style.width = '26px';
+                        el.style.height = '26px';
+                        el.style.backgroundColor = '#3b82f6';
+                    }
+                } else {
+                    return; // Lewati yang sudah selesai jika tidak ingin terlalu ramai
                 }
 
                 const marker = new mapboxgl.Marker(el)
                     .setLngLat([item.lng, item.lat])
-                    .setPopup(new mapboxgl.Popup().setHTML(`<b>${item.lokasi}</b><br>${item.jenis}`))
+                    .setPopup(new mapboxgl.Popup().setHTML(`<b>${item.lokasi}</b><br>${item.jenis} (${item.status})`))
                     .addTo(map);
                 markers.push(marker);
             });
@@ -316,10 +342,7 @@
         function bukaModalKolaborasi(id) {
             document.getElementById('kolaborasi-id-laporan').value = id;
             document.getElementById('label-lembaga-kolaborasi').innerText = currentUser.nama_lembaga;
-            
-            // RESET FORM AGAR KOSONG SETIAP KALI DIBUKA
             document.getElementById('form-kolaborasi').reset();
-            
             document.getElementById('modal-kolaborasi').classList.remove('hidden');
         }
         function tutupModalKolaborasi() { document.getElementById('modal-kolaborasi').classList.add('hidden'); }
@@ -342,16 +365,16 @@
             } else {
                 tutupModalKolaborasi();
                 alert('Berhasil bergabung dalam penanganan!');
+                
+                // OTOMATIS PINDAH KE TAB "BANTUAN SAYA" SETELAH KLIK KIRIM BANTUAN
+                gantiTab('BantuanSaya');
                 ambilDataLaporan();
             }
         });
 
         function bukaModalCatatan(id) {
             document.getElementById('catatan-id-laporan').value = id;
-            
-            // RESET FORM CATATAN AGAR KOSONG SETIAP KALI DIBUKA
             document.getElementById('form-catatan').reset();
-            
             document.getElementById('modal-catatan').classList.remove('hidden');
         }
         function tutupModalCatatan() { document.getElementById('modal-catatan').classList.add('hidden'); }
