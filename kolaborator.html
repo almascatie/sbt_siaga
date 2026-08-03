@@ -166,13 +166,13 @@
                     telp_posko: sessionStorage.getItem('sbt_telp_posko')
                 };
 
-                // PENGAMANAN ROLE YANG KETAT
+                // PENGAMANAN ROLE: Sinkron dengan format 'petugas_kolaborasi' di database
                 if (currentUser.role === 'superadmin') {
                     window.location.href = 'admin.html';
                     return;
                 }
-                // Jika bukan role kolaborator (artinya dia petugas utama / damkar / bpbd), lempar ke petugas.html
-                if (currentUser.role !== 'PETUGAS_KOLABORASI') {
+                
+                if (currentUser.role !== 'petugas_kolaborasi') {
                     window.location.href = 'petugas.html';
                     return;
                 }
