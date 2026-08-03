@@ -1,21 +1,36 @@
 /* ==========================================
-   MASTER CSS 
+   MASTER CSS — SIAGA DARURAT SBT
+   Redesign: fokus pelaporan, identitas visual SBT
    ========================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap');
+
 :root {
-    --sbt-blue: #005577;      /* Biru Utama Pemerintahan */
-    --sbt-teal: #079591;      /* Hijau Toska / Sekunder */
-    --sbt-orange: #c66a3d;    /* Oranye Aksen / Tombol Penting */
-    --sbt-cream: #efe9dc;     /* Krem Latar Lembut */
-    --sbt-light: #fcfaf5;     /* Putih Tulang Latar Bersih */
+    /* Identitas warna resmi */
+    --sbt-blue: #005577;
+    --sbt-blue-dark: #00344a;
+    --sbt-teal: #079591;
+    --sbt-orange: #c66a3d;
+    --sbt-cream: #efe9dc;
+    --sbt-light: #fcfaf5;
+    --sbt-ink: #1c2b30;
+    --sbt-red: #d3352b;
+
+    --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 /* Pengaturan Dasar */
 body {
     background-color: var(--sbt-light);
-    color: #334155;
-    font-family: system-ui, -apple-system, sans-serif;
+    color: var(--sbt-ink);
+    font-family: var(--font-body);
 }
+h1, h2, h3, .font-display, button, .btn-primary, .btn-accent, .btn-teal, .btn-outline {
+    font-family: var(--font-display);
+}
+.font-mono-report { font-family: var(--font-mono); letter-spacing: 0.02em; }
 
 /* --- KOMPONEN TOMBOL (BUTTONS) --- */
 .btn-primary {
@@ -23,43 +38,49 @@ body {
     color: white;
     font-weight: 600;
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    border-radius: 0.6rem;
+    transition: background-color 0.2s, transform 0.15s;
     border: none;
     cursor: pointer;
 }
-.btn-primary:hover {
-    background-color: #00415a;
-}
+.btn-primary:hover { background-color: var(--sbt-blue-dark); transform: translateY(-1px); }
 
 .btn-teal {
     background-color: var(--sbt-teal);
     color: white;
     font-weight: 600;
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    border-radius: 0.6rem;
+    transition: background-color 0.2s, transform 0.15s;
     border: none;
     cursor: pointer;
 }
-.btn-teal:hover {
-    background-color: #057874;
-}
+.btn-teal:hover { background-color: #057874; transform: translateY(-1px); }
 
 .btn-accent {
     background-color: var(--sbt-orange);
     color: white;
     font-weight: 700;
-    padding: 0.5rem 1.25rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
-    box-shadow: 0 4px 6px -1px rgba(198, 106, 61, 0.2);
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.7rem;
+    transition: background-color 0.2s, transform 0.15s;
+    box-shadow: 0 8px 16px -4px rgba(198, 106, 61, 0.35);
     border: none;
     cursor: pointer;
 }
-.btn-accent:hover {
-    background-color: #ad5a32;
+.btn-accent:hover { background-color: #ad5a32; transform: translateY(-1px); }
+
+.btn-outline {
+    background-color: white;
+    color: var(--sbt-blue);
+    font-weight: 700;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.7rem;
+    border: 1.5px solid var(--sbt-blue);
+    transition: background-color 0.2s, transform 0.15s;
+    cursor: pointer;
 }
+.btn-outline:hover { background-color: #eef6f9; transform: translateY(-1px); }
 
 /* --- KOMPONEN KARTU & PANEL --- */
 .card-sbt {
@@ -69,7 +90,6 @@ body {
     padding: 1rem;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
-
 .card-header-sbt {
     background-color: var(--sbt-blue);
     color: white;
@@ -79,29 +99,108 @@ body {
     font-weight: bold;
 }
 
+/* --- HEADER --- */
+.site-header {
+    background: linear-gradient(135deg, var(--sbt-blue) 0%, var(--sbt-blue-dark) 100%);
+}
+
+/* --- FLOATING ACTION CARD (elemen fokus utama) --- */
+.floating-cta {
+    background: white;
+    border-radius: 1.1rem;
+    box-shadow: 0 20px 40px -12px rgba(0, 85, 119, 0.28), 0 4px 10px -4px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255,255,255,0.6);
+    animation: cta-rise 0.5s ease-out;
+}
+@keyframes cta-rise {
+    from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cta-icon-row span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+}
+
+/* --- STATUS SISTEM (indikator kepercayaan) --- */
+.status-panel {
+    background: linear-gradient(180deg, #f4fbf9 0%, #ffffff 100%);
+    border: 1px solid #d9efe9;
+    border-radius: 0.75rem;
+}
+.status-dot {
+    position: relative;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 9999px;
+    background: #16a34a;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.status-dot::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    border: 2px solid #16a34a;
+    animation: dot-pulse 1.8s ease-out infinite;
+}
+@keyframes dot-pulse {
+    0% { transform: scale(0.6); opacity: 0.9; }
+    100% { transform: scale(1.9); opacity: 0; }
+}
+
+/* --- LEGENDA PETA --- */
+.legend-modern {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.7);
+}
+
+/* --- LINK PENTING --- */
+.link-penting button {
+    font-family: var(--font-body);
+    color: #64748b;
+    transition: color 0.15s;
+}
+.link-penting button:hover { color: var(--sbt-blue); text-decoration: underline; }
+
 /* --- ANIMASI & EFEK KHUSUS --- */
 @keyframes pulse-sbt {
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(198, 106, 61, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(198, 106, 61, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(198, 106, 61, 0); }
 }
-.siaga-darurat-pulse {
-    animation: pulse-sbt 1.5s infinite;
+.siaga-darurat-pulse { animation: pulse-sbt 1.5s infinite; }
+
+/* ---- Peta ---- */
+#map, #map-picker { width: 100%; height: 100%; }
+.map-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    width: 36px;
+    height: 36px;
+    pointer-events: none;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* ---- Scrollbar tipis untuk sidebar ---- */
+#sidebar-list::-webkit-scrollbar { width: 5px; }
+#sidebar-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-/* ---- tambahan map ---- */
-        #map { width: 100%; height: 100%; }
-        .map-crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -100%);
-            width: 36px;
-            height: 36px;
-            pointer-events: none;
-            z-index: 5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+/* ---- Footer ---- */
+.footer-sbt {
+    background: var(--sbt-blue-dark);
+    color: #cfe4ec;
+}
+.footer-sbt button:hover { color: white; text-decoration: underline; }
