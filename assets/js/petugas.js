@@ -226,20 +226,12 @@ function renderTabel() {
             </div>
         `;
 
-        // TOMBOL KONTAK HANYA MUNCUL DI TAB BARU DAN TERVERIFIKASI
-        let tombolKontakHTML = '';
-        if (item.status === 'Baru' || item.status === 'Terverifikasi') {
-            tombolKontakHTML = renderTombolKontakAman(item.telp);
-        }
-
         let infoStatus = `<span class="text-red-600 font-bold">Baru (Belum Verif)</span>`;
         if (item.status === 'Terverifikasi') {
             infoStatus = `
                 <div class="text-[11px] space-y-0.5">
-                    <span class="text-amber-600 font-bold">Diverifikasi Oleh:</span><br>
-                    <span class="text-slate-700 font-medium">
-                        ${item.nama_petugas_verif || '-'}
-                    </span>   
+                    <span class="text-amber-600 font-bold">Terverifikasi Oleh:</span><br>
+                    <span class="text-slate-700 font-medium">${item.nama_petugas_verif || item.lembaga_verifikasi || '-'}</span>
                 </div>
             `;
         } else if (item.status === 'Proses') {
@@ -281,7 +273,7 @@ function renderTabel() {
             `;
         }
 
-        // Log Lapangan Ringkas
+        // Log Lapangan Ringkas (Box tipis, padding lega, tampilkan update terakhir)
         let logRingkasHTML = '';
         if (item.catatan_lapangan) {
             const barisLog = item.catatan_lapangan.trim().split('\n');
@@ -358,7 +350,7 @@ function renderTabel() {
             <td class="p-3 align-top">${waktuIdHTML}</td>
             <td class="p-3 align-top">
                 <p class="font-bold text-slate-800">${item.nama || 'Warga'}</p>
-                ${tombolKontakHTML}
+                ${renderTombolKontakAman(item.telp)}
             </td>
             <td class="p-3 align-top">
                 <div class="flex items-center gap-2 mb-1">
