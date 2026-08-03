@@ -142,7 +142,8 @@
                 document.getElementById('modal-admin-login').classList.add('hidden');
                 muatDaftarUser();
             } else {
-                document.getElementById('modal-admin-login').classList.add('hidden'); // Sembunyikan dulu sampai divalidasi modal
+                // Perbaikan: pastikan modal login TETAP MUNCUL jika belum terautentikasi
+                document.getElementById('modal-admin-login').classList.remove('hidden');
             }
         };
 
@@ -169,7 +170,8 @@
 
         function logoutAdmin() {
             sessionStorage.removeItem('sbt_admin_auth');
-            location.reload();
+            // Perbaikan: arahkan langsung kembali ke beranda publik (index.html)
+            window.location.href = 'index.html';
         }
 
         async function muatDaftarUser() {
