@@ -230,9 +230,11 @@ function renderTabel() {
         if (item.status === 'Terverifikasi') {
             infoStatus = `
                 <div class="text-[11px] space-y-0.5">
-                    <span class="text-amber-600 font-bold">Terverifikasi Oleh:</span><br>
-                    <span class="text-slate-700 font-medium">${item.nama_petugas_verif || item.lembaga_verifikasi || '-'}</span>
-                </div>
+                    <span class="text-amber-600 font-bold">Diverifikasi Oleh:</span><br>
+                    <span class="text-slate-700 font-medium">
+                        ${item.nama_petugas_verif || '-'}
+                    </span>               
+                    </div>
             `;
         } else if (item.status === 'Proses') {
             const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === item.id);
