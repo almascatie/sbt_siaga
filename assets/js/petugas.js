@@ -398,9 +398,12 @@ function renderMarkers() {
         const waktuLapor = new Date(item.created_at).getTime();
         const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
 
+        // Validasi ketat: Hanya Kritis jika status BARU dan benar-benar > 30 menit
         if (item.status === 'Baru') {
             color = '#ef4444';
-            if (selisihMenit > 30) isKritis = true;
+            if (selisihMenit > 30) {
+                isKritis = true;
+            }
         } else if (item.status === 'Terverifikasi') {
             color = '#f59e0b';
         } else if (item.status === 'Proses') {
@@ -420,6 +423,7 @@ function renderMarkers() {
             el.style.boxShadow = '0 0 0 6px rgba(198, 106, 61, 0.4)';
             el.innerText = '★';
         } else if (isKritis || item.minta_bantuan) {
+            // Marker peta tetap ada penanda khusus untuk laporan yang sudah >30 menit atau minta bantuan
             el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
             el.style.width = '36px';
             el.style.height = '36px';
