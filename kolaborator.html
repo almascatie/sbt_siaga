@@ -66,8 +66,8 @@
         <!-- Panel Samping Khusus Kolaborator (4 Tab) -->
         <aside class="w-full lg:w-[620px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
             <div class="grid grid-cols-4 bg-slate-100 border-b border-slate-200 text-center text-[11px] font-bold">
-                <button onclick="gantiTab('Verifikasi')" id="tab-Verifikasi" class="py-3 px-1 text-slate-600 hover:text-slate-900">🔍 Verif (<span id="count-Verifikasi">0</span>)</button>
-                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-white">Proses (<span id="count-Proses">0</span>)</button>
+                <button onclick="gantiTab('Verifikasi')" id="tab-Verifikasi" class="py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-white">🔍 Verif (<span id="count-Verifikasi">0</span>)</button>
+                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-3 px-1 text-slate-600 hover:text-slate-900">Proses (<span id="count-Proses">0</span>)</button>
                 <button onclick="gantiTab('Darurat')" id="tab-Darurat" class="py-3 px-1 text-slate-600 hover:text-red-600">🚨 Darurat (<span id="count-Darurat">0</span>)</button>
                 <button onclick="gantiTab('BantuanSaya')" id="tab-BantuanSaya" class="py-3 px-1 text-slate-600 hover:text-slate-900">✨ Bantuan Saya</button>
             </div>
@@ -145,7 +145,7 @@
 
         let laporanList = [];
         let markers = [];
-        let activeTab = 'Proses';
+        let activeTab = 'Verifikasi'; // Default tab awal diarahkan ke Verifikasi agar langsung terlihat
         let currentUser = null;
         let daftarKolaborasi = [];
 
@@ -179,6 +179,7 @@
 
                 document.getElementById('header-sapaan').innerText = `Mitra: ${currentUser.nama_lembaga} (${currentUser.username})`;
                 
+                gantiTab('Verifikasi'); // Aktifkan tab verifikasi saat pertama buka
                 ambilDataLaporan();
                 setInterval(ambilDataLaporan, 5000);
             } else {
@@ -208,9 +209,25 @@
         }
 
         function hitungBadgeTab() {
-            document.getElementById('count-Verifikasi').innerText = laporanList.filter(i => i.status === 'Verifikasi').length;
-            document.getElementById('count-Proses').innerText = laporanList.filter(i => i.status === 'Proses' && !i.minta_bantuan).length;
-            document.getElementById('count-Darurat').innerText = laporanList.filter(i => i.status === 'Proses' && i.minta_bantuan).length;
+            // Deteksi fleksibel berbagai variasi status verifikasi di database
+            const countVerif = laporanList.filter(i => {
+                const st = (i.status || '').toLowerCase();
+                return st.includes('verif') || st.includes('pending') || st.includes('menunggu');
+            }).length;
+
+            const countProses = laporanList.filter(i => {
+                const st = (i.status || '').toLowerCase();
+                return st.includes('proses') && !i.minta_bantuan;
+            }).length;
+
+            const countDarurat = laporanList.filter(i => {
+                const st = (i.status || '').toLowerCase();
+                return st.includes('proses') && i.minta_bantuan;
+            }).length;
+
+            document.getElementById('count-Verifikasi').innerText = countVerif;
+            document.getElementById('count-Proses').innerText = countProses;
+            document.getElementById('count-Darurat').innerText = countDarurat;
         }
 
         function gantiTab(tab) {
@@ -235,16 +252,23 @@
             const idsDibantu = daftarKolaborasi.filter(k => k.nama_lembaga === currentUser.nama_lembaga).map(k => k.laporan_id);
 
             if (activeTab === 'Verifikasi') {
-                filtered = laporanList.filter(i => i.status === 'Verifikasi');
-                thAksi.style.display = 'none'; // Sembunyikan kolom aksi di tab verifikasi karena belum bisa dibantu
+                filtered = laporanList.filter(i => {
+                    const st = (i.status || '').toLowerCase();
+                    return st.includes('verif') || st.includes('pending') || st.includes('menunggu');
+                });
+                thAksi.style.display = 'none'; 
             } else {
                 thAksi.style.display = '';
                 if (activeTab === 'Proses') {
-                    // Sembunyikan laporan yang sudah dibantu oleh instansi ini, dan abaikan yang minta bantuan
-                    filtered = laporanList.filter(i => i.status === 'Proses' && !i.minta_bantuan && !idsDibantu.includes(i.id));
+                    filtered = laporanList.filter(i => {
+                        const st = (i.status || '').toLowerCase();
+                        return st.includes('proses') && !i.minta_bantuan && !idsDibantu.includes(i.id);
+                    });
                 } else if (activeTab === 'Darurat') {
-                    // Sembunyikan laporan darurat yang sudah dibantu instansi ini
-                    filtered = laporanList.filter(i => i.status === 'Proses' && i.minta_bantuan && !idsDibantu.includes(i.id));
+                    filtered = laporanList.filter(i => {
+                        const st = (i.status || '').toLowerCase();
+                        return st.includes('proses') && i.minta_bantuan && !idsDibantu.includes(i.id);
+                    });
                 } else if (activeTab === 'BantuanSaya') {
                     filtered = laporanList.filter(i => idsDibantu.includes(i.id));
                 }
@@ -265,7 +289,8 @@
                 }
 
                 let statusBadge = '';
-                if (item.status === 'Verifikasi') {
+                const stLower = (item.status || '').toLowerCase();
+                if (stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu')) {
                     statusBadge = `<div class="mt-1 bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold inline-block">🔍 DALAM VERIFIKASI</div>`;
                 } else if (item.minta_bantuan) {
                     statusBadge = `<div class="mt-1 bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse inline-block">🚨 BUTUH BANTUAN SEKTOR!</div>`;
@@ -309,12 +334,14 @@
 
             laporanList.forEach(item => {
                 const el = document.createElement('div');
-                if (item.status === 'Verifikasi') {
+                const stLower = (item.status || '').toLowerCase();
+
+                if (stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu')) {
                     el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
                     el.style.width = '24px';
                     el.style.height = '24px';
                     el.style.backgroundColor = '#f59e0b'; // Amber
-                } else if (item.status === 'Proses') {
+                } else if (stLower.includes('proses')) {
                     if (item.minta_bantuan) {
                         el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
                         el.style.width = '36px';
@@ -328,7 +355,7 @@
                         el.style.backgroundColor = '#3b82f6';
                     }
                 } else {
-                    return; // Lewati yang sudah selesai jika tidak ingin terlalu ramai
+                    return; 
                 }
 
                 const marker = new mapboxgl.Marker(el)
@@ -365,8 +392,6 @@
             } else {
                 tutupModalKolaborasi();
                 alert('Berhasil bergabung dalam penanganan!');
-                
-                // OTOMATIS PINDAH KE TAB "BANTUAN SAYA" SETELAH KLIK KIRIM BANTUAN
                 gantiTab('BantuanSaya');
                 ambilDataLaporan();
             }
@@ -375,7 +400,7 @@
         function bukaModalCatatan(id) {
             document.getElementById('catatan-id-laporan').value = id;
             document.getElementById('form-catatan').reset();
-            document.getElementById('modal-catatan').classList.remove('hidden');
+            document.getElementById('modal-catatan').classList.add('hidden');
         }
         function tutupModalCatatan() { document.getElementById('modal-catatan').classList.add('hidden'); }
 
