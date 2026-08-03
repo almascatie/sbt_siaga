@@ -1,0 +1,90 @@
+/* ==========================================
+   MASTER CSS 
+   ========================================== */
+
+:root {
+    --sbt-blue: #005577;      /* Biru Utama Pemerintahan */
+    --sbt-teal: #079591;      /* Hijau Toska / Sekunder */
+    --sbt-orange: #c66a3d;    /* Oranye Aksen / Tombol Penting */
+    --sbt-cream: #efe9dc;     /* Krem Latar Lembut */
+    --sbt-light: #fcfaf5;     /* Putih Tulang Latar Bersih */
+}
+
+/* Pengaturan Dasar */
+body {
+    background-color: var(--sbt-light);
+    color: #334155;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* --- KOMPONEN TOMBOL (BUTTONS) --- */
+.btn-primary {
+    background-color: var(--sbt-blue);
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.btn-primary:hover {
+    background-color: #00415a;
+}
+
+.btn-teal {
+    background-color: var(--sbt-teal);
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.btn-teal:hover {
+    background-color: #057874;
+}
+
+.btn-accent {
+    background-color: var(--sbt-orange);
+    color: white;
+    font-weight: 700;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(198, 106, 61, 0.2);
+    border: none;
+    cursor: pointer;
+}
+.btn-accent:hover {
+    background-color: #ad5a32;
+}
+
+/* --- KOMPONEN KARTU & PANEL --- */
+.card-sbt {
+    background-color: white;
+    border: 1px solid var(--sbt-cream);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.card-header-sbt {
+    background-color: var(--sbt-blue);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    font-weight: bold;
+}
+
+/* --- ANIMASI & EFEK KHUSUS --- */
+@keyframes pulse-sbt {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(198, 106, 61, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(198, 106, 61, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(198, 106, 61, 0); }
+}
+.siaga-darurat-pulse {
+    animation: pulse-sbt 1.5s infinite;
+}
