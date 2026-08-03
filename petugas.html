@@ -63,13 +63,21 @@
         </main>
 
         <!-- Panel Kontrol Berbasis Tab -->
-        <aside class="w-full lg:w-[600px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
+        <aside class="w-full lg:w-[620px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
             <div class="grid grid-cols-5 bg-slate-100 border-b border-slate-200 text-center text-[10px] md:text-[11px] font-bold">
                 <button onclick="gantiTab('Baru')" id="tab-Baru" class="py-2.5 px-1 border-b-2 border-red-600 text-red-700 bg-white">Baru (<span id="count-Baru">0</span>)</button>
                 <button onclick="gantiTab('Terverifikasi')" id="tab-Terverifikasi" class="py-2.5 px-1 text-slate-600 hover:text-amber-600">Verif (<span id="count-Terverifikasi">0</span>)</button>
                 <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-2.5 px-1 text-slate-600 hover:text-blue-700">Proses (<span id="count-Proses">0</span>)</button>
                 <button onclick="gantiTab('Selesai')" id="tab-Selesai" class="py-2.5 px-1 text-slate-600 hover:text-green-700">Selesai (<span id="count-Selesai">0</span>)</button>
                 <button onclick="gantiTab('Semua')" id="tab-Semua" class="py-2.5 px-1 text-slate-600 hover:text-slate-900">Semua</button>
+            </div>
+
+            <!-- Filter Khusus Tab Semua -->
+            <div id="filter-container" class="p-2 bg-slate-50 border-b border-slate-200 hidden flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-600">Filter Instansi:</span>
+                <select id="select-filter-lembaga" onchange="renderTabel()" class="p-1.5 border border-slate-300 rounded bg-white text-xs outline-none w-2/3">
+                    <option value="">-- Semua Lembaga --</option>
+                </select>
             </div>
 
             <div class="flex-1 overflow-y-auto p-2">
@@ -103,7 +111,6 @@
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Nomor Telepon / Hotline Posko (Terkunci Otomatis)</label>
                     <input type="text" id="input-telp-petugas" disabled class="w-full p-2 border border-slate-200 bg-slate-100 rounded outline-none font-mono font-bold text-slate-700">
-                    <p class="text-[10px] text-slate-400 mt-1">Nomor ini terikat langsung dengan data master instansi lembaga Anda.</p>
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Estimasi Selesai (Jam)</label>
@@ -169,6 +176,7 @@
                 }
 
                 inisialisasiSesiHeader();
+                muatFilterLembaga();
                 ambilDataLaporan();
             } else {
                 window.location.href = 'login.html';
@@ -192,6 +200,20 @@
                 sapaan.innerText = `Hi, ${currentUser.nama_lembaga} (${currentUser.username})`;
                 badge.innerText = 'OPERASIONAL LAPANGAN';
                 badge.className = 'bg-red-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase';
+            }
+        }
+
+        async function muatFilterLembaga() {
+            const select = document.getElementById('select-filter-lembaga');
+            const { data, error } = await supabaseClient.from('lembaga').select('nama_lembaga').order('nama_lembaga');
+            if (!error && data) {
+                select.innerHTML = '<option value="">-- Semua Lembaga --</option>';
+                data.forEach(item => {
+                    let opt = document.createElement('option');
+                    opt.value = item.nama_lembaga;
+                    opt.textContent = item.nama_lembaga;
+                    select.appendChild(opt);
+                });
             }
         }
 
@@ -222,25 +244,33 @@
                     btn.className = 'py-2.5 px-1 text-slate-600 hover:text-slate-900 font-normal';
                 }
             });
+
+            // Tampilkan atau sembunyikan kotak filter lembaga khusus di tab "Semua"
+            const filterContainer = document.getElementById('filter-container');
+            if (tab === 'Semua') {
+                filterContainer.classList.remove('hidden');
+            } else {
+                filterContainer.classList.add('hidden');
+                document.getElementById('select-filter-lembaga').value = '';
+            }
+
             renderTabel();
         }
 
-        // Fungsi pembantu untuk membuat ikon interaktif Call & WhatsApp
-        function renderTombolKontak(nomor) {
-            if (!nomor) return '-';
-            // Bersihkan nomor untuk format tel dan wa (hanya angka/plus)
+        // Fungsi Tombol Ikon Kontak Aman (Tanpa menampilkan teks nomor telepon secara mentah)
+        function renderTombolKontakAman(nomor) {
+            if (!nomor) return '<span class="text-slate-400">-</span>';
             let cleanNum = nomor.replace(/[^0-9+]/g, '');
             if (cleanNum.startsWith('0')) {
-                cleanNum = '62' + cleanNum.slice(1); // Format standar Indonesia untuk WA
+                cleanNum = '62' + cleanNum.slice(1);
             }
             return `
-                <div class="inline-flex items-center gap-1.5">
-                    <span class="font-mono text-slate-700">${nomor}</span>
-                    <a href="tel:${nomor}" title="Telepon Biasa" class="bg-blue-100 hover:bg-blue-200 text-blue-700 p-1 rounded transition">
-                        📞
+                <div class="inline-flex items-center gap-2 mt-1">
+                    <a href="tel:${nomor}" title="Panggilan Telepon" class="bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-lg shadow transition flex items-center justify-center">
+                        📞 <span class="text-[10px] font-semibold ml-1">Call</span>
                     </a>
-                    <a href="https://wa.me/${cleanNum}" target="_blank" title="Chat WhatsApp" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-1 rounded transition">
-                        💬
+                    <a href="https://wa.me/${cleanNum}" target="_blank" title="WhatsApp Pelapor" class="bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-lg shadow transition flex items-center justify-center">
+                        💬 <span class="text-[10px] font-semibold ml-1">WhatsApp</span>
                     </a>
                 </div>
             `;
@@ -253,6 +283,18 @@
             let filtered = laporanList;
             if (activeTab !== 'Semua') {
                 filtered = laporanList.filter(i => i.status === activeTab);
+            } else {
+                // Filter tambahan berdasarkan pilihan lembaga di tab Semua
+                const selectedLembagaFilter = document.getElementById('select-filter-lembaga').value;
+                if (selectedLembagaFilter) {
+                    filtered = filtered.filter(i => 
+                        (i.lembaga_verifikasi && i.lembaga_verifikasi.includes(selectedLembagaFilter)) ||
+                        (i.lembaga_proses && i.lembaga_proses.includes(selectedLembagaFilter)) ||
+                        (i.nama_petugas_verif && i.nama_petugas_verif.includes(selectedLembagaFilter)) ||
+                        (i.nama_petugas_proses && i.nama_petugas_proses.includes(selectedLembagaFilter)) ||
+                        (i.nama_petugas_selesai && i.nama_petugas_selesai.includes(selectedLembagaFilter))
+                    );
+                }
             }
 
             if (filtered.length === 0) {
@@ -270,7 +312,7 @@
                     infoStatus = `
                         <span class="text-blue-600 font-bold">Ditangani oleh:</span><br>
                         <span class="text-[11px] text-slate-700">${item.nama_petugas_proses || item.lembaga_proses || '-'}</span><br>
-                        <span class="text-[10px] text-slate-500">Posko: ${renderTombolKontak(item.telp_petugas)}</span>
+                        <span class="text-[10px] text-slate-500">Posko: ${item.telp_petugas || '-'}</span>
                     `;
                 } else if (item.status === 'Selesai') {
                     infoStatus = `<span class="text-green-600 font-bold">Selesai Ditangani</span><br><span class="text-[10px] text-slate-500">${item.nama_petugas_selesai || ''}</span>`;
@@ -289,7 +331,7 @@
                     <td class="p-2 font-mono font-bold">${item.id}<br><span class="text-[9px] text-slate-400 font-normal">${new Date(item.created_at).toLocaleTimeString()}</span></td>
                     <td class="p-2">
                         <b>${item.nama || 'Warga'}</b><br>
-                        ${renderTombolKontak(item.telp)}
+                        ${renderTombolKontakAman(item.telp)}
                     </td>
                     <td class="p-2"><b>${item.lokasi}</b><br><span class="text-[9px] px-1.5 py-0.5 rounded ${badgeColor}">${item.jenis}</span></td>
                     <td class="p-2 text-center" onclick="event.stopPropagation()">
@@ -347,7 +389,7 @@
                         <b class="text-slate-800">${item.lokasi}</b><br>
                         <span>Jenis: <b>${item.jenis}</b></span><br>
                         <span>Status: <b class="text-red-600">${item.status}</b></span><br>
-                        <span>Pelapor: ${item.telp}</span>
+                        <span>Pelapor: ${item.nama || 'Warga'}</span>
                         ${isKritis ? '<br><span class="text-[10px] bg-red-100 text-red-700 font-bold px-1 rounded">⚠️ KRITIS: >30 Mnt Belum Verif!</span>' : ''}
                     </div>
                 `);
@@ -378,7 +420,6 @@
         function bukaModalProses(id) {
             document.getElementById('proses-id-laporan').value = id;
             document.getElementById('label-lembaga-aktif').innerText = currentUser.nama_lembaga;
-            // Nomor telepon posko dikunci otomatis dari data hotline lembaga pengguna yang login
             document.getElementById('input-telp-petugas').value = currentUser.telp_posko || '-';
             document.getElementById('modal-proses').classList.remove('hidden');
         }
@@ -388,7 +429,7 @@
         document.getElementById('form-proses').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('proses-id-laporan').value;
-            const telp = currentUser.telp_posko || '-'; // Terikat dari lembaga
+            const telp = currentUser.telp_posko || '-';
             const jam = parseFloat(document.getElementById('input-estimasi-jam').value) || 1;
 
             const detailPetugas = `${currentUser.nama_lembaga} (Petugas: ${currentUser.username})`;
