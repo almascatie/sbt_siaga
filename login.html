@@ -94,12 +94,14 @@
 
                 // Arahkan halaman berdasarkan role pengguna secara fleksibel
                 if (roleUser.includes('superadmin')) {
-                    sessionStorage.setItem('sbt_admin_auth', 'true'); // Penyelaras izin admin
+                    sessionStorage.setItem('sbt_admin_auth', 'true');
                     window.location.href = 'admin.html';
                 } else if (roleUser.includes('kolaborasi')) {
-                    window.location.href = 'kolaborator.html'; // Mengarahkan akun seperti kemenag1 / koperasi1
+                    window.location.href = 'kolaborator.html'; // Kemenag / Koperasi
+                } else if (roleUser.includes('pimpinan') || roleUser.includes('eksekutif')) {
+                    window.location.href = 'pimpinan.html'; // Bupati / Pimpinan Daerah
                 } else {
-                    window.location.href = 'petugas.html'; // Mengarahkan akun seperti damkar1 / bapedal
+                    window.location.href = 'petugas.html'; // Damkar / BPBD / Petugas Utama
                 }
 
             } catch (err) {
