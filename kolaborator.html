@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Kolaborasi Lintas Sektor - SBT</title>
+    <title>Pusat Koordinasi Bantuan - SBT</title>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,25 +21,34 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
         .siaga-kritis { animation: pulse-red 1.5s infinite; }
+        
+        /* Kartu Card Styling Khusus Kolaborator */
+        .kolab-card {
+            transition: all 0.2s ease;
+        }
+        .kolab-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
 <body class="bg-slate-50 h-screen flex flex-col font-sans overflow-hidden">
 
     <!-- Top Navigation Bar Kolaborator -->
-    <header class="bg-purple-950 text-white px-4 py-2.5 flex justify-between items-center shadow-md z-20">
+    <header class="bg-slate-900 text-white px-4 py-2.5 flex justify-between items-center shadow-md z-20 border-b border-slate-800">
         <div class="flex items-center gap-3">
-            <span class="bg-purple-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase tracking-wider">MITRA KOLABORASI</span>
+            <span class="bg-purple-700 text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider text-purple-100">KOORDINASI BANTUAN</span>
             <div>
-                <h1 class="font-bold text-xs md:text-sm" id="header-sapaan">Memuat Sesi Kolaborator...</h1>
-                <p class="text-[10px] text-purple-200">Kabupaten Seram Bagian Timur</p>
+                <h1 class="font-bold text-xs md:text-sm text-slate-100" id="header-sapaan">Memuat Sesi Mitra...</h1>
+                <p class="text-[10px] text-slate-400">Kabupaten Seram Bagian Timur</p>
             </div>
         </div>
         
         <div class="flex items-center gap-2">
-            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded text-xs font-semibold transition">
                 🌐 Web Publik
             </a>
-            <button onclick="logoutSession()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+            <button onclick="logoutSession()" class="bg-red-950 hover:bg-red-900 text-red-200 border border-red-800/60 px-3 py-1.5 rounded text-xs font-semibold transition">
                 🚪 Keluar
             </button>
         </div>
@@ -52,42 +61,32 @@
             <div id="map"></div>
             
             <div class="absolute bottom-6 left-4 bg-white/95 backdrop-blur p-3 rounded-lg shadow-lg border border-slate-200 text-xs z-10 space-y-1.5">
-                <p class="font-bold text-slate-800 border-b pb-1">Keterangan Peta Kolaborasi</p>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> <span>Laporan Dalam Verifikasi</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> <span>Laporan Sedang Diproses Sektor Utama</span></div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Darurat: Butuh Bantuan Lintas Sektor!</span></div>
+                <p class="font-bold text-slate-800 border-b pb-1">Pusat Koordinasi Lapangan</p>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> <span>Dalam Verifikasi</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> <span>Sedang Diproses Sektor Utama</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Darurat: Butuh Bantuan Sektoral!</span></div>
             </div>
         </main>
 
-        <!-- Panel Samping Khusus Kolaborator (4 Tab) -->
-        <aside class="w-full lg:w-[620px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
-            <div class="grid grid-cols-4 bg-slate-100 border-b border-slate-200 text-center text-[11px] font-bold">
-                <button onclick="gantiTab('Verifikasi')" id="tab-Verifikasi" class="py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-white">🔍 Verif (<span id="count-Verifikasi">0</span>)</button>
-                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-3 px-1 text-slate-600 hover:text-slate-900">Proses (<span id="count-Proses">0</span>)</button>
-                <button onclick="gantiTab('Darurat')" id="tab-Darurat" class="py-3 px-1 text-slate-600 hover:text-red-600">🚨 Darurat (<span id="count-Darurat">0</span>)</button>
-                <button onclick="gantiTab('BantuanSaya')" id="tab-BantuanSaya" class="py-3 px-1 text-slate-600 hover:text-slate-900">✨ Bantuan Saya</button>
+        <!-- Panel Samping Berbasis Kartu (Card-Based Layout) -->
+        <aside class="w-full lg:w-[480px] bg-slate-100/70 border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full">
+            <!-- 4 Tab Utama -->
+            <div class="grid grid-cols-4 bg-white border-b border-slate-200 text-center text-[11px] font-bold shadow-sm">
+                <button onclick="gantiTab('Verifikasi')" id="tab-Verifikasi" class="py-3 px-1 border-b-2 border-purple-600 text-purple-700 bg-purple-50/50 transition">🔍 Verif (<span id="count-Verifikasi">0</span>)</button>
+                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-3 px-1 text-slate-600 hover:text-slate-900 transition">Proses (<span id="count-Proses">0</span>)</button>
+                <button onclick="gantiTab('Darurat')" id="tab-Darurat" class="py-3 px-1 text-slate-600 hover:text-red-600 transition">🚨 Darurat (<span id="count-Darurat">0</span>)</button>
+                <button onclick="gantiTab('BantuanSaya')" id="tab-BantuanSaya" class="py-3 px-1 text-slate-600 hover:text-purple-700 transition">✨ Bantuan Saya</button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-2">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead class="bg-slate-50 sticky top-0 text-[10px] text-slate-700 uppercase border-b">
-                        <tr>
-                            <th class="p-2">Waktu / ID</th>
-                            <th class="p-2">Pelapor</th>
-                            <th class="p-2">Lokasi & Keterangan</th>
-                            <th class="p-2 text-center" id="header-kolom-aksi">Aksi Kolaborasi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body" class="divide-y divide-slate-200">
-                        <!-- Diisi via script -->
-                    </tbody>
-                </table>
+            <!-- Kontainer Daftar Kartu Laporan -->
+            <div id="card-container" class="flex-1 overflow-y-auto p-3 space-y-3">
+                <!-- Dirender secara dinamis via script -->
             </div>
         </aside>
     </div>
 
     <!-- MODAL IKUT KOLABORASI -->
-    <div id="modal-kolaborasi" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+    <div id="modal-kolaborasi" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3 backdrop-blur-xs">
         <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs space-y-3">
             <div class="flex justify-between items-center mb-1">
                 <h3 class="font-bold text-sm text-slate-800">🤝 Ikut Terjun & Kolaborasi</h3>
@@ -109,7 +108,7 @@
                     <label class="block font-medium text-slate-600 mb-1">Catatan / Detail Bantuan</label>
                     <textarea id="input-ket-bantuan" rows="2" placeholder="Contoh: Menyalurkan bantuan logistik..." class="w-full p-2 border border-slate-300 rounded outline-none"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded shadow transition">
+                <button type="submit" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded shadow transition">
                     ✨ Konfirmasi Bergabung
                 </button>
             </form>
@@ -117,10 +116,10 @@
     </div>
 
     <!-- MODAL CATATAN LAPANGAN -->
-    <div id="modal-catatan" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+    <div id="modal-catatan" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3 backdrop-blur-xs">
         <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
             <div class="flex justify-between items-center mb-1">
-                <h3 class="font-bold text-sm text-slate-800">Tambah Catatan / Laporan Lapangan</h3>
+                <h3 class="font-bold text-sm text-slate-800">Tambah Catatan / Progress Lapangan</h3>
                 <button onclick="tutupModalCatatan()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
             </div>
             <form id="form-catatan" class="space-y-2.5">
@@ -128,14 +127,13 @@
                 <div>
                     <textarea id="input-teks-catatan" rows="3" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Tulis perkembangan di lokasi..."></textarea>
                 </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded shadow transition">
-                    ➕ Kirim Catatan
+                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded shadow transition">
+                    ➕ Kirim Catatan Progress
                 </button>
             </form>
         </div>
     </div>
-  <script src="assets/js/kolaborator.js"></script> 
 
-    
+    <script src="assets/js/kolaborator.js"></script>
 </body>
 </html>
