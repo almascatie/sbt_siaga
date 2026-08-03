@@ -153,6 +153,7 @@ function gantiTab(tab) {
     if (filterContainer) {
         if (tab === 'Semua') {
             filterContainer.classList.remove('hidden');
+            muatFilterLembaga(); // Memastikan opsi dropdown filter terisi saat tab Semua dibuka
         } else {
             filterContainer.classList.add('hidden');
             const selectFilter = document.getElementById('select-filter-lembaga');
@@ -177,7 +178,6 @@ function renderTombolKontakAman(nomor) {
     `;
 }
 
-// Fungsi pembantu membuat format identitas ringkas (Contoh: Budi - Damkar)
 function formatIdentitasRingkas(namaUser, namaLembaga) {
     const lSingkat = namaLembaga ? namaLembaga.split(' ')[0] : 'Sektor';
     return `${namaUser || 'Petugas'} (${lSingkat})`;
@@ -239,11 +239,12 @@ function renderTabel() {
             const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === item.id);
             let kolabBlokHTML = '';
             if (kolabLaporan.length > 0) {
+                // TAMPILAN KOLABORASI: Bersih, hanya menampilkan nama lembaga saja tanpa deskripsi panjang
                 kolabBlokHTML = `
                     <div class="mt-2 pt-1.5 border-t border-slate-100">
-                        <p class="text-[10px] font-bold text-purple-700 uppercase">🤝 Kolaborasi Lintas Sektor:</p>
-                        <div class="text-[10px] text-slate-600 space-y-0.5 mt-0.5">
-                            ${kolabLaporan.map(k => `<div>• <b>${k.nama_lembaga}:</b> ${k.jenis_bantuan}</div>`).join('')}
+                        <p class="text-[10px] font-bold text-purple-700 uppercase">🤝 KOLABORASI LINTAS SEKTOR:</p>
+                        <div class="text-[10px] text-slate-700 font-semibold mt-0.5 space-y-0.5">
+                            ${kolabLaporan.map(k => `<div>• ${k.nama_lembaga}</div>`).join('')}
                         </div>
                     </div>
                 `;
@@ -257,7 +258,7 @@ function renderTabel() {
             infoStatus = `
                 <div class="space-y-1 text-[11px]">
                     <div class="bg-blue-50/70 p-2 rounded-lg border border-blue-100">
-                        <p class="font-bold text-blue-900 text-[10px] uppercase">👨‍🚒 Penanggung Jawab Utama</p>
+                        <p class="font-bold text-blue-900 text-[10px] uppercase">👨‍🚒 PENANGGUNG JAWAB UTAMA</p>
                         <p class="font-semibold text-slate-800">${item.lembaga_proses || '-'}</p>
                     </div>
                     ${alertDaruratHTML}
@@ -273,7 +274,6 @@ function renderTabel() {
             `;
         }
 
-        // Log Lapangan Ringkas + Tombol "Lihat Semua Log"
         let logRingkasHTML = '';
         if (item.catatan_lapangan) {
             const barisLog = item.catatan_lapangan.trim().split('\n');
@@ -568,7 +568,9 @@ document.getElementById('form-kolaborasi').addEventListener('submit', async (e) 
     }
 
     const itemLama = laporanList.find(i => i.id === id);
-    const logBaru = `[${new Date().toLocaleTimeString()}] 🤝 Kolaborasi dari ${ringkas}: [${jenisBantuan}] ${ketBantuan}\n`;
+    
+    // FORMAT LOG BANTUAN: Dibuat mencolok (bold/menyala) agar langsung ternotice di log lapangan
+    const logBaru = `[${new Date().toLocaleTimeString()}] ⚡ BANTUAN MASUK dari <b>${currentUser.nama_lembaga}</b>: [${jenisBantuan}] ${ketBantuan}\n`;
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
     const updatePayload = { catatan_lapangan: gabungLog };
@@ -645,12 +647,10 @@ async function aksiSelesai(id) {
     }
 }
 
-// Modal Transparan untuk Melihat Seluruh Riwayat Log Lapangan
 function bukaModalDetailLog(id) {
     const item = laporanList.find(i => i.id === id);
     if (!item) return;
 
-    // Buat atau gunakan elemen modal dinamis untuk menampilkan semua log
     let modal = document.getElementById('modal-view-log');
     if (!modal) {
         modal = document.createElement('div');
