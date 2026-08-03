@@ -233,7 +233,6 @@
 
                 inisialisasiSesiHeader();
                 muatFilterLembaga();
-                ambilDataLaporan();
             } else {
                 window.location.href = 'login.html';
             }
@@ -378,7 +377,6 @@
                             `</div>`;
                     }
 
-                    // Tanda Minta Bantuan Merah jika status minta_bantuan true dan belum ada kolaborator yang masuk
                     let tandaMintaBantuanHTML = '';
                     if (item.minta_bantuan && kolabLaporan.length === 0) {
                         tandaMintaBantuanHTML = `<div class="mt-1 bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse text-center">🚨 DARURAT: BUTUH BANTUAN LINTAS SEKTOR!</div>`;
@@ -419,7 +417,6 @@
                         const sudahKolab = daftarKolaborasi.some(k => k.laporan_id === item.id && k.nama_lembaga === currentUser.nama_lembaga);
                         const isLembagaUtama = item.lembaga_proses === currentUser.nama_lembaga;
 
-                        // Tombol kolaborasi selalu aktif untuk lembaga lain
                         if (!isLembagaUtama) {
                             if (sudahKolab) {
                                 tombolKolaborasiHTML = `<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-[10px] font-bold">✓ Sudah Tergabung</span>`;
@@ -428,7 +425,6 @@
                             }
                         }
 
-                        // Tombol Minta Bantuan khusus lembaga utama yang menangani
                         if (isLembagaUtama) {
                             if (item.minta_bantuan) {
                                 tombolMintaBantuanHTML = `<button onclick="aksiMintaBantuan('${item.id}', false)" class="bg-slate-500 text-white px-2.5 py-1 rounded font-bold hover:bg-slate-600 text-[10px]">❌ Batalkan Minta Bantuan</button>`;
@@ -597,7 +593,6 @@
             }
         });
 
-        // --- TOMBOL MINTA BANTUAN (DARURAT) ---
         async function aksiMintaBantuan(id, statusBantuan) {
             const pesan = statusBantuan ? 'Aktifkan status Minta Bantuan / Butuh Kolaborasi untuk laporan ini?' : 'Nonaktifkan status Minta Bantuan?';
             if (!confirm(pesan)) return;
@@ -619,7 +614,6 @@
             else ambilDataLaporan();
         }
 
-        // --- FUNGSI KOLABORASI LINTAS SEKTOR ---
         function bukaModalKolaborasi(id) {
             document.getElementById('kolaborasi-id-laporan').value = id;
             document.getElementById('label-lembaga-kolaborasi').innerText = currentUser.nama_lembaga;
@@ -655,7 +649,6 @@
             const logBaru = `[${new Date().toLocaleTimeString()}] 🤝 Bantuan Kolaborasi dari ${detailPetugas}: [${jenisBantuan}] ${ketBantuan}\n`;
             const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
-            // Jika sebelumnya minta_bantuan aktif, otomatis matikan tanda daruratnya karena bantuan sudah masuk
             const updatePayload = {
                 catatan_lapangan: gabungLog
             };
@@ -709,7 +702,6 @@
             const detailPetugas = `${currentUser.nama_lembaga} (Petugas: ${currentUser.username})`;
             const itemLama = laporanList.find(i => i.id === id);
             
-            // Rangkum seluruh lembaga kolaborator yang ikut membantu
             const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === id);
             let daftarLembagaBantu = itemLama.lembaga_proses || 'Lembaga Utama';
             if (kolabLaporan.length > 0) {
@@ -735,6 +727,7 @@
             }
         }
 
+        // Memastikan map dimuat dengan aman sebelum mengambil data pertama kali
         map.on('load', () => {
             ambilDataLaporan();
             setInterval(ambilDataLaporan, 5000);
