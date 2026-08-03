@@ -103,7 +103,7 @@
         </main>
 
         <!-- Panel Samping: Log Aktivitas, Ringkasan Laporan, & Kolaborasi Lembaga -->
-        <aside class="w-full lg:w-[720px] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl h-1/2 lg:h-full">
+        <aside class="w-full lg:w-[740px] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl h-1/2 lg:h-full">
             <!-- Navigasi Tab Samping (3 Tab) -->
             <div class="grid grid-cols-3 bg-slate-950 border-b border-slate-800 text-center text-xs font-bold">
                 <button onclick="gantiTab('LogAktivitas')" id="tab-LogAktivitas" class="py-3 px-1 border-b-2 border-amber-500 text-amber-400 bg-slate-900">📝 Log & Arahan Pimpinan</button>
@@ -228,7 +228,6 @@
                     const card = document.createElement('div');
                     card.className = 'bg-slate-800/90 border border-slate-700 rounded-xl p-4 space-y-3 shadow-lg';
                     
-                    // Format catatan agar lebih enak dibaca (menghilangkan format kaku terminal)
                     let catatanBersih = item.catatan_lapangan || 'Belum ada aktivitas penanganan lapangan tercatat.';
                     
                     card.innerHTML = `
@@ -236,18 +235,16 @@
                             <div>
                                 <span class="bg-amber-500/20 text-amber-300 font-bold text-[10px] px-2 py-0.5 rounded uppercase">${item.jenis}</span>
                                 <h3 class="text-white font-bold text-sm mt-1">📍 Lokasi: ${item.lokasi}</h3>
-                                <p class="text-slate-400 text-[11px]">Pelapor: <b class="text-slate-200">${item.nama || 'Warga'}</b> | Waktu: ${new Date(item.created_at).toLocaleTimeString()}</p>
+                                <p class="text-slate-400 text-[11px]">Pelapor: <b class="text-slate-200">${item.nama || 'Warga'}</b> | Waktu: ${new Date(item.created_at).toLocaleString()}</p>
                             </div>
                             <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-1 rounded font-semibold">${item.status}</span>
                         </div>
                         
-                        <!-- Log Lapangan yang Bersih & Nyaman Dibaca -->
                         <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 space-y-1.5">
                             <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Kronologi & Aktivitas Lapangan:</p>
                             <div class="text-slate-200 text-xs whitespace-pre-line leading-relaxed font-sans">${catatanBersih}</div>
                         </div>
 
-                        <!-- Form Komentar / Apresiasi Pimpinan -->
                         <div class="pt-1 flex gap-2">
                             <input type="text" id="input-komentar-${item.id}" placeholder="Tulis instruksi atau apresiasi pimpinan..." class="flex-1 bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white outline-none focus:border-amber-500">
                             <button onclick="kirimKomentarPimpinan('${item.id}')" class="bg-amber-600 hover:bg-amber-700 text-slate-950 font-bold px-4 py-2 rounded transition text-xs shadow">Kirim Pesan</button>
@@ -262,7 +259,6 @@
                     return;
                 }
 
-                // Filter Header Bar untuk Tabel Ringkasan
                 const filterBar = document.createElement('div');
                 filterBar.className = 'flex justify-between items-center mb-2 px-1 text-xs';
                 filterBar.innerHTML = `
@@ -276,10 +272,10 @@
                     <table class="w-full text-left border-collapse text-xs">
                         <thead class="bg-slate-950 sticky top-0 text-[10px] text-slate-400 uppercase border-b border-slate-800">
                             <tr>
-                                <th class="p-2.5">Waktu Laporan</th>
-                                <th class="p-2.5">Pelapor</th>
+                                <th class="p-2.5">Waktu Laporan & Pelapor</th>
                                 <th class="p-2.5">Lokasi & Kejadian</th>
-                                <th class="p-2.5 text-center">Status / Penanganan</th>
+                                <th class="p-2.5">Penanggung Jawab / Keterangan</th>
+                                <th class="p-2.5 text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800" id="tabel-semua-body"></tbody>
@@ -314,12 +310,44 @@
                         badgeStatus = `<span class="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold">Selesai</span>`;
                     }
 
+                    // Cari info lembaga yang kolaborasi / menangani dari log lapangan atau tabel bantuan_kolaborasi
+                    const listKolab = daftarKolaborasi.filter(k => k.laporan_id === item.id);
+                    let infoPenanganan = '-';
+
+                    if (stLower.includes('verif')) {
+                        infoPenanganan = `<span class="text-amber-300 italic">Menunggu verifikasi petugas...</span>`;
+                    } else {
+                        let teksLembaga = [];
+                        // Ambil lembaga dari log lapangan jika ada catatan
+                        if (item.catatan_lapangan) {
+                            if (item.catatan_lapangan.includes('Damkar')) teksLembaga.push('Damkar Kab. SBT');
+                            if (item.catatan_lapangan.includes('BPBD')) teksLembaga.push('BPBD SBT');
+                        }
+                        if (listKolab.length > 0) {
+                            listKolab.forEach(k => teksLembaga.push(k.nama_lembaga));
+                        }
+
+                        if (teksLembaga.length > 0) {
+                            infoPenanganan = `Ditangani oleh: <b class="text-white">${[...new Set(teksLembaga)].join(', ')}</b>`;
+                        } else {
+                            infoPenanganan = `<span class="text-slate-400">Petugas Utama Sektor</span>`;
+                        }
+                    }
+
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-800/50 cursor-pointer';
                     tr.innerHTML = `
-                        <td class="p-2.5 font-mono text-[11px] text-slate-300">${new Date(item.created_at).toLocaleString()}</td>
-                        <td class="p-2.5 font-semibold text-white">${item.nama || 'Warga'}</td>
-                        <td class="p-2.5"><b class="text-amber-300">${item.lokasi}</b><br><span class="text-[10px] text-slate-400">${item.jenis}</span></td>
+                        <td class="p-2.5 font-mono text-[11px]">
+                            <b class="text-white">${item.nama || 'Warga'}</b><br>
+                            <span class="text-[10px] text-slate-400">${new Date(item.created_at).toLocaleString()}</span>
+                        </td>
+                        <td class="p-2.5">
+                            <b class="text-amber-300">${item.lokasi}</b><br>
+                            <span class="text-[10px] text-slate-400">${item.jenis}</span>
+                        </td>
+                        <td class="p-2.5 text-[11px] text-slate-300">
+                            ${infoPenanganan}
+                        </td>
                         <td class="p-2.5 text-center">${badgeStatus}</td>
                     `;
                     tr.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
@@ -327,54 +355,44 @@
                 });
 
             } else if (activeTab === 'KolaborasiLembaga') {
-                if (daftarKolaborasi.length === 0) {
-                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Belum ada data instansi kolaborator yang diterjunkan ke lapangan.</div>`;
+                if (laporanList.length === 0) {
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Belum ada data laporan.</div>`;
                     return;
                 }
 
-                const kolabMap = {};
-                daftarKolaborasi.forEach(k => {
-                    if (!kolabMap[k.laporan_id]) kolabMap[k.laporan_id] = [];
-                    kolabMap[k.laporan_id].push(k);
-                });
-
-                const laporanAdaKolab = laporanList.filter(i => kolabMap[i.id]);
-
-                if (laporanAdaKolab.length === 0) {
-                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Belum ada laporan yang ditangani secara kolaboratif.</div>`;
-                    return;
-                }
-
-                laporanAdaKolab.forEach(item => {
-                    const listBantuan = kolabMap[item.id];
+                laporanList.forEach(item => {
+                    const listBantuan = daftarKolaborasi.filter(k => k.laporan_id === item.id);
+                    
                     const card = document.createElement('div');
                     card.className = 'bg-slate-800/90 border border-slate-700 rounded-xl p-4 space-y-3 shadow-lg';
                     
                     let daftarLembagaHtml = '';
-                    listBantuan.forEach(b => {
-                        daftarLembagaHtml += `
-                            <div class="bg-slate-900 border border-slate-700/80 p-2.5 rounded-lg flex justify-between items-center text-xs">
-                                <div>
-                                    <span class="text-amber-400 font-black">🏛️ ${b.nama_lembaga}</span> 
-                                    <span class="text-slate-400 text-[11px] ml-1">menyalurkan bantuan:</span>
+                    if (listBantuan.length > 0) {
+                        listBantuan.forEach(b => {
+                            daftarLembagaHtml += `
+                                <div class="bg-slate-900 border border-slate-700/80 p-2.5 rounded-lg text-xs">
+                                    <span class="text-amber-400 font-bold">🏛️ ${b.nama_lembaga}</span> 
+                                    <span class="text-slate-300 text-[11px] ml-1">menurunkan:</span>
                                     <b class="text-white block mt-0.5">${b.jenis_bantuan}</b>
                                 </div>
-                            </div>
-                        `;
-                    });
+                            `;
+                        });
+                    } else {
+                        daftarLembagaHtml = `<p class="text-slate-500 text-xs italic">Belum ada bantuan kolaborasi lintas sektor pada laporan ini.</p>`;
+                    }
 
                     card.innerHTML = `
                         <div class="flex justify-between items-start border-b border-slate-700/60 pb-2 cursor-pointer" onclick="map.flyTo({ center: [${item.lng}, ${item.lat}], zoom: 14 })">
                             <div>
                                 <span class="bg-purple-500/20 text-purple-300 font-bold text-[10px] px-2 py-0.5 rounded uppercase">${item.jenis}</span>
                                 <h3 class="text-white font-bold text-sm mt-1">📍 Lokasi: ${item.lokasi}</h3>
-                                <p class="text-slate-400 text-[11px]">Waktu Laporan: ${new Date(item.created_at).toLocaleString()} | Pelapor: <b class="text-slate-200">${item.nama || 'Warga'}</b></p>
+                                <p class="text-slate-400 text-[11px]">Waktu: ${new Date(item.created_at).toLocaleString()} | Pelapor: <b class="text-slate-200">${item.nama || 'Warga'}</b></p>
                             </div>
-                            <span class="text-[10px] bg-purple-950 text-purple-300 border border-purple-800 px-2 py-1 rounded font-semibold">Lintas Sektor</span>
+                            <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-1 rounded font-semibold">${item.status}</span>
                         </div>
                         
                         <div class="space-y-2">
-                            <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Daftar Lembaga yang Terjun & Bantuan:</p>
+                            <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Daftar Lembaga Kolaborator yang Terjun:</p>
                             <div class="space-y-2">
                                 ${daftarLembagaHtml}
                             </div>
