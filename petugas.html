@@ -21,7 +21,7 @@
         #map { width: 100%; height: 100%; }
         @keyframes pulse-red {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
         .siaga-kritis { animation: pulse-red 1.5s infinite; }
@@ -38,10 +38,16 @@
                 <p class="text-[10px] text-blue-200">Kabupaten Seram Bagian Timur</p>
             </div>
         </div>
+        
+        <!-- Info Kontak Superadmin & Navigasi -->
         <div class="flex items-center gap-2">
-            <!-- Tombol Pintas ke Halaman Input Laporan Mandiri -->
+            <div class="hidden md:flex items-center gap-2 bg-blue-900/80 px-3 py-1 rounded text-[10px] border border-blue-800">
+                <span>🛠️ Kontak Admin:</span>
+                <a href="tel:08114700111" class="font-mono underline hover:text-blue-200">0811-4700-111</a> / 
+                <a href="tel:08124800222" class="font-mono underline hover:text-blue-200">0812-4800-222</a>
+            </div>
             <a href="tambah_laporan.html" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition flex items-center gap-1">
-                📝 Input Laporan Mandiri
+                📝 Laporan Mandiri
             </a>
             <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
                 🌐 Web Publik
@@ -57,12 +63,31 @@
         <!-- Peta Interaktif Command Center -->
         <main class="flex-1 relative h-1/2 lg:h-full">
             <div id="map"></div>
-            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-md border border-slate-200 text-xs z-10 space-y-1.5">
-                <p class="font-bold text-slate-800">Indikator Peta & Status</p>
+            
+            <!-- Posisi Legenda dipindah ke bawah/agak tengah agar tidak menutupi pojok kiri atas -->
+            <div class="absolute bottom-6 left-4 bg-white/95 backdrop-blur p-3 rounded-lg shadow-lg border border-slate-200 text-xs z-10 space-y-1.5">
+                <p class="font-bold text-slate-800 border-b pb-1">Indikator Peta & Status</p>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600 inline-block animate-ping"></span> <span>Baru / Belum Verif (&gt;30m Kritis Kedip)</span></div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> <span>Terverifikasi (Siap Proses)</span></div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> <span>Proses (Lintas Sektor Bergerak)</span></div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-600 inline-block"></span> <span>Selesai</span></div>
+            </div>
+
+            <!-- Filter Tampilan Peta (Status & Jenis Kasus) -->
+            <div class="absolute top-4 right-4 bg-white/95 backdrop-blur p-2.5 rounded-lg shadow-md border border-slate-200 text-xs z-10 flex gap-2 items-center">
+                <span class="font-bold text-slate-700">Filter Peta:</span>
+                <select id="map-filter-status" onchange="renderMarkers()" class="p-1 border rounded bg-white text-xs outline-none">
+                    <option value="Semua">Semua Status</option>
+                    <option value="Baru">Baru</option>
+                    <option value="Terverifikasi">Terverifikasi</option>
+                    <option value="Proses">Proses</option>
+                    <option value="Selesai">Selesai</option>
+                </select>
+                <select id="map-filter-jenis" onchange="renderMarkers()" class="p-1 border rounded bg-white text-xs outline-none">
+                    <option value="Semua">Semua Jenis</option>
+                    <option value="Kebakaran">Karhutla / Kebakaran</option>
+                    <option value="Kekeringan">Krisis Air / Kekeringan</option>
+                </select>
             </div>
         </main>
 
@@ -200,6 +225,10 @@
                 sapaan.innerText = `Mode Pimpinan: ${currentUser.nama_lembaga}`;
                 badge.innerText = 'MONITORING PIMPINAN';
                 badge.className = 'bg-amber-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase';
+            } else if (currentUser.nama_lembaga && currentUser.nama_lembaga.toLowerCase().includes('112')) {
+                sapaan.innerText = `Call Center 112: ${currentUser.username}`;
+                badge.innerText = 'OPERATOR 112 (VERIFIKATOR)';
+                badge.className = 'bg-purple-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase';
             } else {
                 sapaan.innerText = `Hi, ${currentUser.nama_lembaga} (${currentUser.username})`;
                 badge.innerText = 'OPERASIONAL LAPANGAN';
@@ -303,6 +332,10 @@
                 return;
             }
 
+            // Deteksi apakah akun yang login adalah Call Center 112
+            const is112 = currentUser && currentUser.nama_lembaga && currentUser.nama_lembaga.toLowerCase().includes('112');
+            const isPimpinan = currentUser && currentUser.role === 'pimpinan';
+
             filtered.forEach(item => {
                 const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
                 
@@ -326,7 +359,29 @@
 
                 const ketLaporan = item.ket ? `<div class="mt-1 text-slate-600 text-[11px] italic bg-slate-50 p-1.5 rounded border border-slate-100">"${item.ket}"</div>` : `<div class="mt-1 text-slate-400 text-[10px] italic">Tanpa keterangan tambahan</div>`;
 
-                const canEdit = currentUser && currentUser.role !== 'pimpinan';
+                let aksiHTML = '';
+                if (isPimpinan) {
+                    aksiHTML = '<span class="text-[10px] text-slate-400 italic">Read-Only (Pimpinan)</span>';
+                } else if (is112) {
+                    // Call Center 112 HANYA BERHAK VERIFIKASI, selebihnya read-only
+                    if (item.status === 'Baru') {
+                        aksiHTML = `<button onclick="aksiVerifikasi('${item.id}')" class="bg-amber-600 text-white px-2.5 py-1 rounded font-bold hover:bg-amber-700 text-[10px]">✅ Verifikasi (112)</button>`;
+                    } else {
+                        aksiHTML = `<span class="text-[10px] text-purple-700 font-semibold bg-purple-50 px-2 py-0.5 rounded">Terkunci (Diteruskan ke Sektor)</span>`;
+                    }
+                } else {
+                    // Akun Sektor/Petugas Lapangan Normal
+                    aksiHTML = `
+                        <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                            ${item.status === 'Baru' ? `<button onclick="aksiVerifikasi('${item.id}')" class="bg-amber-600 text-white px-2.5 py-1 rounded font-bold hover:bg-amber-700 text-[10px]">✅ Verifikasi</button>` : ''}
+                            ${item.status === 'Terverifikasi' ? `<button onclick="bukaModalProses('${item.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded font-bold hover:bg-blue-700 text-[10px]">🚀 Mulai Proses</button>` : ''}
+                            ${item.status === 'Proses' ? `
+                                <button onclick="bukaModalCatatan('${item.id}')" class="bg-emerald-600 text-white px-2.5 py-1 rounded font-bold hover:bg-emerald-700 text-[10px]">➕ Log Catatan</button>
+                                <button onclick="aksiSelesai('${item.id}')" class="bg-green-600 text-white px-2.5 py-1 rounded font-bold hover:bg-green-700 text-[10px]">🏁 Selesai</button>
+                            ` : ''}
+                        </div>
+                    `;
+                }
 
                 const tr = document.createElement('tr');
                 tr.className = 'border-b hover:bg-slate-50 cursor-pointer';
@@ -346,16 +401,7 @@
                     <td class="p-2 text-center align-top" onclick="event.stopPropagation()">
                         <div class="mb-1">${infoStatus}</div>
                         ${timelineHTML}
-                        ${canEdit ? `
-                            <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                ${item.status === 'Baru' ? `<button onclick="aksiVerifikasi('${item.id}')" class="bg-amber-600 text-white px-2.5 py-1 rounded font-bold hover:bg-amber-700 text-[10px]">✅ Verifikasi</button>` : ''}
-                                ${item.status === 'Terverifikasi' ? `<button onclick="bukaModalProses('${item.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded font-bold hover:bg-blue-700 text-[10px]">🚀 Mulai Proses</button>` : ''}
-                                ${item.status === 'Proses' ? `
-                                    <button onclick="bukaModalCatatan('${item.id}')" class="bg-emerald-600 text-white px-2.5 py-1 rounded font-bold hover:bg-emerald-700 text-[10px]">➕ Log Catatan</button>
-                                    <button onclick="aksiSelesai('${item.id}')" class="bg-green-600 text-white px-2.5 py-1 rounded font-bold hover:bg-green-700 text-[10px]">🏁 Selesai</button>
-                                ` : ''}
-                            </div>
-                        ` : '<span class="text-[10px] text-slate-400 italic">Read-Only (Pimpinan)</span>'}
+                        ${aksiHTML}
                     </td>
                 `;
                 tr.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
@@ -368,19 +414,22 @@
             markers = [];
 
             const sekarang = new Date().getTime();
+            const filterStatus = document.getElementById('map-filter-status').value;
+            const filterJenis = document.getElementById('map-filter-jenis').value;
 
             laporanList.forEach(item => {
+                // Terapkan Filter Peta
+                if (filterStatus !== 'Semua' && item.status !== filterStatus) return;
+                if (filterJenis !== 'Semua' && item.jenis !== filterJenis) return;
+
                 let color = '#ef4444';
                 let isKritis = false;
 
                 const waktuLapor = new Date(item.created_at).getTime();
                 const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
 
-                // LOGIKA KEDAP-KEDIP KRITIS: Hanya menyala jika status "Baru" DAN waktu > 30 menit
                 if (item.status === 'Baru') {
-                    if (selisihMenit > 30) {
-                        isKritis = true;
-                    }
+                    if (selisihMenit > 30) isKritis = true;
                     color = '#ef4444';
                 } else if (item.status === 'Terverifikasi') {
                     color = '#f59e0b';
@@ -391,7 +440,6 @@
                 }
 
                 const el = document.createElement('div');
-                // Kelas 'siaga-kritis' hanya ditambahkan jika benar-benar kritis (>30 menit & status Baru)
                 el.className = `rounded-full shadow-md cursor-pointer border-2 border-white ${isKritis ? 'siaga-kritis' : ''}`;
                 el.style.width = '26px';
                 el.style.height = '26px';
