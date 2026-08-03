@@ -89,10 +89,12 @@
 
                 alert(`Selamat datang, ${data.nama_lembaga} (${data.role.toUpperCase()})!`);
 
-                // Arahkan halaman berdasarkan role pengguna
+                // Arahkan halaman berdasarkan role pengguna secara presisi
                 if (data.role === 'superadmin') {
                     sessionStorage.setItem('sbt_admin_auth', 'true'); // Penyelaras izin admin
                     window.location.href = 'admin.html';
+                } else if (data.role === 'PETUGAS_KOLABORASI') {
+                    window.location.href = 'kolaborator.html';
                 } else {
                     window.location.href = 'petugas.html';
                 }
