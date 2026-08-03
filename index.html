@@ -9,11 +9,11 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client -->
+    <!-- Konfigurasi Pusat & Supabase -->
+    <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         #map { width: 100%; height: 100%; }
-        /* Style untuk crosshair/ikon target di tengah peta saat pilih lokasi */
         .map-crosshair {
             position: absolute;
             top: 50%;
@@ -51,6 +51,9 @@
             </button>
             <a href="petugas.html" class="bg-blue-800 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded text-[11px] font-semibold transition shrink-0">
                 🔐 Login Petugas
+            </a>
+            <a href="admin.html" class="bg-purple-900 hover:bg-purple-800 text-white px-2.5 py-1.5 rounded text-[11px] font-semibold transition shrink-0">
+                ⚙️ Super Admin
             </a>
         </div>
     </header>
@@ -132,7 +135,7 @@
         </div>
     </div>
 
-    <!-- MODAL KHUSUS PILIH PETA (DENGAN TARGET & TOMBOL SELESAI) -->
+    <!-- MODAL PILIH PETA -->
     <div id="modal-peta-picker" class="fixed inset-0 bg-black/80 hidden z-50 flex flex-col">
         <div class="bg-blue-950 text-white px-4 py-3 flex justify-between items-center shadow-md">
             <div>
@@ -143,7 +146,6 @@
         </div>
         <div class="flex-1 relative">
             <div id="map-picker" class="w-full h-full"></div>
-            <!-- Ikon Target di Tengah Peta -->
             <div class="map-crosshair">
                 <div class="w-8 h-8 rounded-full border-2 border-red-600 bg-red-500/30 flex items-center justify-center shadow-lg animate-pulse">
                     <div class="w-2 h-2 bg-red-600 rounded-full"></div>
@@ -157,7 +159,7 @@
         </div>
     </div>
 
-    <!-- MODAL: CEK STATUS -->
+    <!-- MODAL CEK STATUS -->
     <div id="modal-cek" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
         <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs">
             <div class="flex justify-between items-center mb-3">
@@ -174,14 +176,8 @@
 
     <!-- SCRIPT UTAMA -->
     <script>
-        const t1 = 'pk.eyJ1IjoiYWxtYXNjYXRpZSIsImEiOiJjb';
-const t2 = 'HE3YzVhMGgwdzVjMmlwczVlaWhpMmJ2In';
-const t3 = '0.C98KArIa5on5kkr9C3Plvg';
-mapboxgl.accessToken = t1 + t2 + t3;
-
-const SUPABASE_URL = 'https://tpopgxvuwdjqaaltssuf.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_qfy-1Xfaa3MVa5HqvEEmOQ_tzT6qEPm';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
+        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
         let laporanList = [];
         let selectedCoords = { lng: 130.4850, lat: -3.1500 };
@@ -314,6 +310,9 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 penanggung_jawab: '-',
                 telp_petugas: '-',
                 estimasi_selesai: null,
+                lembaga_verifikasi: '-',
+                lembaga_proses: '-',
+                catatan_lapangan: '',
                 lng: selectedCoords.lng,
                 lat: selectedCoords.lat
             };
@@ -342,7 +341,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                     <p><b>Jenis:</b> ${data.jenis}</p>
                     <p><b>Status:</b> <span class="text-blue-600 font-bold">${data.status}</span></p>
                     <p><b>Instansi PJ:</b> ${data.penanggung_jawab}</p>
-                    <p><b>Kontak Petugas:</b> ${data.telp_petugas !== '-' ? `<a href="tel:${data.telp_petugas}" class="text-blue-600 underline font-bold">${data.telp_petugas}</a>` : '-'}</p>
+                    <p><b>Kontak Posko:</b> ${data.telp_petugas !== '-' ? `<a href="tel:${data.telp_petugas}" class="text-blue-600 underline font-bold">${data.telp_petugas}</a>` : '-'}</p>
                     <p><b>Keterangan:</b> ${data.ket}</p>
                 `;
             } else {
