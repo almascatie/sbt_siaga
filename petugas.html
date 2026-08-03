@@ -120,13 +120,13 @@
                 <button onclick="gantiTab('Semua')" id="tab-Semua" class="py-3 px-1 text-slate-600 hover:text-slate-900 transition">Semua</button>
             </div>
 
-            <!-- Filter Instansi Sektoral -->
-            <div id="filter-container" class="p-2.5 bg-slate-50 border-b border-slate-200 hidden flex items-center justify-between text-xs">
-                <span class="font-semibold text-slate-600">Filter Instansi:</span>
-                <select id="select-filter-lembaga" onchange="renderTabel()" class="p-1.5 border border-slate-300 rounded bg-white text-xs outline-none w-2/3 shadow-sm">
-                    <option value="">-- Semua Lembaga --</option>
-                </select>
-            </div>
+            <!-- Filter Instansi Sektoral (Muncul otomatis di Tab Semua) -->
+<div id="filter-container" class="p-2.5 bg-slate-50 border-b border-slate-200 hidden flex items-center justify-between text-xs">
+    <span class="font-semibold text-slate-600">Filter Instansi:</span>
+    <select id="select-filter-lembaga" onchange="renderTabel()" class="p-1.5 border border-slate-300 rounded bg-white text-xs outline-none w-2/3 shadow-sm">
+        <option value="">-- Semua Lembaga --</option>
+    </select>
+</div>
 
             <!-- 5, 6, 7, 16. TABEL, HIERARKI WAKTU/ID, BLOK AKSI & MODE FOKUS -->
             <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/50">
