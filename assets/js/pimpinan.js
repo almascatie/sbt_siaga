@@ -314,9 +314,9 @@ async function kirimKomentarPimpinan(id) {
 
     const itemLama = laporanList.find(i => i.id === id);
     
-    // Menggunakan nama lembaga/login secara langsung (misal: bupati, wakil_bupati, sekda)
-    const namaPengirim = currentUser.nama_lembaga || currentUser.username || 'Pimpinan';
-    const formatPesan = `👑 [${new Date().toLocaleTimeString()}] ${namaPengirim}: "${pesan}"\n`;
+    // Menggunakan username yang sedang aktif login (contoh: bupati, almas, dll)
+    const namaPengirim = currentUser.username || 'Pimpinan';
+    const formatPesan = `👑 [${new Date().toLocaleTimeStringモリ}] ${namaPengirim}: "${pesan}"\n`;
 
     const { error } = await supabaseClient.from('laporan').update({
         catatan_lapangan: (itemLama.catatan_lapangan || '') + formatPesan
