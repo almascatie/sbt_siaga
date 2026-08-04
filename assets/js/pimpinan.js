@@ -310,10 +310,13 @@ function renderPanel() {
 async function kirimKomentarPimpinan(id) {
     const inputEl = document.getElementById(`input-komentar-${id}`);
     const pesan = inputEl.value.trim();
-    if (!pesan) return alert('Tuliskan pesan atau apresiasi terlebih dahulu.');
+    if (!pesan) return alert('Tuliskan pesan atau arahan terlebih dahulu.');
 
     const itemLama = laporanList.find(i => i.id === id);
-    const formatPesan = `👑 [${new Date().toLocaleTimeString()}] ARAHAN PIMPINAN (${currentUser.nama_lembaga}): "${pesan}"\n`;
+    
+    // Menggunakan nama lembaga/login secara langsung (misal: bupati, wakil_bupati, sekda)
+    const namaPengirim = currentUser.nama_lembaga || currentUser.username || 'Pimpinan';
+    const formatPesan = `👑 [${new Date().toLocaleTimeString()}] ${namaPengirim}: "${pesan}"\n`;
 
     const { error } = await supabaseClient.from('laporan').update({
         catatan_lapangan: (itemLama.catatan_lapangan || '') + formatPesan
@@ -323,7 +326,7 @@ async function kirimKomentarPimpinan(id) {
         alert('Gagal mengirim pesan: ' + error.message);
     } else {
         inputEl.value = '';
-        alert('Arahan/pesan pimpinan berhasil ditambahkan ke log lapangan!');
+        alert('Pesan berhasil ditambahkan ke log lapangan!');
         ambilDataPimpinan();
     }
 }
