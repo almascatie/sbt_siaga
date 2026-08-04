@@ -314,9 +314,12 @@ async function kirimKomentarPimpinan(id) {
 
     const itemLama = laporanList.find(i => i.id === id);
     
-    // Menggunakan username yang sedang aktif login (contoh: bupati, almas, dll)
+    // Mengambil username akun yang sedang aktif login secara spesifik
     const namaPengirim = currentUser.username || 'Pimpinan';
-    const formatPesan = `👑 [${new Date().toLocaleTimeStringモリ}] ${namaPengirim}: "${pesan}"\n`;
+    const waktuSekarang = new Date().toLocaleTimeString();
+    
+    // Format log bersih tanpa typo
+    const formatPesan = `👑 [${waktuSekarang}] ${namaPengirim}: "${pesan}"\n`;
 
     const { error } = await supabaseClient.from('laporan').update({
         catatan_lapangan: (itemLama.catatan_lapangan || '') + formatPesan
