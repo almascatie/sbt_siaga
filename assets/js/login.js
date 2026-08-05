@@ -25,10 +25,10 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
                 / ==========================================
                 // 🟢 TAMBAHAN: UPDATE STATUS USER JADI ONLINE
                 // ==========================================
-                await supabaseClient
-                    .from('users')
-                    .update({ status_online: 'ONLINE' })
-                    .eq('id', data.id);
+            await supabaseClient
+                .from('users')
+                .update({ status_online: 'ONLINE' })
+                .eq('username', u); // 'u' adalah variabel input username
 
                 // Simpan sesi login sementara di browser (sessionStorage)
                 sessionStorage.setItem('sbt_logged_in', 'true');
