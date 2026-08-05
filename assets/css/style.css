@@ -212,24 +212,24 @@ h1, h2, h3, .font-display, button, .btn-primary, .btn-accent, .btn-teal, .btn-ou
 }
 /* --- WARNA LATAR BELAKANG KARTU LAPORAN BERDASARKAN STATUS --- */
 .card-proses-cek {
-    background-color: #f0fdf4; /* Hijau sangat teduh / lembut */
-    border-color: #bbf7d0;
+    background-color: #ecfdf5 !important; /* Hijau muda soft (Proses Cek) */
+    border-color: #a7f3d0 !important;
 }
 .card-terverifikasi {
-    background-color: #f0f9ff; /* Biru muda lembut */
-    border-color: #bae6fd;
+    background-color: #eff6ff !important; /* Biru soft (Terverifikasi) */
+    border-color: #bfdbfe !important;
 }
 .card-sedang-ditangani {
-    background-color: #fff7ed; /* Oranye lembut */
-    border-color: #fed7aa;
+    background-color: #fff7ed !important; /* Oranye soft (Sedang Ditangani) */
+    border-color: #fed7aa !important;
 }
 .card-selesai {
-    background-color: #f8fafc; /* Abu-abu kehijauan netral */
-    border-color: #e2e8f0;
+    background-color: #d1fae5 !important; /* Hijau tua soft / mint pekat (Selesai) */
+    border-color: #6ee7b7 !important;
 }
 .card-tidak-valid {
-    background-color: #f8fafc; /* Abu-abu netral */
-    border-color: #cbd5e1;
+    background-color: #f1f5f9 !important; /* Abu-abu netral (Tidak Valid) */
+    border-color: #cbd5e1 !important;
     opacity: 0.75;
 }
 
