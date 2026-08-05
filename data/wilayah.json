@@ -1,0 +1,1342 @@
+{
+    "metadata": {
+        "provinsi": "Maluku",
+        "kode_provinsi": "81",
+        "kabupaten_kota": "Kabupaten Seram Bagian Timur",
+        "kode_kabupaten": "81.05",
+        "dasar_hukum_pembentukan": "Undang-Undang Nomor 40 Tahun 2003",
+        "total_kecamatan": 16,
+        "total_kelurahan": 0,
+        "total_desa": 198,
+        "luas_wilayah_km2": 5725.513,
+        "sumber_data": "Kementerian Dalam Negeri (Kemendagri)"
+    },
+    "kecamatan": [
+        {
+            "kode_kecamatan": "81.05.01",
+            "nama_kecamatan": "Bula",
+            "jumlah_desa": 19,
+            "luas_wilayah_km2": null,
+            "keterangan": "Undang-Undang Nomor 40 Tahun 2003",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.01.2003",
+                    "nama": "Bula",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.01.2004",
+                    "nama": "Salas",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.01.2010",
+                    "nama": "Englas",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 17/2009"
+                },
+                {
+                    "kode_desa": "81.05.01.2011",
+                    "nama": "Bula Air Fatolo",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 17/2009"
+                },
+                {
+                    "kode_desa": "81.05.01.2012",
+                    "nama": "Sesar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 17/2009"
+                },
+                {
+                    "kode_desa": "81.05.01.2022",
+                    "nama": "Tansi Ambon",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.01.2023",
+                    "nama": "Kampung Wailola",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.01.2024",
+                    "nama": "Kampung Gorom",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.01.2025",
+                    "nama": "Limumir",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.01.2026",
+                    "nama": "Fattolo",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.02",
+            "nama_kecamatan": "Seram Timur",
+            "jumlah_desa": 6,
+            "luas_wilayah_km2": 3430.0,
+            "keterangan": "Sebagian menjadi wilayah Kec. Ukar Sengan, dll.",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.02.2001",
+                    "nama": "Geser",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.02.2002",
+                    "nama": "Kiltay",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.02.2003",
+                    "nama": "Kilwaru",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.02.2004",
+                    "nama": "Kellu",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.02.2005",
+                    "nama": "Keffing",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.02.2028",
+                    "nama": "Kilfura",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.03",
+            "nama_kecamatan": "Werinama",
+            "jumlah_desa": 10,
+            "luas_wilayah_km2": null,
+            "keterangan": "Sebagian menjadi wilayah Kec. Siwalalat",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.03.2001",
+                    "nama": "Batuasa",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.03.2002",
+                    "nama": "Hatuimeten",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.03.2003",
+                    "nama": "Werinama",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.03.2004",
+                    "nama": "Bemo",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.03.2015",
+                    "nama": "Tum",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.03.2016",
+                    "nama": "Gusalaut",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.03.2017",
+                    "nama": "Osong",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.03.2018",
+                    "nama": "Tobo",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.03.2021",
+                    "nama": "Bemo Perak",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 05/2010"
+                },
+                {
+                    "kode_desa": "81.05.03.2022",
+                    "nama": "Funa Naibaya",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 05/2010"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.04",
+            "nama_kecamatan": "Pulau Gorom",
+            "jumlah_desa": 24,
+            "luas_wilayah_km2": null,
+            "keterangan": "Sebagian menjadi wilayah Kec. Wakate, Gorom Timur, dll.",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.04.2001",
+                    "nama": "Kataloka",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.04.2003",
+                    "nama": "Amarsekaru",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.04.2004",
+                    "nama": "Ondor",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.04.2005",
+                    "nama": "Day",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.04.2006",
+                    "nama": "Mida",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.04.2021",
+                    "nama": "Loko",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.04.2022",
+                    "nama": "Sera",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.04.2023",
+                    "nama": "Kulugowa",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.04.2024",
+                    "nama": "Rumeon",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.04.2031",
+                    "nama": "Kelibingan",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.04.2042",
+                    "nama": "Namalean",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 24/2011"
+                },
+                {
+                    "kode_desa": "81.05.04.2043",
+                    "nama": "Dulak",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2044",
+                    "nama": "Kilalir Kilwouw",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2045",
+                    "nama": "Kilotak",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2046",
+                    "nama": "Kilean",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2047",
+                    "nama": "Kaforing",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2048",
+                    "nama": "Arewang",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2049",
+                    "nama": "Usun Kataloka",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2050",
+                    "nama": "Buan Kataloka",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2051",
+                    "nama": "Rumanama",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2052",
+                    "nama": "Sikaro Kataloka",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2053",
+                    "nama": "Aroa Kataloka",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.04.2054",
+                    "nama": "Dada Kataloka",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 22/2012"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.05",
+            "nama_kecamatan": "Wakate",
+            "jumlah_desa": 18,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Pulau Gorom",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.05.2001",
+                    "nama": "Semula wil. Kec. Pulau Gorom",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.05.2002",
+                    "nama": "Effa",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.05.2003",
+                    "nama": "Lahema",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.05.2004",
+                    "nama": "Utta",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.05.2005",
+                    "nama": "Kelangan",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.05.2006",
+                    "nama": "Amarlaut",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.05.2007",
+                    "nama": "Tamher Warat",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.05.2008",
+                    "nama": "Tamher Timur",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.05.2010",
+                    "nama": "Wunin Eldedora",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.05.2011",
+                    "nama": "Keldor",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.05.2021",
+                    "nama": "Tanah Baru",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 19/2009"
+                },
+                {
+                    "kode_desa": "81.05.05.2022",
+                    "nama": "Guliar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 19/2009"
+                },
+                {
+                    "kode_desa": "81.05.05.2023",
+                    "nama": "Karlomin",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 16/2011"
+                },
+                {
+                    "kode_desa": "81.05.05.2024",
+                    "nama": "Otademan",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.05.2025",
+                    "nama": "Kurwara",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.05.2026",
+                    "nama": "Kilbutak",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.05.2027",
+                    "nama": "Ruma Durun",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.05.2028",
+                    "nama": "Tana Soa",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.06",
+            "nama_kecamatan": "Tutuk Tolu",
+            "jumlah_desa": 11,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Seram Timur",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.06.2001",
+                    "nama": "Danama",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.06.2002",
+                    "nama": "Kilmoy",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.06.2003",
+                    "nama": "Kilbat",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.06.2004",
+                    "nama": "Sesar",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.06.2005",
+                    "nama": "Airkasar",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.06.2006",
+                    "nama": "Waras-Waras",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.06.2007",
+                    "nama": "Gah",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.06.2008",
+                    "nama": "Walang Tenga",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 11/2010"
+                },
+                {
+                    "kode_desa": "81.05.06.2009",
+                    "nama": "Bati Kilwouw",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 11/2010"
+                },
+                {
+                    "kode_desa": "81.05.06.2010",
+                    "nama": "Taruy",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.06.2011",
+                    "nama": "Kufar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.07",
+            "nama_kecamatan": "Siwalalat",
+            "jumlah_desa": 12,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Werinama (Perda No. 12/2010)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.07.2001",
+                    "nama": "Dihil",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.07.2002",
+                    "nama": "Liliama",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.07.2003",
+                    "nama": "Naiwel Ahinulin",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.07.2004",
+                    "nama": "Polin",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.07.2005",
+                    "nama": "Tunsai",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.07.2006",
+                    "nama": "Lapela",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.07.2007",
+                    "nama": "Nayet",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.07.2008",
+                    "nama": "Elnusa",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.07.2009",
+                    "nama": "Atiahu",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.07.2010",
+                    "nama": "Sabuai",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.07.2011",
+                    "nama": "Abulate",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                },
+                {
+                    "kode_desa": "81.05.07.2012",
+                    "nama": "Adabai",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 15/2009"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.08",
+            "nama_kecamatan": "Kilmury",
+            "jumlah_desa": 14,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Seram Timur (Perda No. 13/2010)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.08.2001",
+                    "nama": "Selor",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2002",
+                    "nama": "Nekan",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2003",
+                    "nama": "Afang Kota",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2004",
+                    "nama": "Afang Defol",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2005",
+                    "nama": "Kumelang",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2006",
+                    "nama": "Undur",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2007",
+                    "nama": "Kamar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2008",
+                    "nama": "Gunak",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2009",
+                    "nama": "Sumbawa",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 16/2009"
+                },
+                {
+                    "kode_desa": "81.05.08.2010",
+                    "nama": "Kilmury",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.08.2011",
+                    "nama": "Kilbon Kway",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 9/2010"
+                },
+                {
+                    "kode_desa": "81.05.08.2012",
+                    "nama": "Mising",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 22/2010"
+                },
+                {
+                    "kode_desa": "81.05.08.2013",
+                    "nama": "Bitorik",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.08.2014",
+                    "nama": "Taa",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.09",
+            "nama_kecamatan": "Pulau Panjang",
+            "jumlah_desa": 6,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Pulau Gorom (Perda No. 12/2011)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.09.2001",
+                    "nama": "Pulau Panjang",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.09.2002",
+                    "nama": "Argam",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.09.2003",
+                    "nama": "Lalasa",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.09.2004",
+                    "nama": "Magat",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.09.2005",
+                    "nama": "Ruku Ruku",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.09.2006",
+                    "nama": "Perik Basaranggi",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 23/2010"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.10",
+            "nama_kecamatan": "Teor",
+            "jumlah_desa": 10,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Wakate / Pulau Gorom (Perda No. 13/2011)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.10.2001",
+                    "nama": "Teor",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.10.2002",
+                    "nama": "Kartutin Kartenga",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.10.2003",
+                    "nama": "Ker Ker",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.10.2004",
+                    "nama": "Duryar Rumoy",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.10.2005",
+                    "nama": "Lapang Kampung Jawa",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.10.2006",
+                    "nama": "Kampung Tengah Wermaf",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.10.2007",
+                    "nama": "Kampung Baru",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.10.2008",
+                    "nama": "Mamur",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.10.2009",
+                    "nama": "Kiliwouw",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                },
+                {
+                    "kode_desa": "81.05.10.2010",
+                    "nama": "Karlokin",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 8/2010"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.11",
+            "nama_kecamatan": "Gorom Timur",
+            "jumlah_desa": 23,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Pulau Gorom Timur (Perda No. 14/2011)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.11.2001",
+                    "nama": "Kilkoda",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.11.2002",
+                    "nama": "Miran",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.11.2003",
+                    "nama": "Kota Sirih",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.11.2004",
+                    "nama": "Amarwatu",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.11.2005",
+                    "nama": "Aran",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 18/2009"
+                },
+                {
+                    "kode_desa": "81.05.11.2006",
+                    "nama": "Tuha",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 18/2009"
+                },
+                {
+                    "kode_desa": "81.05.11.2007",
+                    "nama": "Bas",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 18/2009"
+                },
+                {
+                    "kode_desa": "81.05.11.2008",
+                    "nama": "Tunas Ilur",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.11.2009",
+                    "nama": "Sagey",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.11.2010",
+                    "nama": "Armada",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.11.2011",
+                    "nama": "Waisalan",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.11.2012",
+                    "nama": "Basarin",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.11.2013",
+                    "nama": "Goha",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 7/2010"
+                },
+                {
+                    "kode_desa": "81.05.11.2014",
+                    "nama": "Rarat",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.11.2015",
+                    "nama": "Miran Gota",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 15/2011"
+                },
+                {
+                    "kode_desa": "81.05.11.2016",
+                    "nama": "Adar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.11.2017",
+                    "nama": "Tinarin",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.11.2018",
+                    "nama": "Etaralu",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.11.2019",
+                    "nama": "Kiltufa",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.11.2020",
+                    "nama": "Miran Kilian",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.11.2021",
+                    "nama": "Miran Keledar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.11.2022",
+                    "nama": "Miran Manaban",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.11.2023",
+                    "nama": "Miran Rumuar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.12",
+            "nama_kecamatan": "Bula Barat",
+            "jumlah_desa": 13,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Bula (Perda No. 25/2011)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.12.2001",
+                    "nama": "Hote",
+                    "status": "Desa",
+                    "catatan": "Semula wil Kec. Bula"
+                },
+                {
+                    "kode_desa": "81.05.12.2002",
+                    "nama": "Banggoi",
+                    "status": "Desa",
+                    "catatan": "Semula wil Kec. Bula"
+                },
+                {
+                    "kode_desa": "81.05.12.2003",
+                    "nama": "Waematakabo",
+                    "status": "Desa",
+                    "catatan": "Semula wil Kec. Bula"
+                },
+                {
+                    "kode_desa": "81.05.12.2004",
+                    "nama": "Waiketam Baru",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 06/2010"
+                },
+                {
+                    "kode_desa": "81.05.12.2005",
+                    "nama": "Waisamet",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 06/2010"
+                },
+                {
+                    "kode_desa": "81.05.12.2006",
+                    "nama": "Aki Jaya",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 06/2010"
+                },
+                {
+                    "kode_desa": "81.05.12.2007",
+                    "nama": "Jakarta Baru",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 06/2010"
+                },
+                {
+                    "kode_desa": "81.05.12.2008",
+                    "nama": "Silohan",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 11/2011"
+                },
+                {
+                    "kode_desa": "81.05.12.2009",
+                    "nama": "Sumber Agung",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 06/2010"
+                },
+                {
+                    "kode_desa": "81.05.12.2010",
+                    "nama": "Rukun Jaya",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 06/2010"
+                },
+                {
+                    "kode_desa": "81.05.12.2011",
+                    "nama": "Jembatan Basah",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 06/2010"
+                },
+                {
+                    "kode_desa": "81.05.12.2012",
+                    "nama": "Dreamland Hills",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.12.2013",
+                    "nama": "Banggoi Pancorang",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.13",
+            "nama_kecamatan": "Kian Darat",
+            "jumlah_desa": 10,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Seram Timur (Perda No. 11/2012)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.13.2001",
+                    "nama": "Kian Darat",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.13.2002",
+                    "nama": "Artafela",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.13.2003",
+                    "nama": "Angar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.13.2004",
+                    "nama": "Watu Watu",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.13.2005",
+                    "nama": "Kelaba",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.13.2006",
+                    "nama": "Kilga Kilwouw",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.13.2007",
+                    "nama": "Kilga Watubau",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.13.2008",
+                    "nama": "Rumfakar",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.13.2009",
+                    "nama": "Kileser",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.13.2010",
+                    "nama": "Rumoga",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.14",
+            "nama_kecamatan": "Siritaun Wida Timur",
+            "jumlah_desa": 10,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Seram Timur (Perda No. 11/2012)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.14.2001",
+                    "nama": "Kian Laut",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.14.2002",
+                    "nama": "Kuwaos",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.14.2003",
+                    "nama": "Salagor Air",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.14.2004",
+                    "nama": "Salagor Kota",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.14.2005",
+                    "nama": "Aruan Gaur",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.14.2006",
+                    "nama": "Keta Rumadan",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2010"
+                },
+                {
+                    "kode_desa": "81.05.14.2007",
+                    "nama": "Lian Tasik",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 24/2010"
+                },
+                {
+                    "kode_desa": "81.05.14.2008",
+                    "nama": "Keta",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 24/2010"
+                },
+                {
+                    "kode_desa": "81.05.14.2009",
+                    "nama": "Air Nanang",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 24/2010"
+                },
+                {
+                    "kode_desa": "81.05.14.2010",
+                    "nama": "Suru",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 24/2010"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.15",
+            "nama_kecamatan": "Teluk Waru",
+            "jumlah_desa": 11,
+            "luas_wilayah_km2": null,
+            "keterangan": "Semula wilayah Kec. Bula (Perda No. 11/2012)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.15.2001",
+                    "nama": "Waru",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.15.2002",
+                    "nama": "Bellis",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.15.2003",
+                    "nama": "Dawang",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.15.2004",
+                    "nama": "Solang",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.15.2005",
+                    "nama": "Karay",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 17/2009"
+                },
+                {
+                    "kode_desa": "81.05.15.2006",
+                    "nama": "Nama Lena",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.15.2007",
+                    "nama": "Nama Andan",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.15.2008",
+                    "nama": "Tubir Wasiwang",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.15.2009",
+                    "nama": "Kampung Baru",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No. 10/2012"
+                },
+                {
+                    "kode_desa": "81.05.15.2010",
+                    "nama": "Boinfia",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                },
+                {
+                    "kode_desa": "81.05.15.2011",
+                    "nama": "Madak",
+                    "status": "Desa",
+                    "catatan": "Pemekaran Perda No 22/2012"
+                }
+            ]
+        },
+        {
+            "kode_kecamatan": "81.05.16",
+            "nama_kecamatan": "Ukar Sengan",
+            "jumlah_desa": 10,
+            "luas_wilayah_km2": null,
+            "keterangan": "Pemekaran sebagian wilayah Kec. Seram Timur (Perda No. 3/2014)",
+            "desa_kelurahan": [
+                {
+                    "kode_desa": "81.05.16.2001",
+                    "nama": "Urung",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2002",
+                    "nama": "Kwamor Kecil Mata Ata",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2003",
+                    "nama": "Kwamor Kecil Mata Wawa",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2004",
+                    "nama": "Kwamor Besar Ena",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2005",
+                    "nama": "Kwamor Besar Witau",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2006",
+                    "nama": "Guli-Guli",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2007",
+                    "nama": "Manggis",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2008",
+                    "nama": "Ainena",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2009",
+                    "nama": "Mugusinis",
+                    "status": "Desa",
+                    "catatan": ""
+                },
+                {
+                    "kode_desa": "81.05.16.2010",
+                    "nama": "Akat Fadedo",
+                    "status": "Desa",
+                    "catatan": "Perbaikan nama sesuai Perda No. 3/2014"
+                }
+            ]
+        }
+    ]
+}
