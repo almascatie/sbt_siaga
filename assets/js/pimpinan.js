@@ -34,17 +34,15 @@ window.onload = () => {
 };
 
 async function logoutSession() {
-    const userId = sessionStorage.getItem('sbt_user_id');
+    const usernameAktif = sessionStorage.getItem('sbt_username');
     
-    if (userId) {
-        // 🔴 Ubah status di database jadi OFFLINE saat logout
+    if (usernameAktif) {
         await supabaseClient
             .from('users')
             .update({ status_online: 'OFFLINE' })
-            .eq('id', userId);
+            .eq('username', usernameAktif);
     }
 
-    // Bersihkan sesi browser
     sessionStorage.clear();
     window.location.href = 'index.html';
 }
