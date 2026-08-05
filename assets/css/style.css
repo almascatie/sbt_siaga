@@ -194,6 +194,23 @@ h1, h2, h3, .font-display, button, .btn-primary, .btn-accent, .btn-teal, .btn-ou
     align-items: center;
 }
 
+.btn-danger {
+    background-color: var(--sbt-red);
+    color: white;
+    font-weight: 700;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s, transform 0.15s;
+    box-shadow: 0 8px 16px -4px rgba(211, 53, 43, 0.35);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background-color: #b8261e;
+    transform: translateY(-1px);
+}
+
 /* ---- Scrollbar tipis untuk sidebar ---- */
 #sidebar-list::-webkit-scrollbar { width: 5px; }
 #sidebar-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
