@@ -31,34 +31,36 @@ async function loadMasterData() {
     }
 }
 
-function populateKecamatanDropdown() {
-    const selectKec = document.getElementById('select-kecamatan');
-    if (!selectKec) return;
-    selectKec.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+// Mengisi pilihan datalist kecamatan saat data dimuat
+function populateKecamatanDatalist() {
+    const datalistKec = document.getElementById('list-kecamatan');
+    if (!datalistKec) return;
+    datalistKec.innerHTML = '';
+    
     dataWilayahKemendagri.forEach(kec => {
         const opt = document.createElement('option');
         opt.value = kec.nama_kecamatan;
-        opt.textContent = kec.nama_kecamatan;
-        selectKec.appendChild(opt);
+        datalistKec.appendChild(opt);
     });
 }
 
-function updateDropdownDesa() {
-    const selectedKecName = document.getElementById('select-kecamatan').value;
-    const selectDesa = document.getElementById('select-desa');
-    selectDesa.innerHTML = '<option value="">-- Pilih Desa --</option>';
+// Memperbarui pilihan desa saat kecamatan dipilih (bersihkan kata "Desa")
+function updateDaftarDesa() {
+    const selectedKecName = document.getElementById('input-kecamatan').value;
+    const datalistDesa = document.getElementById('list-desa');
+    datalistDesa.innerHTML = '';
     
     const kecamatanObj = dataWilayahKemendagri.find(k => k.nama_kecamatan === selectedKecName);
     if (kecamatanObj && kecamatanObj.desa_kelurahan) {
         kecamatanObj.desa_kelurahan.forEach(desa => {
             const opt = document.createElement('option');
-            opt.value = desa.nama;
-            opt.textContent = desa.nama + (desa.status ? ` (${desa.status})` : '');
-            selectDesa.appendChild(opt);
+            // Bersihkan teks status / kata "Desa" agar murni namanya saja
+            let namaBersih = desa.nama.replace(/\(Desa\)/gi, '').trim();
+            opt.value = namaBersih;
+            datalistDesa.appendChild(opt);
         });
     }
 }
-
 async function ambilDataLaporan() {
     const { data, error } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
     if (!error) {
