@@ -33,9 +33,20 @@ window.onload = () => {
     }
 };
 
-function logoutSession() {
+async function logoutSession() {
+    const userId = sessionStorage.getItem('sbt_user_id');
+    
+    if (userId) {
+        // 🔴 Ubah status di database jadi OFFLINE saat logout
+        await supabaseClient
+            .from('users')
+            .update({ status_online: 'OFFLINE' })
+            .eq('id', userId);
+    }
+
+    // Bersihkan sesi browser
     sessionStorage.clear();
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
 }
 
 function sederhanakanTeks(teks, batasMaksimal = 25) {
