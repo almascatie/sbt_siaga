@@ -101,8 +101,7 @@
                     <h2 class="font-display font-bold text-[13px] text-slate-800">Layanan Darurat Seram Bagian Timur</h2>
                 </div>
                 <div class="space-y-2.5">
-                       <button onclick="bukaFormLapor()"
-                        class="btn-danger w-full text-[13px] py-3 px-3 flex items-center justify-center gap-2">
+                    <button onclick="bukaFormLapor()" class="btn-danger w-full text-[13px] py-3 px-3 flex items-center justify-center gap-2">
                         <span>📢</span>
                         <span>Laporkan</span>
                     </button>
@@ -150,7 +149,7 @@
         </div>
     </footer>
 
-    <!-- ============ MODAL: FORM LAPOR WARGA (Dengan Dropdown Kemendagri) ============ -->
+    <!-- ============ MODAL: FORM LAPOR WARGA ============ -->
     <div id="modal-lapor" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
         <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-3">
@@ -178,25 +177,24 @@
                             <option value="Kekeringan">💧 Krisis Air Bersih</option>
                         </select>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">Kecamatan</label>
-                            <input list="list-kecamatan" id="input-kecamatan" onchange="updateDaftarDesa()" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik kecamatan...">
-                            <datalist id="list-kecamatan"></datalist>
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">Desa / Kelurahan</label>
-                            <input list="list-desa" id="input-desa" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik desa...">
-                            <datalist id="list-desa"></datalist>
-                        </div>
-                    </div>
                     <div>
                         <label class="block font-medium text-slate-600 mb-1">Koordinat GPS</label>
                         <div class="flex gap-1">
                             <input type="text" id="warga-lng" readonly placeholder="Lng" class="w-1/2 p-1.5 bg-slate-100 border border-slate-300 rounded text-slate-500 font-mono text-[10px]">
                             <input type="text" id="warga-lat" readonly placeholder="Lat" class="w-1/2 p-1.5 bg-slate-100 border border-slate-300 rounded text-slate-500 font-mono text-[10px]">
                         </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium text-slate-600 mb-1">Kecamatan</label>
+                        <input list="list-kecamatan" id="input-kecamatan" onchange="updateDaftarDesa()" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik kec...">
+                        <datalist id="list-kecamatan"></datalist>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-600 mb-1">Desa / Kelurahan</label>
+                        <input list="list-desa" id="input-desa" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik desa...">
+                        <datalist id="list-desa"></datalist>
                     </div>
                 </div>
                 <div>
