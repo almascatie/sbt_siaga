@@ -84,7 +84,7 @@ async function cekAkunOnlineRealtime() {
         const adaPetugasOnline = data.some(u => lembagaUtamaList.includes(u.nama_lembaga));
 
         // Cek apakah ada pimpinan yang online (berdasarkan role PIMPINAN)
-        const adaPimpinanOnline = data.some(u => u.role === 'PIMPINAN');
+        const adaPimpinanOnline = data.some(u => u.role === 'pimpinan');
 
         // Tampilkan ke antarmuka publik
         const elLembaga = document.getElementById('status-lembaga-utama');
