@@ -24,16 +24,20 @@ async function muatDataLembaga() {
     const tbody = document.getElementById('table-lembaga');
     const selectInduk = document.getElementById('select-lembaga-induk');
     tbody.innerHTML = '';
-    selectInduk.innerHTML = '<option value="">-- Pilih Lembaga Induk --</option>';
+    if (selectInduk) {
+        selectInduk.innerHTML = '<option value="">-- Pilih Lembaga Induk --</option>';
+    }
 
     const { data, error } = await supabaseClient.from('lembaga').select('*').order('nama_lembaga');
     if (!error && data) {
         data.forEach(item => {
-            // Masukkan ke dropdown form petugas
-            let opt = document.createElement('option');
-            opt.value = item.nama_lembaga;
-            opt.textContent = `${item.nama_lembaga} (${item.kategori_peran || 'Dinas Teknis'})`;
-            selectInduk.appendChild(opt);
+            // Masukkan ke dropdown form petugas jika elemennya ada
+            if (selectInduk) {
+                let opt = document.createElement('option');
+                opt.value = item.nama_lembaga;
+                opt.textContent = `${item.nama_lembaga} (${item.kategori_peran || 'Dinas Teknis'})`;
+                selectInduk.appendChild(opt);
+            }
 
             // Badge warna kategori peran
             let badgePeran = '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">Dinas Teknis</span>';
@@ -53,8 +57,8 @@ async function muatDataLembaga() {
                 <td class="p-3 text-slate-600">${item.alamat_kantor || '-'}</td>
                 <td class="p-3">${badgePeran}</td>
                 <td class="p-3 text-center space-x-2">
-                    <button onclick="editLembaga('${item.id}', '${item.nama_lembaga}', '${item.hotline_telepon || ''}', '${item.alamat_kantor || ''}', '${item.kategori_peran || 'Dinas Teknis'}', '${item.keterangan || ''}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded font-semibold">✏️ Edit</button>
-                    <button onclick="hapusLembaga('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded font-semibold">🗑️ Hapus</button>
+                    <button type="button" onclick="editLembaga('${item.id}', '${item.nama_lembaga}', '${item.hotline_telepon || ''}', '${item.logo_url || ''}', '${item.alamat_kantor || ''}', '${item.kategori_peran || 'Dinas Teknis'}', '${item.keterangan || ''}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded font-semibold">✏️ Edit</button>
+                    <button type="button" onclick="hapusLembaga('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded font-semibold">🗑️ Hapus</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -62,12 +66,12 @@ async function muatDataLembaga() {
     }
 }
 
-// --- MANAJEMEN LEMBAGA ---
 function bukaModalLembaga() {
     document.getElementById('lembaga-id').value = '';
     document.getElementById('input-nama-lembaga').value = '';
     document.getElementById('input-hotline-lembaga').value = '';
-    document.getElementById('input-logo-lembaga').value = '';
+    const logoInput = document.getElementById('input-logo-lembaga');
+    if (logoInput) logoInput.value = '';
     document.getElementById('input-alamat-lembaga').value = '';
     document.getElementById('input-kategori-peran').value = 'Dinas Teknis';
     document.getElementById('input-ket-lembaga').value = '';
@@ -79,7 +83,8 @@ function editLembaga(id, nama, hotline, logo, alamat, peran, ket) {
     document.getElementById('lembaga-id').value = id;
     document.getElementById('input-nama-lembaga').value = nama;
     document.getElementById('input-hotline-lembaga').value = hotline;
-    document.getElementById('input-logo-lembaga').value = logo;
+    const logoInput = document.getElementById('input-logo-lembaga');
+    if (logoInput) logoInput.value = logo;
     document.getElementById('input-alamat-lembaga').value = alamat;
     document.getElementById('input-kategori-peran').value = peran;
     document.getElementById('input-ket-lembaga').value = ket;
@@ -87,12 +92,19 @@ function editLembaga(id, nama, hotline, logo, alamat, peran, ket) {
     document.getElementById('modal-lembaga').classList.remove('hidden');
 }
 
+// [PERBAIKAN UTAMA] Fungsi penutup modal lembaga yang sebelumnya hilang
+function tutupModalLembaga() {
+    const modal = document.getElementById('modal-lembaga');
+    if (modal) modal.classList.add('hidden');
+}
+
 document.getElementById('form-lembaga').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('lembaga-id').value;
     const nama_lembaga = document.getElementById('input-nama-lembaga').value.trim();
     const hotline_telepon = document.getElementById('input-hotline-lembaga').value.trim();
-    const logo_url = document.getElementById('input-logo-lembaga').value.trim();
+    const logoInput = document.getElementById('input-logo-lembaga');
+    const logo_url = logoInput ? logoInput.value.trim() : '';
     const alamat_kantor = document.getElementById('input-alamat-lembaga').value.trim();
     const kategori_peran = document.getElementById('input-kategori-peran').value;
     const keterangan = document.getElementById('input-ket-lembaga').value.trim();
@@ -112,8 +124,14 @@ document.getElementById('form-lembaga').addEventListener('submit', async (e) => 
     }
 });
 
-// Sesuaikan pemanggilan di fungsi muatDataLembaga (pada tombol edit):
-// editLembaga('${item.id}', '${item.nama_lembaga}', '${item.hotline_telepon || ''}', '${item.logo_url || ''}', '${item.alamat_kantor || ''}', '${item.kategori_peran || 'Dinas Teknis'}', '${item.keterangan || ''}')
+async function hapusLembaga(id) {
+    if (!confirm('Yakin ingin menghapus lembaga ini?')) return;
+    // Mengonversi id ke angka jika kolom id di database bertipe integer (int4)
+    const targetId = !isNaN(id) ? parseInt(id, 10) : id;
+    const { error } = await supabaseClient.from('lembaga').delete().eq('id', targetId);
+    if (error) alert('Gagal hapus: ' + error.message);
+    else muatDataLembaga();
+}
 
 
 // --- MANAJEMEN PETUGAS / AKUN PENGGUNA ---
@@ -135,8 +153,8 @@ async function muatDataPetugas() {
                 <td class="p-3">${item.nama_lembaga || '-'}</td>
                 <td class="p-3 uppercase font-semibold text-blue-600">${item.role}</td>
                 <td class="p-3 text-center space-x-2">
-                    <button onclick="editPetugas('${item.id}', '${item.nama_lengkap || ''}', '${item.username}', '${item.password || ''}', '${item.telp_petugas || ''}', '${item.nama_lembaga || ''}', '${item.role}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded font-semibold">✏️ Edit</button>
-                    <button onclick="hapusPetugas('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded font-semibold">🗑️ Hapus</button>
+                    <button type="button" onclick="editPetugas('${item.id}', '${item.nama_lengkap || ''}', '${item.username}', '${item.password || ''}', '${item.telp_petugas || ''}', '${item.nama_lembaga || ''}', '${item.role}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded font-semibold">✏️ Edit</button>
+                    <button type="button" onclick="hapusPetugas('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded font-semibold">🗑️ Hapus</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -163,6 +181,12 @@ function editPetugas(id, namaLengkap, username, password, telpPetugas, namaLemba
     document.getElementById('modal-petugas').classList.remove('hidden');
 }
 
+// [PERBAIKAN UTAMA] Fungsi penutup modal petugas yang sebelumnya hilang
+function tutupModalPetugas() {
+    const modal = document.getElementById('modal-petugas');
+    if (modal) modal.classList.add('hidden');
+}
+
 document.getElementById('form-petugas').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('petugas-id').value;
@@ -174,9 +198,10 @@ document.getElementById('form-petugas').addEventListener('submit', async (e) => 
     const role = document.getElementById('input-role-petugas').value;
 
     if (id) {
+        const targetId = !isNaN(id) ? parseInt(id, 10) : id;
         const { error } = await supabaseClient.from('users').update({
             nama_lengkap, username, password, telp_petugas, nama_lembaga, role
-        }).eq('id', id);
+        }).eq('id', targetId);
 
         if (error) alert('Gagal update akun: ' + error.message);
         else { tutupModalPetugas(); muatDataPetugas(); alert('Akun pengguna diperbarui!'); }
@@ -192,7 +217,9 @@ document.getElementById('form-petugas').addEventListener('submit', async (e) => 
 
 async function hapusPetugas(id) {
     if (!confirm('Yakin ingin menghapus akun ini?')) return;
-    const { error } = await supabaseClient.from('users').delete().eq('id', id);
+    // Mengonversi id ke angka jika kolom id di database bertipe integer (int4)
+    const targetId = !isNaN(id) ? parseInt(id, 10) : id;
+    const { error } = await supabaseClient.from('users').delete().eq('id', targetId);
     if (error) alert('Gagal hapus: ' + error.message);
     else muatDataPetugas();
 }
@@ -214,8 +241,8 @@ async function muatDataLaporanAdmin() {
                 <td class="p-3 italic text-slate-600">${item.ket || '-'}</td>
                 <td class="p-3 text-center"><span class="bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-bold">${item.status}</span></td>
                 <td class="p-3 text-center space-x-1">
-                    <button onclick='bukaEditLaporan(${JSON.stringify(item)})' class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded font-semibold text-[11px]">✏️ Edit</button>
-                    <button onclick="hapusLaporanAdmin('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded font-semibold text-[11px]">🗑️ Hapus</button>
+                    <button type="button" onclick='bukaEditLaporan(${JSON.stringify(item)})' class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded font-semibold text-[11px]">✏️ Edit</button>
+                    <button type="button" onclick="hapusLaporanAdmin('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded font-semibold text-[11px]">🗑️ Hapus</button>
                 </td>
             `;
             tbody.appendChild(tr);
