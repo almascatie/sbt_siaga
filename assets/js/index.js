@@ -71,22 +71,33 @@ async function ambilDataLaporan() {
 // Cek Sesi / Akun Aktif untuk Lembaga Utama & Pimpinan
 async function cekAkunOnlineRealtime() {
     try {
-        // Asumsi tabel session / users di Supabase mencatat status login aktif
-        const { data, error } = await supabaseClient.from('users').select('username, role, lembaga_terkait, status_online').eq('status_online', 'ONLINE');
+        // Ambil data user yang statusnya ONLINE
+        const { data, error } = await supabaseClient
+            .from('users')
+            .select('nama_lembaga, role, status_online')
+            .eq('status_online', 'ONLINE');
+
         if (error || !data) return;
 
+        // Cek apakah ada petugas dari lembaga utama yang online
         const lembagaUtamaList = ['BPBD SBT', 'Damkar Kab. SBT', 'Call Center 112'];
-        const onlineLembaga = data.filter(u => lembagaUtamaList.includes(u.lembaga_terkait)).map(u => u.lembaga_terkait);
-        const onlinePimpinan = data.filter(u => u.role === 'PIMPINAN').map(u => u.username);
+        const adaPetugasOnline = data.some(u => lembagaUtamaList.includes(u.nama_lembaga));
 
+        // Cek apakah ada pimpinan yang online (berdasarkan role PIMPINAN)
+        const adaPimpinanOnline = data.some(u => u.role === 'PIMPINAN');
+
+        // Tampilkan ke antarmuka publik
         const elLembaga = document.getElementById('status-lembaga-utama');
         const elPimpinan = document.getElementById('status-pimpinan-online');
 
         if (elLembaga) {
-            elLembaga.textContent = onlineLembaga.length > 0 ? [...new Set(onlineLembaga)].join(', ') + ' Online' : 'Standby (Offline)';
+            elLembaga.textContent = adaPetugasOnline ? '🟢 Siaga (Online)' : '⚪ Offline';
+            elLembaga.className = adaPetugasOnline ? 'font-medium text-emerald-600' : 'font-medium text-slate-400';
         }
+        
         if (elPimpinan) {
-            elPimpinan.textContent = onlinePimpinan.length > 0 ? onlinePimpinan.join(', ') + ' Memantau' : 'Belum Terpantau';
+            elPimpinan.textContent = adaPimpinanOnline ? '🟢 Memantau' : '⚪ Belum Memantau';
+            elPimpinan.className = adaPimpinanOnline ? 'font-medium text-blue-600' : 'font-medium text-slate-400';
         }
     } catch (e) {
         console.error("Gagal cek status online:", e);
