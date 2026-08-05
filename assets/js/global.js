@@ -1,32 +1,28 @@
 // ==========================================================
 // GLOBAL CORE SCRIPT — SIAGA DARURAT SBT
-// Berisi konfigurasi inti, supabase, badge status, master data,
-// utilitas modal, dan pemantau status online universal.
 // ==========================================================
 
-// 1. Inisialisasi Supabase & Mapbox Token (Pastikan config.js dimuat sebelum file ini)
 const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 
-// 2. Konfigurasi Standar 5 Warna Psikologis Badge Status
+// Konfigurasi Warna 
 const STATUS_CONFIG = {
-    'Sedang Dicek': { text: 'Sedang Dicek', class: 'bg-amber-100 text-amber-800 border border-amber-200' },
+    'Sedang Dicek': { text: 'Sedang Dicek', class: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
     'Terverifikasi': { text: 'Terverifikasi', class: 'bg-sky-100 text-sky-800 border border-sky-200' },
     'Sedang Ditangani': { text: 'Sedang Ditangani', class: 'bg-orange-100 text-orange-800 border border-orange-200' },
     'Selesai': { text: 'Selesai', class: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
     'Tidak Valid': { text: 'Tidak Valid', class: 'bg-slate-200 text-slate-700 border border-slate-300' }
 };
 
-// Fungsi Render Badge Universal
+// Fungsi Render Badge Universal (Kritis >30m menggunakan warna oranye/kuning lembut, bukan merah panik)
 function renderBadgeStatus(status, isKritis30Min = false) {
     if (isKritis30Min) {
-        return `<span class="bg-red-600 text-white font-extrabold px-2 py-0.5 rounded animate-pulse text-[10px]">⏳ Sedang Dicek (>30m)</span>`;
+        return `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-300 text-[10px]">⏳ Proses Cek</span>`;
     }
     const cfg = STATUS_CONFIG[status] || { text: status, class: 'bg-slate-100 text-slate-700' };
     return `<span class="px-2 py-0.5 rounded font-bold text-[10px] ${cfg.class}">${cfg.text}</span>`;
 }
 
-// 3. Utilitas Pengaman Teks & Modal
 function sederhanakanTeks(teks, batasMaksimal = 25) {
     if (!teks) return '-';
     if (teks.length <= batasMaksimal) return teks;
@@ -43,7 +39,14 @@ function closeModal(id) {
     if (el) el.classList.add('hidden');
 }
 
-// 4. Pemantau Status Online Realtime (Satgas & Pimpinan)
+// Format Jam Laporan (Contoh: 14:35 WIT)
+function formatJamLaporan(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIT';
+}
+
+// Pemantau Status Online Realtime
 async function cekAkunOnlineRealtime() {
     try {
         const { data, error } = await supabaseClient
@@ -74,7 +77,7 @@ async function cekAkunOnlineRealtime() {
     }
 }
 
-// 5. Master Data Wilayah Kemendagri & Faskes (Universal Datalist)
+// Master Data Wilayah Kemendagri & Faskes
 let dataWilayahKemendagriGlobal = [];
 let dataFaskesSBTGlobal = [];
 
@@ -122,11 +125,4 @@ function updateDaftarDesaGlobal() {
             datalistDesa.appendChild(opt);
         });
     }
-}
-
-// 6. Kalkulator Target Estimasi Waktu Selesai (Format ISO Timestamp)
-function hitungTargetEstimasiISO(durasiJam) {
-    const target = new Date();
-    target.setHours(target.getHours() + parseInt(durasiJam || 2));
-    return target.toISOString();
 }
