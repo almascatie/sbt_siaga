@@ -116,6 +116,7 @@
     </main>
 
     <!-- MODAL TAMBAH/EDIT LEMBAGA -->
+    <!-- MODAL TAMBAH/EDIT LEMBAGA -->
     <div id="modal-lembaga" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
         <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl text-xs space-y-3">
             <div class="flex justify-between items-center mb-1">
@@ -131,6 +132,10 @@
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Nomor Hotline / Telepon Posko</label>
                     <input type="text" id="input-hotline-lembaga" required placeholder="0812XXXXXXXX" class="w-full p-2.5 border rounded outline-none font-mono">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">URL Logo Instansi (Opsional)</label>
+                    <input type="text" id="input-logo-lembaga" placeholder="https://..." class="w-full p-2.5 border rounded outline-none font-mono">
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Alamat Kantor</label>
@@ -165,6 +170,10 @@
             </div>
             <form id="form-petugas" class="space-y-3">
                 <input type="hidden" id="petugas-id">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Nama Lengkap Petugas</label>
+                    <input type="text" id="input-nama-lengkap" required placeholder="Contoh: Rian Hidayat, S.Sos" class="w-full p-2.5 border rounded outline-none">
+                </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Username Login</label>
                     <input type="text" id="input-username-petugas" required placeholder="Contoh: bpbd_operator01" class="w-full p-2.5 border rounded outline-none">
