@@ -129,8 +129,6 @@ async function loadMasterDataGlobal() {
 // Generator Timestamp Waktu Lokal Presisi untuk Database (Format SQL: YYYY-MM-DD HH:mm:ss)
 function buatTimestampLokal() {
     const now = new Date();
-    
-    // Memaksa pengambilan string komponen waktu berdasarkan zona waktu WIT (Asia/Jayapura)
     const options = {
         timeZone: 'Asia/Jayapura',
         year: 'numeric',
@@ -141,8 +139,7 @@ function buatTimestampLokal() {
         second: '2-digit',
         hour12: false
     };
-    
-    const formatter = new Intl.DateTimeFormat('en-CA', options); // en-CA menghasilkan format YYYY-MM-DD
+    const formatter = new Intl.DateTimeFormat('en-CA', options);
     const parts = formatter.formatToParts(now);
     
     let year, month, day, hour, minute, second;
@@ -155,8 +152,23 @@ function buatTimestampLokal() {
         if (p.type === 'second') second = p.value;
     });
 
-    // Mengembalikan format teks yang diterima sempurna oleh kolom timestamp Supabase
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}
+
+// Format Pembacaan Jam di Layar (Paksa Zona Waktu WIT / Asia/Jayapura)
+function formatJamLaporan(isoString) {
+    if (!isoString) return '';
+    let cleanString = isoString;
+    if (!cleanString.includes('Z') && !cleanString.includes('+')) {
+        cleanString = cleanString.replace(' ', 'T') + '+09:00';
+    }
+    const date = new Date(cleanString);
+    return date.toLocaleTimeString('id-ID', { 
+        timeZone: 'Asia/Jayapura', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+    }) + ' WIT';
 }
 
 function populateKecamatanDatalistGlobal() {
