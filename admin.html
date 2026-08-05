@@ -33,10 +33,10 @@
     <!-- Main Container -->
     <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 space-y-6">
 
-        <!-- KARTU 1: KELOLA LEMBAGA & PERAN (3 PILAR) -->
+        <!-- KARTU 1: KELOLA LEMBAGA & PERAN -->
         <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h2 class="font-bold text-sm md:text-base text-slate-800">🏛️ Manajemen Lembaga, Hotline & 3 Pilar Peran</h2>
+                <h2 class="font-bold text-sm md:text-base text-slate-800">🏛️ Manajemen Lembaga, Hotline & Peran Sektoral</h2>
                 <button onclick="bukaModalLembaga()" class="btn-primary text-xs shadow">
                     ➕ Tambah Lembaga Baru
                 </button>
@@ -47,8 +47,9 @@
                     <thead class="bg-slate-50 text-slate-700 uppercase border-b">
                         <tr>
                             <th class="p-3">Nama Lembaga</th>
-                            <th class="p-3">Hotline Telepon Posko</th>
-                            <th class="p-3">Kategori Peran Sektoral</th>
+                            <th class="p-3">Hotline Telepon</th>
+                            <th class="p-3">Alamat Kantor</th>
+                            <th class="p-3">Kategori Peran</th>
                             <th class="p-3 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -59,10 +60,10 @@
             </div>
         </div>
 
-        <!-- KARTU 2: KELOLA AKUN PETUGAS -->
+        <!-- KARTU 2: KELOLA AKUN PENGGUNA / PETUGAS -->
         <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h2 class="font-bold text-sm md:text-base text-slate-800">👤 Manajemen Akun Pengguna / Petugas</h2>
+                <h2 class="font-bold text-sm md:text-base text-slate-800">👤 Manajemen Akun Pengguna / Petugas Lapangan</h2>
                 <button onclick="bukaModalPetugas()" class="btn-teal text-xs shadow">
                     ➕ Tambah Akun Baru
                 </button>
@@ -73,6 +74,7 @@
                     <thead class="bg-slate-50 text-slate-700 uppercase border-b">
                         <tr>
                             <th class="p-3">Username</th>
+                            <th class="p-3">No. Telp Petugas</th>
                             <th class="p-3">Lembaga Terkait</th>
                             <th class="p-3">Role Akses</th>
                             <th class="p-3 text-center">Aksi</th>
@@ -131,12 +133,20 @@
                     <input type="text" id="input-hotline-lembaga" required placeholder="0812XXXXXXXX" class="w-full p-2.5 border rounded outline-none font-mono">
                 </div>
                 <div>
-                    <label class="block font-medium text-slate-600 mb-1">Kategori Peran Sektoral (Pilar Dashboard)</label>
+                    <label class="block font-medium text-slate-600 mb-1">Alamat Kantor</label>
+                    <input type="text" id="input-alamat-lembaga" placeholder="Contoh: Jl. Lintas Bula..." class="w-full p-2.5 border rounded outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Kategori Peran Sektoral</label>
                     <select id="input-kategori-peran" class="w-full p-2.5 border rounded bg-white outline-none font-semibold">
-                        <option value="Utama">Lembaga Utama (Eksekutor / Verifikasi) ➔ petugas.html</option>
-                        <option value="Bantuan">Lembaga Bantuan / Kolaborator ➔ kolaborator.html</option>
-                        <option value="Pimpinan">Pimpinan / Eksekutif ➔ pimpinan.html</option>
+                        <option value="Utama">Lembaga Utama (Eksekutor / Verifikasi)</option>
+                        <option value="Bantuan">Lembaga Bantuan / Kolaborator</option>
+                        <option value="Pimpinan">Pimpinan / Eksekutif</option>
                     </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Keterangan / Deskripsi</label>
+                    <textarea id="input-ket-lembaga" rows="2" placeholder="Catatan tambahan..." class="w-full p-2.5 border rounded outline-none"></textarea>
                 </div>
                 <button type="submit" class="w-full btn-primary py-2.5 rounded shadow transition">
                     💾 Simpan Data Lembaga
@@ -156,11 +166,15 @@
                 <input type="hidden" id="petugas-id">
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Username Login</label>
-                    <input type="text" id="input-username-petugas" required placeholder="Contoh: kadis_kesehatan" class="w-full p-2.5 border rounded outline-none">
+                    <input type="text" id="input-username-petugas" required placeholder="Contoh: petugas_bpbd_01" class="w-full p-2.5 border rounded outline-none">
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Password</label>
                     <input type="text" id="input-password-petugas" required placeholder="******" class="w-full p-2.5 border rounded outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon Petugas (HP)</label>
+                    <input type="text" id="input-telp-petugas" required placeholder="081234567890" class="w-full p-2.5 border rounded outline-none font-mono">
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Pilih Lembaga Induk</label>
@@ -212,7 +226,8 @@
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Status Penanganan</label>
                     <select id="edit-lapor-status" class="w-full p-2.5 border rounded bg-white outline-none font-semibold">
-                        <option value="Verifikasi">Verifikasi</option>
+                        <option value="Baru">Baru</option>
+                        <option value="Terverifikasi">Terverifikasi</option>
                         <option value="Proses">Proses</option>
                         <option value="Selesai">Selesai</option>
                     </select>
@@ -227,7 +242,7 @@
             </form>
         </div>
     </div>
-  <script src="assets/js/admin.js"></script>
-   
+
+    <script src="assets/js/admin.js"></script>
 </body>
 </html>
