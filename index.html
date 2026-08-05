@@ -45,43 +45,49 @@
     <div class="flex flex-1 overflow-hidden relative flex-col md:flex-row">
 
         <!-- SIDEBAR -->
-        <aside class="order-3 md:order-none w-full md:w-80 bg-white border-r border-slate-200 flex flex-col z-10 shadow-sm h-1/3 md:h-full shrink-0">
-            <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
-                <h2 class="text-[11px] font-display font-bold text-slate-700 uppercase tracking-wide">Daftar Laporan Masuk</h2>
-                <span id="counter-laporan" class="text-[10px] bg-[var(--sbt-blue)]/10 text-[var(--sbt-blue)] px-2 py-0.5 rounded-full font-bold whitespace-nowrap">0 Kasus Hari Ini</span>
-            </div>
+<aside class="order-3 md:order-none w-full md:w-80 bg-white border-r border-slate-200 flex flex-col z-10 shadow-sm h-1/3 md:h-full shrink-0">
+    <!-- Header Sidebar dengan Jam Update Sistem (Jam SBT) -->
+    <div class="p-3 bg-slate-50 border-b border-slate-200 flex flex-col gap-1 shrink-0">
+        <div class="flex justify-between items-center">
+            <h2 class="text-[11px] font-display font-bold text-slate-700 uppercase tracking-wide">Daftar Laporan Masuk</h2>
+            <span id="counter-laporan" class="text-[10px] bg-[var(--sbt-blue)]/10 text-[var(--sbt-blue)] px-2 py-0.5 rounded-full font-bold whitespace-nowrap">0 Kasus</span>
+        </div>
+        <!-- Teks Update Jam Sesuai Jam SBT yang Muncul di Mobile & Web -->
+        <div class="flex justify-between items-center text-[10px] text-slate-500 font-mono-report pt-1 border-t border-slate-200/60">
+            <span>🕒 Update Jam SBT:</span>
+            <span id="last-updated-time" class="font-bold text-slate-700">— WIT</span>
+        </div>
+    </div>
 
-            <div id="sidebar-list" class="flex-1 overflow-y-auto p-2.5 space-y-2">
-                <p class="text-xs text-slate-400 text-center py-4">Memuat data dari server...</p>
-            </div>
+    <div id="sidebar-list" class="flex-1 overflow-y-auto p-2.5 space-y-2">
+        <p class="text-xs text-slate-400 text-center py-4">Memuat data dari server...</p>
+    </div>
 
-            <div class="p-2.5 border-t border-slate-200 shrink-0 bg-slate-50/50 relative">
-                <div class="flex items-center justify-between text-[11px] px-1">
-                    <div class="flex items-center gap-1.5">
-                        <span class="status-dot"></span>
-                        <span class="font-display font-bold text-slate-700">Sistem Aktif</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="toggleStatusOnlineMobile()" class="text-[10px] bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-0.5 rounded font-bold transition flex items-center gap-1">
-                            <span>👥 Status</span>
-                            <span id="toggle-icon">▼</span>
-                        </button>
-                        <span class="text-slate-400 font-mono-report text-[10px] hidden sm:inline">Update: <span id="last-updated-time">—</span></span>
-                    </div>
-                </div>
-
-                <div id="panel-status-online" class="hidden sm:block mt-2 pt-2 border-t border-slate-200 text-[10px] space-y-1 text-slate-600 bg-white p-2 rounded shadow-inner">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-700">Satgas:</span>
-                        <span id="status-lembaga-utama" class="font-medium text-emerald-600">Load...</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-700">Pimpinan:</span>
-                        <span id="status-pimpinan-online" class="font-medium text-blue-600">Load...</span>
-                    </div>
-                </div>
+    <!-- Footer Sidebar (Status Saja) -->
+    <div class="p-2.5 border-t border-slate-200 shrink-0 bg-slate-50/50 relative">
+        <div class="flex items-center justify-between text-[11px] px-1">
+            <div class="flex items-center gap-1.5">
+                <span class="status-dot"></span>
+                <span class="font-display font-bold text-slate-700">Sistem Aktif</span>
             </div>
-        </aside>
+            <button type="button" onclick="toggleStatusOnlineMobile()" class="text-[10px] bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-0.5 rounded font-bold transition flex items-center gap-1">
+                <span>👥 Status Satgas</span>
+                <span id="toggle-icon">▼</span>
+            </button>
+        </div>
+
+        <div id="panel-status-online" class="hidden mt-2 pt-2 border-t border-slate-200 text-[10px] space-y-1 text-slate-600 bg-white p-2 rounded shadow-inner">
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-slate-700">Satgas:</span>
+                <span id="status-lembaga-utama" class="font-medium text-emerald-600">Load...</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-slate-700">Pimpinan:</span>
+                <span id="status-pimpinan-online" class="font-medium text-blue-600">Load...</span>
+            </div>
+        </div>
+    </div>
+</aside>
 
         <!-- PETA + FLOATING CTA -->
         <main class="order-1 md:order-none flex-1 relative h-2/3 md:h-full">
@@ -268,35 +274,45 @@
 
     <!-- Script Utama Halaman Publik -->
     <script src="assets/js/index.js"></script>
-    <script>
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-footer-menu');
-            if (menu) menu.classList.toggle('hidden');
-        }
+   <script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-footer-menu');
+        if (menu) menu.classList.toggle('hidden');
+    }
 
-        function toggleStatusOnlineMobile() {
-            const panel = document.getElementById('panel-status-online');
-            const icon = document.getElementById('toggle-icon');
-            if (panel) {
-                panel.classList.toggle('hidden');
-                icon.textContent = panel.classList.contains('hidden') ? '▼' : '▲';
-            }
+    function toggleStatusOnlineMobile() {
+        const panel = document.getElementById('panel-status-online');
+        const icon = document.getElementById('toggle-icon');
+        if (panel) {
+            panel.classList.toggle('hidden');
+            icon.textContent = panel.classList.contains('hidden') ? '▼' : '▲';
         }
+    }
 
-        window.addEventListener('click', function(e) {
-            const menu = document.getElementById('mobile-footer-menu');
-            const button = e.target.closest('button');
-            if (menu && !menu.classList.contains('hidden') && (!button || !button.getAttribute('onclick')?.includes('toggleMobileMenu'))) {
-                menu.classList.add('hidden');
-            }
-        });
-
-        function perbaruiJamStatus() {
-            const el = document.getElementById('last-updated-time');
-            if (el) el.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    window.addEventListener('click', function(e) {
+        const menu = document.getElementById('mobile-footer-menu');
+        const button = e.target.closest('button');
+        if (menu && !menu.classList.contains('hidden') && (!button || !button.getAttribute('onclick')?.includes('toggleMobileMenu'))) {
+            menu.classList.add('hidden');
         }
-        perbaruiJamStatus();
-        setInterval(perbaruiJamStatus, 60000);
-    </script>
+    });
+
+    // Memaksa Jam Update Mengikuti Waktu Lokal SBT (WIT) di Web & Mobile
+    function perbaruiJamStatus() {
+        const el = document.getElementById('last-updated-time');
+        if (el) {
+            const now = new Date();
+            const jamSBT = now.toLocaleTimeString('id-ID', { 
+                timeZone: 'Asia/Jayapura', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            el.textContent = jamSBT + ' WIT';
+        }
+    }
+    perbaruiJamStatus();
+    setInterval(perbaruiJamStatus, 30000);
+</script>
 </body>
 </html>
