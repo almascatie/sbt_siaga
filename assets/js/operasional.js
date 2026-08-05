@@ -1,8 +1,6 @@
 // ==========================================================
-// OPERASIONAL SCRIPT — COMMAND CENTER SBT
+// OPERASIONAL SCRIPT — COMMAND CENTER SBT (STANDAR GLOBAL)
 // ==========================================================
-
-mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 
 let laporanList = [];
 let markers = [];
@@ -11,6 +9,7 @@ let currentUser = null;
 let daftarKolaborasi = [];
 let selectedReportId = null;
 
+// Menggunakan Mapbox token dari global config
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v12',
@@ -129,16 +128,16 @@ function hitungBadgeTab() {
     const elProses = document.getElementById('count-Proses');
     const elSelesai = document.getElementById('count-Selesai');
 
-    if (elBaru) elBaru.innerText = laporanList.filter(i => i.status === 'Baru').length;
+    if (elBaru) elBaru.innerText = laporanList.filter(i => i.status === 'Baru' || i.status === 'Sedang Dicek').length;
     if (elVerif) elVerif.innerText = laporanList.filter(i => i.status === 'Terverifikasi').length;
-    if (elProses) elProses.innerText = laporanList.filter(i => i.status === 'Proses').length;
+    if (elProses) elProses.innerText = laporanList.filter(i => i.status === 'Proses' || i.status === 'Sedang Ditangani').length;
     if (elSelesai) elSelesai.innerText = laporanList.filter(i => i.status === 'Selesai').length;
 }
 
 function cekWarningKritis() {
     const sekarang = new Date().getTime();
     const adaKritis = laporanList.some(item => {
-        if (item.status === 'Baru') {
+        if (item.status === 'Baru' || item.status === 'Sedang Dicek') {
             const waktuLapor = new Date(item.created_at).getTime();
             const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
             return selisihMenit > 30;
@@ -207,7 +206,13 @@ function renderTabel() {
 
     let filtered = laporanList;
     if (activeTab !== 'Semua') {
-        filtered = laporanList.filter(i => i.status === activeTab);
+        if (activeTab === 'Baru') {
+            filtered = laporanList.filter(i => i.status === 'Baru' || i.status === 'Sedang Dicek');
+        } else if (activeTab === 'Proses') {
+            filtered = laporanList.filter(i => i.status === 'Proses' || i.status === 'Sedang Ditangani');
+        } else {
+            filtered = laporanList.filter(i => i.status === activeTab);
+        }
     } else {
         const selectFilter = document.getElementById('select-filter-lembaga');
         const selectedLembagaFilter = selectFilter ? selectFilter.value : '';
@@ -231,11 +236,8 @@ function renderTabel() {
     filtered.forEach(item => {
         const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
 
-        let cleanDateStr = item.created_at;
-        if (cleanDateStr && !cleanDateStr.includes('Z') && !cleanDateStr.includes('+')) {
-            cleanDateStr = cleanDateStr.replace(' ', 'T') + '+09:00';
-        }
-        const jamLapor = new Date(cleanDateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        // Memanfaatkan fungsi formatJamLaporan dari global.js
+        const jamLapor = formatJamLaporan(item.created_at);
         
         const waktuIdHTML = `
             <div class="leading-tight">
@@ -245,7 +247,7 @@ function renderTabel() {
         `;
 
         let tombolKontakHTML = '';
-        if (item.status === 'Baru' || item.status === 'Terverifikasi') {
+        if (item.status === 'Baru' || item.status === 'Sedang Dicek' || item.status === 'Terverifikasi') {
             tombolKontakHTML = renderTombolKontakAman(item.telp);
         }
 
@@ -257,7 +259,7 @@ function renderTabel() {
                     <span class="text-slate-700 font-medium">${item.nama_petugas_verif || '-'}</span>    
                 </div>
             `;
-        } else if (item.status === 'Proses') {
+        } else if (item.status === 'Proses' || item.status === 'Sedang Ditangani') {
             const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === item.id);
             let kolabBlokHTML = '';
             if (kolabLaporan.length > 0) {
@@ -316,7 +318,7 @@ function renderTabel() {
         if (isPimpinan) {
             aksiHTML = '<span class="text-[10px] text-slate-400 italic">Read-Only (Pimpinan)</span>';
         } else if (is112) {
-            if (item.status === 'Baru') {
+            if (item.status === 'Baru' || item.status === 'Sedang Dicek') {
                 aksiHTML = `<button onclick="event.stopPropagation(); aksiVerifikasi('${item.id}')" class="w-full bg-amber-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-amber-700 text-xs shadow-sm transition">✅ Verifikasi (112)</button>`;
             } else {
                 aksiHTML = `<span class="text-[10px] text-purple-700 font-semibold bg-purple-50 px-2.5 py-1 rounded-lg block text-center">Terkunci (Diteruskan)</span>`;
@@ -325,7 +327,7 @@ function renderTabel() {
             let tombolKolaborasiHTML = '';
             let tombolMintaBantuanHTML = '';
 
-            if (item.status === 'Proses') {
+            if (item.status === 'Proses' || item.status === 'Sedang Ditangani') {
                 const sudahKolab = daftarKolaborasi.some(k => k.laporan_id === item.id && k.nama_lembaga === currentUser.nama_lembaga);
                 const isLembagaUtama = item.lembaga_proses === currentUser.nama_lembaga;
 
@@ -348,9 +350,9 @@ function renderTabel() {
 
             aksiHTML = `
                 <div class="space-y-1.5 mt-2">
-                    ${item.status === 'Baru' ? `<button onclick="event.stopPropagation(); aksiVerifikasi('${item.id}')" class="w-full bg-amber-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-amber-700 text-xs shadow-sm transition">✅ Verifikasi</button>` : ''}
+                    ${(item.status === 'Baru' || item.status === 'Sedang Dicek') ? `<button onclick="event.stopPropagation(); aksiVerifikasi('${item.id}')" class="w-full bg-amber-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-amber-700 text-xs shadow-sm transition">✅ Verifikasi</button>` : ''}
                     ${item.status === 'Terverifikasi' ? `<button onclick="event.stopPropagation(); bukaModalProses('${item.id}')" class="w-full bg-[var(--sbt-blue)] text-white px-3 py-2 rounded-lg font-bold hover:brightness-110 text-xs shadow-sm transition">🚀 Mulai Proses Utama</button>` : ''}
-                    ${item.status === 'Proses' ? `
+                    ${(item.status === 'Proses' || item.status === 'Sedang Ditangani') ? `
                         <button onclick="event.stopPropagation(); bukaModalCatatan('${item.id}')" class="w-full bg-emerald-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-emerald-700 text-xs shadow-sm transition">➕ Tambah Log Lapangan</button>
                         ${tombolMintaBantuanHTML}
                         ${item.lembaga_proses === currentUser.nama_lembaga ? `<button onclick="event.stopPropagation(); aksiSelesai('${item.id}')" class="w-full bg-green-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-green-700 text-xs shadow-sm transition">🏁 Selesai Penanganan</button>` : ''}
@@ -413,51 +415,18 @@ function renderMarkers() {
         if (filterStatus !== 'Semua' && item.status !== filterStatus) return;
         if (filterJenis !== 'Semua' && item.jenis !== filterJenis) return;
 
-        let color = '#ef4444';
         let isKritis = false;
-
-        let cleanDateStr = item.created_at;
-        if (cleanDateStr && !cleanDateStr.includes('Z') && !cleanDateStr.includes('+')) {
-            cleanDateStr = cleanDateStr.replace(' ', 'T') + '+09:00';
-        }
-        const waktuLapor = new Date(cleanDateStr).getTime();
+        const waktuLapor = new Date(item.created_at).getTime();
         const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
 
-        if (item.status === 'Baru') {
-            color = '#ef4444';
+        if (item.status === 'Baru' || item.status === 'Sedang Dicek') {
             if (selisihMenit > 30) {
                 isKritis = true;
             }
-        } else if (item.status === 'Terverifikasi') {
-            color = '#f59e0b';
-        } else if (item.status === 'Proses') {
-            color = '#3b82f6';
-        } else if (item.status === 'Selesai') {
-            color = '#22c55e';
         }
 
-        const el = document.createElement('div');
-        const isSelectedMarker = selectedReportId === item.id;
-
-        if (isSelectedMarker) {
-            el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white flex items-center justify-center font-black text-white text-xs`;
-            el.style.width = '42px';
-            el.style.height = '42px';
-            el.style.backgroundColor = color;
-            el.style.boxShadow = '0 0 0 6px rgba(198, 106, 61, 0.4)';
-            el.innerText = '★';
-        } else if (isKritis || item.minta_bantuan) {
-            el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
-            el.style.width = '36px';
-            el.style.height = '36px';
-            el.style.backgroundColor = '#dc2626';
-            el.innerText = item.minta_bantuan ? '🆘' : '🚨';
-        } else {
-            el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
-            el.style.width = '28px';
-            el.style.height = '28px';
-            el.style.backgroundColor = color;
-        }
+        // Memanggil fungsi global dari global.js untuk menyeragamkan marker
+        const el = buatElemenMarkerGlobal(item, selectedReportId, isKritis);
 
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
             <div class="p-1.5 text-xs space-y-1">
@@ -580,8 +549,6 @@ document.getElementById('form-kolaborasi').addEventListener('submit', async (e) 
     const jenisBantuan = document.getElementById('input-jenis-bantuan').value;
     const ketBantuan = document.getElementById('input-ket-bantuan').value.trim();
 
-    const ringkas = formatIdentitasRingkas(currentUser.nama_lengkap, currentUser.nama_lembaga);
-
     const { error: errKolaborasi } = await supabaseClient.from('bantuan_kolaborasi').insert([{
         laporan_id: id,
         nama_lembaga: currentUser.nama_lembaga,
@@ -702,6 +669,23 @@ function bukaModalDetailLog(id) {
         </div>
     `;
 }
+
+// Sinkronisasi Jam SBT WIT (Waktu Indonesia Timur)
+function perbaruiJamStatus() {
+    const el = document.getElementById('last-updated-time');
+    if (el) {
+        const now = new Date();
+        const jamSBT = now.toLocaleTimeString('id-ID', { 
+            timeZone: 'Asia/Jayapura', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+        el.textContent = '🕒 ' + jamSBT + ' WIT';
+    }
+}
+perbaruiJamStatus();
+setInterval(perbaruiJamStatus, 30000);
 
 map.on('load', () => {
     ambilDataLaporan();
