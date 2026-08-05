@@ -10,7 +10,12 @@ mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 // Konfigurasi Status, Warna Badge, dan Kelas Latar Belakang Kartu
 const STATUS_CONFIG = {
     'Sedang Dicek': { 
-        text: 'Proses Cek', 
+        text: 'Sedang Dicek', 
+        badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+        cardClass: 'card-proses-cek'
+    },
+    'Baru': {  // <--- Tambahan pengaman jika data di DB masih tertulis 'Baru'
+        text: 'Sedang Dicek', 
         badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
         cardClass: 'card-proses-cek'
     },
@@ -38,9 +43,10 @@ const STATUS_CONFIG = {
 
 function renderBadgeStatus(status, isKritis30Min = false) {
     if (isKritis30Min) {
-        return `<span class="bg-amber-100 text-amber-900 font-bold px-1.5 py-0.5 rounded border border-amber-400 text-[9px] sm:text-[10px] whitespace-nowrap">⏳ Belum di Cek (>30m)</span>`;
+        return `<span class="bg-amber-100 text-amber-900 font-bold px-1.5 py-0.5 rounded border border-amber-400 text-[10px] whitespace-nowrap">⏳ Belum di Cek (>30m)</span>`;
     }
-    const cfg = STATUS_CONFIG[status] || { text: status, badgeClass: 'bg-slate-100 text-slate-700', cardClass: 'card-proses-cek' };
+    const targetStatus = status === 'Baru' ? 'Sedang Dicek' : status;
+    const cfg = STATUS_CONFIG[targetStatus] || { text: targetStatus, badgeClass: 'bg-slate-100 text-slate-700', cardClass: 'card-proses-cek' };
     return `<span class="px-2 py-0.5 rounded font-bold text-[10px] ${cfg.badgeClass}">${cfg.text}</span>`;
 }
 
