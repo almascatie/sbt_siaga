@@ -5,22 +5,59 @@
 const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 
-// Konfigurasi Warna 
+// Konfigurasi Status, Warna Badge, dan Kelas Latar Belakang Kartu
 const STATUS_CONFIG = {
-    'Sedang Dicek': { text: 'Sedang Dicek', class: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
-    'Terverifikasi': { text: 'Terverifikasi', class: 'bg-sky-100 text-sky-800 border border-sky-200' },
-    'Sedang Ditangani': { text: 'Sedang Ditangani', class: 'bg-orange-100 text-orange-800 border border-orange-200' },
-    'Selesai': { text: 'Selesai', class: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
-    'Tidak Valid': { text: 'Tidak Valid', class: 'bg-slate-200 text-slate-700 border border-slate-300' }
+    'Sedang Dicek': { 
+        text: 'Proses Cek', 
+        badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+        cardClass: 'card-proses-cek'
+    },
+    'Terverifikasi': { 
+        text: 'Terverifikasi', 
+        badgeClass: 'bg-sky-100 text-sky-800 border border-sky-200',
+        cardClass: 'card-terverifikasi'
+    },
+    'Sedang Ditangani': { 
+        text: 'Sedang Ditangani', 
+        badgeClass: 'bg-orange-100 text-orange-800 border border-orange-200',
+        cardClass: 'card-sedang-ditangani'
+    },
+    'Selesai': { 
+        text: 'Selesai', 
+        badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+        cardClass: 'card-selesai'
+    },
+    'Tidak Valid': { 
+        text: 'Tidak Valid', 
+        badgeClass: 'bg-slate-200 text-slate-700 border border-slate-300',
+        cardClass: 'card-tidak-valid'
+    }
 };
 
-// Fungsi Render Badge Universal (Kritis >30m menggunakan warna oranye/kuning lembut, bukan merah panik)
 function renderBadgeStatus(status, isKritis30Min = false) {
     if (isKritis30Min) {
-        return `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-300 text-[10px]">⏳ Proses Cek</span>`;
+        return `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-300 text-[10px]">⏳ Proses Cek (>30m)</span>`;
     }
-    const cfg = STATUS_CONFIG[status] || { text: status, class: 'bg-slate-100 text-slate-700' };
-    return `<span class="px-2 py-0.5 rounded font-bold text-[10px] ${cfg.class}">${cfg.text}</span>`;
+    const cfg = STATUS_CONFIG[status] || { text: status, badgeClass: 'bg-slate-100 text-slate-700', cardClass: 'card-proses-cek' };
+    return `<span class="px-2 py-0.5 rounded font-bold text-[10px] ${cfg.badgeClass}">${cfg.text}</span>`;
+}
+
+function getCardClassByStatus(status, isKritis30Min = false) {
+    if (isKritis30Min) return 'card-proses-cek border-amber-300';
+    const cfg = STATUS_CONFIG[status];
+    return cfg ? cfg.cardClass : 'card-proses-cek';
+}
+
+// Format Jam Laporan Paksa Zona Waktu WIT (Asia/Jayapura - UTC+9)
+function formatJamLaporan(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleTimeString('id-ID', { 
+        timeZone: 'Asia/Jayapura', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+    }) + ' WIT';
 }
 
 function sederhanakanTeks(teks, batasMaksimal = 25) {
@@ -37,13 +74,6 @@ function openModal(id) {
 function closeModal(id) {
     const el = document.getElementById(id);
     if (el) el.classList.add('hidden');
-}
-
-// Format Jam Laporan (Contoh: 14:35 WIT)
-function formatJamLaporan(isoString) {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIT';
 }
 
 // Pemantau Status Online Realtime
