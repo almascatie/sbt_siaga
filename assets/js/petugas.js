@@ -44,9 +44,18 @@ window.onload = () => {
     }
 };
 
-function logoutSession() {
+async function logoutSession() {
+    const usernameAktif = sessionStorage.getItem('sbt_username');
+    
+    if (usernameAktif) {
+        await supabaseClient
+            .from('users')
+            .update({ status_online: 'OFFLINE' })
+            .eq('username', usernameAktif);
+    }
+
     sessionStorage.clear();
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
 }
 
 function inisialisasiSesiHeader() {
