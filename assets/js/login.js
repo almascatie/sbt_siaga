@@ -22,7 +22,7 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
                     btn.textContent = 'Masuk ke Dashboard 🚀';
                     return;
                 }
-                / ==========================================
+                // ==========================================
                 // 🟢 TAMBAHAN: UPDATE STATUS USER JADI ONLINE
                 // ==========================================
             await supabaseClient
