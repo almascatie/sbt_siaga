@@ -5,6 +5,8 @@
 const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 
+
+
 // Konfigurasi Status, Warna Badge, dan Kelas Latar Belakang Kartu
 const STATUS_CONFIG = {
     'Sedang Dicek': { 
@@ -105,6 +107,53 @@ async function cekAkunOnlineRealtime() {
     } catch (e) {
         console.error("Gagal cek status online:", e);
     }
+}
+
+// ==========================================================
+// PENGATURAN GLOBAL MARKER MAPBOX (SISTEM SIAGA DARURAT SBT)
+// ==========================================================
+
+/**
+ * Membuat elemen HTML marker peta secara konsisten di seluruh halaman
+ * @param {Object} item - Data laporan dari database
+ * @param {String} currentSelectedId - ID laporan yang sedang aktif/dipilih
+ * @param {Boolean} isKritis - Status apakah laporan darurat >30 menit
+ * @returns {HTMLElement} Elemen DOM untuk Mapbox Marker
+ */
+function buatElemenMarkerGlobal(item, currentSelectedId, isKritis = false) {
+    const el = document.createElement('div');
+    const isSelected = currentSelectedId === item.id;
+    
+    // Tentukan warna dasar berdasarkan jenis bencana atau status
+    let color = item.jenis === 'Kebakaran' ? '#ef4444' : '#3b82f6';
+    if (item.status === 'Terverifikasi') color = '#f59e0b';
+    if (item.status === 'Proses') color = '#3b82f6';
+    if (item.status === 'Selesai') color = '#22c55e';
+
+    if (isSelected) {
+        // STYLE MARKER TERPILIH (IKON BINTANG BESAR)
+        el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white flex items-center justify-center font-black text-white text-xs transition-transform transform scale-110`;
+        el.style.width = '42px';
+        el.style.height = '42px';
+        el.style.backgroundColor = color;
+        el.style.boxShadow = '0 0 0 6px rgba(198, 106, 61, 0.4)';
+        el.innerText = '★';
+    } else if (isKritis || item.minta_bantuan) {
+        // STYLE MARKER KRITIS / BUTUH BANTUAN
+        el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
+        el.style.width = '36px';
+        el.style.height = '36px';
+        el.style.backgroundColor = '#dc2626';
+        el.innerText = item.minta_bantuan ? '🆘' : '🚨';
+    } else {
+        // STYLE MARKER STANDAR
+        el.className = `rounded-full shadow-md cursor-pointer border-2 border-white transition-transform hover:scale-110`;
+        el.style.width = '28px';
+        el.style.height = '28px';
+        el.style.backgroundColor = color;
+    }
+
+    return el;
 }
 
 // Master Data Wilayah Kemendagri & Faskes
