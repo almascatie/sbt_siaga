@@ -44,13 +44,16 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden text-slate-800">
 
-    <!-- 1. HEADER (Dengan Logo Resmi & Sederhana) -->
+    <!-- 1. HEADER (Dengan Logo Resmi & Credential Petugas) -->
     <header class="sbt-header text-white px-4 py-2 flex justify-between items-center shadow-md z-20 shrink-0">
         <div class="flex items-center gap-2.5">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo Kabupaten Seram Bagian Timur" class="w-8 h-9 object-contain bg-white/10 p-0.5 rounded">
             <div>
-                <h1 class="font-bold text-xs md:text-sm tracking-wide">SIAGA DARURAT SBT</h1>
-                <p class="text-[10px] text-blue-100/80" id="header-sapaan">Memuat Sesi...</p>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-bold text-xs md:text-sm tracking-wide">SIAGA DARURAT SBT</h1>
+                    <span id="badge-role" class="bg-[var(--sbt-orange)] text-[9px] px-2 py-0.5 rounded font-bold uppercase text-white">OPERASIONAL</span>
+                </div>
+                <p class="text-[10px] text-blue-100/90" id="header-sapaan">Memuat Sesi Petugas...</p>
             </div>
         </div>
 
@@ -72,11 +75,11 @@
 
             <!-- Warning Kritis >30 Menit di Pojok Kiri Atas Peta -->
             <div id="warning-box-30m" class="hidden absolute z-10 bg-red-600 text-white p-3 rounded-xl shadow-lg max-w-xs text-xs space-y-0.5">
-    <p class="font-bold tracking-wide">PERINGATAN KRITIS</p>
-    <p class="text-[11px] opacity-95">Ada laporan >30 Menit belum ditangani!</p>
-</div>
+                <p class="font-bold tracking-wide">PERINGATAN KRITIS</p>
+                <p class="text-[11px] opacity-95">Ada laporan >30 Menit belum ditangani!</p>
+            </div>
 
-            <!-- Panel Terpadu (Legenda + Filter Peta jadi satu di pojok kanan atas) -->
+            <!-- Panel Terpadu (Legenda + Filter Peta) -->
             <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-xl shadow-lg border border-slate-200 text-xs z-10 space-y-2 max-w-xs">
                 <div class="flex justify-between items-center border-b pb-1.5">
                     <span class="font-bold text-slate-800 text-[11px]">🗺️ Layer & Indikator Peta</span>
@@ -118,14 +121,14 @@
             </div>
 
             <!-- Filter Instansi Sektoral (Muncul otomatis di Tab Semua) -->
-<div id="filter-container" class="p-2.5 bg-slate-50 border-b border-slate-200 hidden flex items-center justify-between text-xs">
-    <span class="font-semibold text-slate-600">Filter Instansi:</span>
-    <select id="select-filter-lembaga" onchange="renderTabel()" class="p-1.5 border border-slate-300 rounded bg-white text-xs outline-none w-2/3 shadow-sm">
-        <option value="">-- Semua Lembaga --</option>
-    </select>
-</div>
+            <div id="filter-container" class="p-2.5 bg-slate-50 border-b border-slate-200 hidden flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-600">Filter Instansi:</span>
+                <select id="select-filter-lembaga" onchange="renderTabel()" class="p-1.5 border border-slate-300 rounded bg-white text-xs outline-none w-2/3 shadow-sm">
+                    <option value="">-- Semua Lembaga --</option>
+                </select>
+            </div>
 
-            <!-- 5, 6, 7, 16. TABEL, HIERARKI WAKTU/ID, BLOK AKSI & MODE FOKUS -->
+            <!-- 5, 6, 7. TABEL LAPORAN -->
             <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/50">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead class="bg-slate-100/80 sticky top-0 text-[11px] text-slate-600 uppercase border-b border-slate-200 backdrop-blur-sm z-10">
@@ -137,7 +140,7 @@
                         </tr>
                     </thead>
                     <tbody id="table-body" class="divide-y divide-slate-200">
-                        <!-- Diisi via script dengan struktur blok & mode fokus -->
+                        <!-- Diisi via script -->
                     </tbody>
                 </table>
             </div>
@@ -229,7 +232,8 @@
         </div>
     </div>
 
-    <script src="assets/js/petugas.js"></script>
+    <!-- Script Operasional -->
+    <script src="assets/js/operasional.js"></script>
     <script src="assets/js/notification.js"></script>
 
 </body>
