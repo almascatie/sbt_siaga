@@ -222,7 +222,7 @@ document.getElementById('form-lapor').addEventListener('submit', async (e) => {
         catatan_lapangan: '',
         lng: selectedCoords.lng,
         lat: selectedCoords.lat,
-        created_at: buatTimestampLokal() // Memanggil fungsi global untuk menyamakan waktu lokal
+        created_at: buatTimestampLokal() // <--- Pastikan ini ada!
     };
 
     const { error } = await supabaseClient.from('laporan').insert([dataBaru]);
