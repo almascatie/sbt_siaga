@@ -126,6 +126,11 @@ async function loadMasterDataGlobal() {
     }
 }
 
+// Generator Timestamp Waktu Lokal untuk Laporan Baru
+function buatTimestampLokal() {
+    return new Date().toISOString();
+}
+
 function populateKecamatanDatalistGlobal() {
     const datalistKec = document.getElementById('list-kecamatan');
     if (!datalistKec) return;
