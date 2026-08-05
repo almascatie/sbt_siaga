@@ -10,9 +10,8 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
-    <script>
-        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-    </script>
+    <!-- Script Global Terpusat -->
+    <script src="assets/js/global.js"></script>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
@@ -26,7 +25,6 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <!-- Indikator Koneksi Minimalis -->
             <div id="connection-indicator" class="hidden sm:flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-100 text-[10px] px-2 py-1 rounded-full">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span id="conn-text">Online</span>
@@ -46,21 +44,17 @@
     <!-- ============ MAIN LAYOUT ============ -->
     <div class="flex flex-1 overflow-hidden relative flex-col md:flex-row">
 
-        <!-- SIDEBAR (Daftar Laporan Masuk & Status Sistem Online) -->
+        <!-- SIDEBAR -->
         <aside class="order-3 md:order-none w-full md:w-80 bg-white border-r border-slate-200 flex flex-col z-10 shadow-sm h-1/3 md:h-full shrink-0">
-
-            <!-- Bagian atas: judul + badge -->
             <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
                 <h2 class="text-[11px] font-display font-bold text-slate-700 uppercase tracking-wide">Daftar Laporan Masuk</h2>
                 <span id="counter-laporan" class="text-[10px] bg-[var(--sbt-blue)]/10 text-[var(--sbt-blue)] px-2 py-0.5 rounded-full font-bold whitespace-nowrap">0 Kasus Hari Ini</span>
             </div>
 
-            <!-- Bagian tengah: daftar laporan realtime -->
             <div id="sidebar-list" class="flex-1 overflow-y-auto p-2.5 space-y-2">
                 <p class="text-xs text-slate-400 text-center py-4">Memuat data dari server...</p>
             </div>
 
-            <!-- Bagian bawah: Status Sistem & Akun Online (Dengan Dropdown Mobile) -->
             <div class="p-2.5 border-t border-slate-200 shrink-0 bg-slate-50/50 relative">
                 <div class="flex items-center justify-between text-[11px] px-1">
                     <div class="flex items-center gap-1.5">
@@ -76,7 +70,6 @@
                     </div>
                 </div>
 
-                <!-- Panel Detail Status Online (Lembaga Utama & Pimpinan) -->
                 <div id="panel-status-online" class="hidden sm:block mt-2 pt-2 border-t border-slate-200 text-[10px] space-y-1 text-slate-600 bg-white p-2 rounded shadow-inner">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-slate-700">Satgas:</span>
@@ -92,8 +85,6 @@
 
         <!-- PETA + FLOATING CTA -->
         <main class="order-1 md:order-none flex-1 relative h-2/3 md:h-full">
-
-            <!-- Floating Action Card -->
             <div class="absolute top-3 left-1/2 -translate-x-1/2 w-[92%] sm:w-[26rem] z-20 floating-cta px-4 py-3.5">
                 <div class="flex items-center gap-2 cta-icon-row mb-3">
                     <span class="bg-orange-50 text-orange-600">🔥</span>
@@ -113,10 +104,8 @@
                 </div>
             </div>
 
-            <!-- Peta Utama -->
             <div id="map"></div>
 
-            <!-- Panel Kontrol Layer & Legenda Peta (Termasuk Toggle Faskes) -->
             <div class="absolute bottom-3 left-3 legend-modern p-2.5 rounded-lg shadow-md text-[11px] z-10 space-y-2 max-w-[12rem]">
                 <p class="font-display font-bold text-slate-700">Legenda & Layer</p>
                 <div class="space-y-1 border-t border-slate-200/60 pt-1">
@@ -188,7 +177,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block font-medium text-slate-600 mb-1">Kecamatan</label>
-                        <input list="list-kecamatan" id="input-kecamatan" onchange="updateDaftarDesa()" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik kec...">
+                        <input list="list-kecamatan" id="input-kecamatan" onchange="updateDaftarDesaGlobal()" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik kec...">
                         <datalist id="list-kecamatan"></datalist>
                     </div>
                     <div>
@@ -277,6 +266,7 @@
         </div>
     </div>
 
+    <!-- Script Utama Halaman Publik -->
     <script src="assets/js/index.js"></script>
     <script>
         function toggleMobileMenu() {
