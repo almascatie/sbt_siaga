@@ -70,15 +70,18 @@ function renderSidebar() {
         const badgeHtml = renderBadgeStatus(item.status, isKritis);
         const jamWaktu = formatJamLaporan(item.created_at);
 
-        // Jika ada estimasi selesai (misal sedang ditangani), tampilkan info estimasi
+        // [PERBAIKAN UTAMA] Mengambil kelas warna latar kartu secara dinamis berdasarkan status
+        const cardStyleClass = getCardClassByStatus(item.status, isKritis);
+
         let estimasiHtml = '';
         if (item.status === 'Sedang Ditangani' && item.estimasi_selesai) {
             const estimasiJam = new Date(item.estimasi_selesai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            estimasiHtml = `<div class="mt-1 text-[10px] text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded font-medium">⏱️ Target Selesai: Pukul ${estimasiJam} WIT</div>`;
+            estimasiHtml = `<div class="mt-1 text-[10px] text-orange-800 bg-orange-100 px-1.5 py-0.5 rounded font-medium">⏱️ Target Selesai: Pukul ${estimasiJam} WIT</div>`;
         }
 
         const card = document.createElement('div');
-        card.className = `p-2.5 rounded-lg shadow-sm border cursor-pointer transition bg-slate-50 border-slate-200 hover:bg-slate-100`;
+        // [PERBAIKAN UTAMA] Mengganti 'bg-slate-50' dengan 'cardStyleClass' agar warna latar kartu berubah total
+        card.className = `p-2.5 rounded-lg shadow-sm border cursor-pointer transition ${cardStyleClass} border-slate-200 hover:brightness-95`;
         card.innerHTML = `
             <div class="flex justify-between items-center mb-1">
                 <div class="flex items-center gap-1.5">
