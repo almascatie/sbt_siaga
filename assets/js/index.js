@@ -111,30 +111,41 @@ function renderMarkersPublik() {
     markersPublik.forEach(m => m.remove());
     markersPublik = [];
 
+    const sekarang = new Date().getTime();
+
     laporanList.forEach(item => {
-        const color = item.jenis === 'Kebakaran' ? '#ef4444' : '#3b82f6';
-        const el = document.createElement('div');
-        el.className = 'rounded-full shadow-md cursor-pointer border-2 border-white';
-        el.style.width = '24px';
-        el.style.height = '24px';
-        el.style.backgroundColor = color;
+        // Pengecekan status kritis (>30 menit pada status Sedang Dicek / Baru)
+        const waktuBuat = new Date(item.created_at).getTime();
+        const selisihMenit = (sekarang - waktuBuat) / (1000 * 60);
+        const isKritis = (item.status === 'Sedang Dicek' || item.status === 'Baru') && selisihMenit > 30;
+
+        // Memanggil fungsi global dari global.js untuk membuat elemen marker yang seragam dan interaktif
+        const el = buatElemenMarkerGlobal(item, selectedReportId, isKritis);
 
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-            <div class="p-1 text-xs">
+            <div class="p-1 text-xs space-y-1">
                 <b class="text-slate-800">${item.lokasi}</b><br>
                 <span>Jenis: <b>${item.jenis}</b></span><br>
                 <span>Status: <b>${item.status}</b></span>
+                ${item.minta_bantuan ? '<br><span class="text-[10px] bg-red-100 text-red-700 font-bold px-1 rounded">🆘 MEMBUTUHKAN BANTUAN!</span>' : ''}
             </div>
         `);
+
+        // Event klik pada marker peta untuk mengubah status aktif dan menampilkan ikon bintang
+        el.addEventListener('click', () => {
+            selectedReportId = item.id;
+            renderSidebar();
+            renderMarkersPublik();
+        });
 
         const marker = new mapboxgl.Marker(el)
             .setLngLat([item.lng, item.lat])
             .setPopup(popup)
             .addTo(map);
+
         markersPublik.push(marker);
     });
 }
-
 function toggleLayerFaskes(checkbox) {
     if (checkbox.checked) {
         dataFaskesSBTGlobal.forEach(f => {
