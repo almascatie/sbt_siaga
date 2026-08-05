@@ -38,7 +38,7 @@ const STATUS_CONFIG = {
 
 function renderBadgeStatus(status, isKritis30Min = false) {
     if (isKritis30Min) {
-        return `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-300 text-[10px]">⏳ Proses Cek (>30m)</span>`;
+        return `<span class="bg-amber-100 text-amber-900 font-bold px-1.5 py-0.5 rounded border border-amber-400 text-[9px] sm:text-[10px] whitespace-nowrap">⏳ Belum di Cek (>30m)</span>`;
     }
     const cfg = STATUS_CONFIG[status] || { text: status, badgeClass: 'bg-slate-100 text-slate-700', cardClass: 'card-proses-cek' };
     return `<span class="px-2 py-0.5 rounded font-bold text-[10px] ${cfg.badgeClass}">${cfg.text}</span>`;
