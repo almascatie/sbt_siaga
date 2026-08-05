@@ -21,7 +21,7 @@ async function loadMasterData() {
         const resWilayah = await fetch('data/wilayah.json');
         const jsonWilayah = await resWilayah.json();
         dataWilayahKemendagri = jsonWilayah.kecamatan || [];
-        populateKecamatanDropdown();
+        populateKecamatanDatalist();
 
         const resFaskes = await fetch('data/faskes.json');
         const jsonFaskes = await resFaskes.json();
@@ -48,19 +48,20 @@ function populateKecamatanDatalist() {
 function updateDaftarDesa() {
     const selectedKecName = document.getElementById('input-kecamatan').value;
     const datalistDesa = document.getElementById('list-desa');
+    if (!datalistDesa) return;
     datalistDesa.innerHTML = '';
     
     const kecamatanObj = dataWilayahKemendagri.find(k => k.nama_kecamatan === selectedKecName);
     if (kecamatanObj && kecamatanObj.desa_kelurahan) {
         kecamatanObj.desa_kelurahan.forEach(desa => {
             const opt = document.createElement('option');
-            // Bersihkan teks status / kata "Desa" agar murni namanya saja
             let namaBersih = desa.nama.replace(/\(Desa\)/gi, '').trim();
             opt.value = namaBersih;
             datalistDesa.appendChild(opt);
         });
     }
 }
+
 async function ambilDataLaporan() {
     const { data, error } = await supabaseClient.from('laporan').select('*').order('created_at', { ascending: false });
     if (!error) {
@@ -70,10 +71,9 @@ async function ambilDataLaporan() {
     }
 }
 
-// Cek Sesi / Akun Aktif untuk Lembaga Utama & Pimpinan
+// Cek Sesi / Akun Aktif untuk Satgas & Pimpinan
 async function cekAkunOnlineRealtime() {
     try {
-        // Ambil data user yang statusnya ONLINE
         const { data, error } = await supabaseClient
             .from('users')
             .select('nama_lembaga, role, status_online')
@@ -81,14 +81,10 @@ async function cekAkunOnlineRealtime() {
 
         if (error || !data) return;
 
-        // Cek apakah ada petugas dari lembaga utama yang online
         const lembagaUtamaList = ['BPBD SBT', 'Damkar Kab. SBT', 'Call Center 112'];
         const adaPetugasOnline = data.some(u => lembagaUtamaList.includes(u.nama_lembaga));
+        const adaPimpinanOnline = data.some(u => u.role && u.role.toLowerCase() === 'pimpinan');
 
-        // Cek apakah ada pimpinan yang online (berdasarkan role PIMPINAN)
-        const adaPimpinanOnline = data.some(u => u.role === 'pimpinan');
-
-        // Tampilkan ke antarmuka publik
         const elLembaga = document.getElementById('status-lembaga-utama');
         const elPimpinan = document.getElementById('status-pimpinan-online');
 
@@ -106,6 +102,27 @@ async function cekAkunOnlineRealtime() {
     }
 }
 
+// Fungsi Bunyi Peringatan Beep (Web Audio API)
+function bunyiPeringatanDarurat() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.3);
+    } catch (e) {
+        console.log("Audio diblokir browser sebelum interaksi pengguna.");
+    }
+}
+
 function renderSidebar() {
     const container = document.getElementById('sidebar-list');
     container.innerHTML = '';
@@ -117,26 +134,31 @@ function renderSidebar() {
     }
 
     const now = new Date();
+    let adaBelumVerif30Min = false;
 
     laporanList.forEach(item => {
         const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
         
-        // Logika Waktu > 30 Menit Belum Ditangani (Kritis -> Warna Merah Menyala di Sidebar)
+        // Logika Waktu > 30 Menit Belum Diverifikasi
         const waktuBuat = new Date(item.created_at);
         const selisihMenit = (now - waktuBuat) / (1000 * 60);
-        const isKritis = item.status === 'Baru' && selisihMenit > 30;
+        const isBelumVerif = (item.status === 'Baru' && selisihMenit > 30);
 
-        const statusColor = isKritis ? 'text-white bg-red-600 animate-pulse font-extrabold' : 
+        if (isBelumVerif) {
+            adaBelumVerif30Min = true;
+        }
+
+        const statusColor = isBelumVerif ? 'text-white bg-red-600 animate-pulse font-extrabold' : 
                             item.status === 'Baru' ? 'text-red-600 bg-red-50' : 
                             item.status === 'Terverifikasi' ? 'text-amber-600 bg-amber-50' : 
                             item.status === 'Proses' ? 'text-blue-600 bg-blue-50' : 'text-green-600 bg-green-50';
 
         const card = document.createElement('div');
-        card.className = `p-2.5 rounded-lg shadow-sm border cursor-pointer transition ${isKritis ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}`;
+        card.className = `p-2.5 rounded-lg shadow-sm border cursor-pointer transition ${isBelumVerif ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}`;
         card.innerHTML = `
             <div class="flex justify-between items-start mb-1">
                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeColor}">${item.jenis}</span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusColor}">${isKritis ? '⚠️ KRITIS (>30m)' : item.status}</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusColor}">${isBelumVerif ? '⏳ Menunggu Verifikasi (>30m)' : item.status}</span>
             </div>
             <h3 class="text-xs font-bold text-slate-800">${item.lokasi}</h3>
             <p class="text-[11px] text-slate-600 truncate">${item.ket}</p>
@@ -145,6 +167,10 @@ function renderSidebar() {
         card.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
         container.appendChild(card);
     });
+
+    if (adaBelumVerif30Min) {
+        bunyiPeringatanDarurat();
+    }
 }
 
 function renderMarkersPublik() {
@@ -245,8 +271,8 @@ function batalkanPilihPeta() {
 
 document.getElementById('form-lapor').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const kecamatanVal = document.getElementById('select-kecamatan').value;
-    const desaVal = document.getElementById('select-desa').value;
+    const kecamatanVal = document.getElementById('input-kecamatan').value;
+    const desaVal = document.getElementById('input-desa').value;
     const lokasiGabungan = `Desa ${desaVal}, Kec. ${kecamatanVal}`;
 
     const idBaru = 'SBT-' + Math.floor(1000 + Math.random() * 9000);
