@@ -4,7 +4,6 @@ let markersPublik = [];
 let markersFaskes = [];
 let mapPicker = null;
 
-// Inisialisasi Peta Publik Utama
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v12',
@@ -21,7 +20,6 @@ async function ambilDataLaporan() {
     }
 }
 
-// Fungsi Bunyi Peringatan Beep (Web Audio API)
 function bunyiPeringatanDarurat() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -38,7 +36,7 @@ function bunyiPeringatanDarurat() {
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 0.3);
     } catch (e) {
-        console.log("Audio diblokir browser sebelum interaksi pengguna.");
+        console.log("Audio diblokir browser.");
     }
 }
 
@@ -61,7 +59,6 @@ function renderSidebar() {
     laporanList.forEach(item => {
         const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
         
-        // Logika Waktu > 30 Menit untuk status "Sedang Dicek"
         const waktuBuat = new Date(item.created_at);
         const selisihMenit = (now - waktuBuat) / (1000 * 60);
         const isKritis = (item.status === 'Sedang Dicek' && selisihMenit > 30);
@@ -71,17 +68,32 @@ function renderSidebar() {
         }
 
         const badgeHtml = renderBadgeStatus(item.status, isKritis);
+        const jamWaktu = formatJamLaporan(item.created_at);
+
+        // Jika ada estimasi selesai (misal sedang ditangani), tampilkan info estimasi
+        let estimasiHtml = '';
+        if (item.status === 'Sedang Ditangani' && item.estimasi_selesai) {
+            const estimasiJam = new Date(item.estimasi_selesai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            estimasiHtml = `<div class="mt-1 text-[10px] text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded font-medium">⏱️ Target Selesai: Pukul ${estimasiJam} WIT</div>`;
+        }
 
         const card = document.createElement('div');
-        card.className = `p-2.5 rounded-lg shadow-sm border cursor-pointer transition ${isKritis ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}`;
+        card.className = `p-2.5 rounded-lg shadow-sm border cursor-pointer transition bg-slate-50 border-slate-200 hover:bg-slate-100`;
         card.innerHTML = `
-            <div class="flex justify-between items-start mb-1">
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeColor}">${item.jenis}</span>
+            <div class="flex justify-between items-center mb-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeColor}">${item.jenis}</span>
+                    <span class="text-[10px] font-mono text-slate-500 font-semibold">🕒 ${jamWaktu}</span>
+                </div>
                 <div>${badgeHtml}</div>
             </div>
             <h3 class="text-xs font-bold text-slate-800">${item.lokasi}</h3>
             <p class="text-[11px] text-slate-600 truncate">${item.ket || '-'}</p>
-            <p class="text-[10px] text-slate-400 mt-1">ID: <code class="font-bold">${item.id}</code></p>
+            ${estimasiHtml}
+            <div class="flex justify-between items-center mt-1 pt-1 border-t border-slate-200/60 text-[9px] text-slate-400">
+                <span>ID: <code class="font-bold text-slate-600">${item.id}</code></span>
+                <span class="text-blue-600 font-semibold">Ketuk peta →</span>
+            </div>
         `;
         card.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
         container.appendChild(card);
@@ -120,7 +132,6 @@ function renderMarkersPublik() {
     });
 }
 
-// Toggle Layer Faskes / RSUD di Peta Publik
 function toggleLayerFaskes(checkbox) {
     if (checkbox.checked) {
         dataFaskesSBTGlobal.forEach(f => {
@@ -188,7 +199,6 @@ function batalkanPilihPeta() {
     bukaFormLapor();
 }
 
-// Event Submit Form Lapor Warga (Status default: 'Sedang Dicek')
 document.getElementById('form-lapor').addEventListener('submit', async (e) => {
     e.preventDefault();
     const kecamatanVal = document.getElementById('input-kecamatan').value;
@@ -203,7 +213,7 @@ document.getElementById('form-lapor').addEventListener('submit', async (e) => {
         jenis: document.getElementById('warga-jenis').value,
         lokasi: lokasiGabungan,
         ket: document.getElementById('warga-ket').value,
-        status: 'Sedang Dicek', // Menggunakan status psikologis baru
+        status: 'Sedang Dicek',
         penanggung_jawab: '-',
         telp_petugas: '-',
         estimasi_selesai: null,
@@ -232,11 +242,13 @@ function cekStatusLaporan() {
 
     hasilDiv.classList.remove('hidden');
     if (data) {
+        const estimasiStr = data.estimasi_selesai ? new Date(data.estimasi_selesai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIT' : '-';
         hasilDiv.innerHTML = `
             <p><b>ID Laporan:</b> <code class="font-bold">${data.id}</code></p>
             <p><b>Lokasi:</b> ${data.lokasi}</p>
             <p><b>Jenis:</b> ${data.jenis}</p>
             <p><b>Status:</b> <span class="text-blue-600 font-bold">${data.status}</span></p>
+            <p><b>Estimasi Selesai:</b> <span class="text-orange-600 font-bold">${estimasiStr}</span></p>
             <p><b>Instansi PJ:</b> ${data.penanggung_jawab}</p>
             <p><b>Kontak Posko:</b> ${data.telp_petugas !== '-' ? `<a href="tel:${data.telp_petugas}" class="text-blue-600 underline font-bold">${data.telp_petugas}</a>` : '-'}</p>
             <p><b>Keterangan:</b> ${data.ket}</p>
@@ -246,13 +258,11 @@ function cekStatusLaporan() {
     }
 }
 
-// Hook Event Saat Peta Utama Selesai Dimuat
 map.on('load', () => {
     loadMasterDataGlobal();
     ambilDataLaporan();
     cekAkunOnlineRealtime();
     
-    // Auto-refresh berkala
     setInterval(ambilDataLaporan, 5000);
     setInterval(cekAkunOnlineRealtime, 10000);
 });
