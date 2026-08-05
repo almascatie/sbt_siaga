@@ -72,9 +72,15 @@ function renderSidebar() {
     laporanList.forEach(item => {
         const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
         
-        const waktuBuat = new Date(item.created_at);
+        let cleanDateStr = item.created_at;
+        if (cleanDateStr && !cleanDateStr.includes('Z') && !cleanDateStr.includes('+')) {
+            cleanDateStr = cleanDateStr.replace(' ', 'T') + '+09:00';
+        }
+        const waktuBuat = new Date(cleanDateStr);
         const selisihMenit = (now - waktuBuat) / (1000 * 60);
-        const isKritis = (item.status === 'Sedang Dicek' && selisihMenit > 30);
+        
+        // Cek kritis jika statusnya masih 'Baru' atau 'Sedang Dicek' dan lewat 30 menit
+        const isKritis = ((item.status === 'Baru' || item.status === 'Sedang Dicek') && selisihMenit > 30);
 
         if (isKritis) {
             adaKritis30Min = true;
@@ -83,7 +89,7 @@ function renderSidebar() {
         const badgeHtml = renderBadgeStatus(item.status, isKritis);
         const jamWaktu = formatJamLaporan(item.created_at);
         const cardStyleClass = getCardClassByStatus(item.status, isKritis);
-
+        
         let estimasiHtml = '';
         if (item.status === 'Sedang Ditangani' && item.estimasi_selesai) {
             const estimasiJam = new Date(item.estimasi_selesai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
