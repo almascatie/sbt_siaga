@@ -1,3 +1,7 @@
+// ==========================================================
+// OPERASIONAL SCRIPT — COMMAND CENTER SBT
+// ==========================================================
+
 mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 
 let laporanList = [];
@@ -20,18 +24,14 @@ window.onload = () => {
         currentUser = {
             id: sessionStorage.getItem('sbt_user_id'),
             username: sessionStorage.getItem('sbt_username'),
+            nama_lengkap: sessionStorage.getItem('sbt_nama_lengkap') || sessionStorage.getItem('sbt_username'),
             nama_lembaga: sessionStorage.getItem('sbt_nama_lembaga'),
             role: sessionStorage.getItem('sbt_role'),
-            telp_posko: sessionStorage.getItem('sbt_telp_posko')
+            telp_petugas: sessionStorage.getItem('sbt_telp_petugas')
         };
         
         if (currentUser.role === 'superadmin') {
             window.location.href = 'admin.html';
-            return;
-        }
-
-        if (currentUser.role === 'petugas_kolaborasi') {
-            window.location.href = 'kolaborator.html';
             return;
         }
 
@@ -46,7 +46,6 @@ window.onload = () => {
 
 async function logoutSession() {
     const usernameAktif = sessionStorage.getItem('sbt_username');
-    
     if (usernameAktif) {
         await supabaseClient
             .from('users')
@@ -62,18 +61,27 @@ function inisialisasiSesiHeader() {
     const sapaan = document.getElementById('header-sapaan');
     const badge = document.getElementById('badge-role');
 
+    const namaTampil = currentUser.nama_lengkap;
+    const lembagaTampil = currentUser.nama_lembaga || 'Sektoral';
+
     if (currentUser.role === 'pimpinan') {
-        sapaan.innerText = `Mode Pimpinan: ${currentUser.nama_lembaga}`;
-        badge.innerText = 'MONITORING PIMPINAN';
-        badge.className = 'bg-amber-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase text-white';
+        sapaan.innerHTML = `<b>${namaTampil}</b> — Pimpinan (${lembagaTampil})`;
+        if (badge) {
+            badge.innerText = 'PIMPINAN';
+            badge.className = 'bg-amber-600 text-[9px] px-2 py-0.5 rounded font-bold uppercase text-white';
+        }
     } else if (currentUser.nama_lembaga && currentUser.nama_lembaga.toLowerCase().includes('112')) {
-        sapaan.innerText = `Call Center 112: ${currentUser.username}`;
-        badge.innerText = 'OPERATOR 112';
-        badge.className = 'bg-purple-600 text-[10px] px-2.5 py-1 rounded font-bold uppercase text-white';
+        sapaan.innerHTML = `<b>${namaTampil}</b> — Call Center 112`;
+        if (badge) {
+            badge.innerText = 'CALL CENTER';
+            badge.className = 'bg-purple-600 text-[9px] px-2 py-0.5 rounded font-bold uppercase text-white';
+        }
     } else {
-        sapaan.innerText = `Hi, ${currentUser.nama_lembaga} (${currentUser.username})`;
-        badge.innerText = 'OPERASIONAL';
-        badge.className = 'bg-[var(--sbt-orange)] text-[10px] px-2.5 py-1 rounded font-bold uppercase text-white';
+        sapaan.innerHTML = `<b>${namaTampil}</b> (${lembagaTampil})`;
+        if (badge) {
+            badge.innerText = 'OPERASIONAL';
+            badge.className = 'bg-[var(--sbt-orange)] text-[9px] px-2 py-0.5 rounded font-bold uppercase text-white';
+        }
     }
 }
 
@@ -162,7 +170,7 @@ function gantiTab(tab) {
     if (filterContainer) {
         if (tab === 'Semua') {
             filterContainer.classList.remove('hidden');
-            muatFilterLembaga(); // Memastikan opsi dropdown filter terisi saat tab Semua dibuka
+            muatFilterLembaga();
         } else {
             filterContainer.classList.add('hidden');
             const selectFilter = document.getElementById('select-filter-lembaga');
@@ -223,7 +231,12 @@ function renderTabel() {
     filtered.forEach(item => {
         const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
 
-        const jamLapor = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let cleanDateStr = item.created_at;
+        if (cleanDateStr && !cleanDateStr.includes('Z') && !cleanDateStr.includes('+')) {
+            cleanDateStr = cleanDateStr.replace(' ', 'T') + '+09:00';
+        }
+        const jamLapor = new Date(cleanDateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
         const waktuIdHTML = `
             <div class="leading-tight">
                 <span class="font-display font-bold text-slate-900 text-sm">${jamLapor}</span><br>
@@ -241,14 +254,13 @@ function renderTabel() {
             infoStatus = `
                 <div class="text-[11px] space-y-0.5">
                     <span class="text-amber-600 font-bold">Diverifikasi Oleh:</span><br>
-                    <span class="text-slate-700 font-medium">${item.nama_petugas_verif || '-'}</span>   
+                    <span class="text-slate-700 font-medium">${item.nama_petugas_verif || '-'}</span>    
                 </div>
             `;
         } else if (item.status === 'Proses') {
             const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === item.id);
             let kolabBlokHTML = '';
             if (kolabLaporan.length > 0) {
-                // TAMPILAN KOLABORASI: Bersih, hanya menampilkan nama lembaga saja tanpa deskripsi panjang
                 kolabBlokHTML = `
                     <div class="mt-2 pt-1.5 border-t border-slate-100">
                         <p class="text-[10px] font-bold text-purple-700 uppercase">🤝 KOLABORASI LINTAS SEKTOR:</p>
@@ -404,10 +416,13 @@ function renderMarkers() {
         let color = '#ef4444';
         let isKritis = false;
 
-        const waktuLapor = new Date(item.created_at).getTime();
+        let cleanDateStr = item.created_at;
+        if (cleanDateStr && !cleanDateStr.includes('Z') && !cleanDateStr.includes('+')) {
+            cleanDateStr = cleanDateStr.replace(' ', 'T') + '+09:00';
+        }
+        const waktuLapor = new Date(cleanDateStr).getTime();
         const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
 
-        // Validasi ketat: Hanya Kritis jika status BARU dan benar-benar > 30 menit
         if (item.status === 'Baru') {
             color = '#ef4444';
             if (selisihMenit > 30) {
@@ -432,7 +447,6 @@ function renderMarkers() {
             el.style.boxShadow = '0 0 0 6px rgba(198, 106, 61, 0.4)';
             el.innerText = '★';
         } else if (isKritis || item.minta_bantuan) {
-            // Marker peta tetap ada penanda khusus untuk laporan yang sudah >30 menit atau minta bantuan
             el.className = `rounded-full shadow-2xl cursor-pointer border-4 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
             el.style.width = '36px';
             el.style.height = '36px';
@@ -472,7 +486,7 @@ function renderMarkers() {
 async function aksiVerifikasi(id) {
     if (!confirm(`Verifikasi laporan ini atas nama instansi [${currentUser.nama_lembaga}]?`)) return;
 
-    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
+    const ringkas = formatIdentitasRingkas(currentUser.nama_lengkap, currentUser.nama_lembaga);
 
     const { error } = await supabaseClient.from('laporan').update({
         status: 'Terverifikasi',
@@ -491,7 +505,7 @@ async function aksiVerifikasi(id) {
 function bukaModalProses(id) {
     document.getElementById('proses-id-laporan').value = id;
     document.getElementById('label-lembaga-aktif').innerText = currentUser.nama_lembaga;
-    document.getElementById('input-telp-petugas').value = currentUser.telp_posko || '-';
+    document.getElementById('input-telp-petugas').value = currentUser.telp_petugas || '-';
     document.getElementById('modal-proses').classList.remove('hidden');
 }
 
@@ -500,10 +514,10 @@ function tutupModalProses() { document.getElementById('modal-proses').classList.
 document.getElementById('form-proses').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('proses-id-laporan').value;
-    const telp = currentUser.telp_posko || '-';
+    const telp = currentUser.telp_petugas || '-';
     const jam = parseFloat(document.getElementById('input-estimasi-jam').value) || 1;
 
-    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
+    const ringkas = formatIdentitasRingkas(currentUser.nama_lengkap, currentUser.nama_lembaga);
     const logBaru = `[${new Date().toLocaleTimeString()}] ${ringkas} mulai menangani utama\n`;
 
     const itemLama = laporanList.find(i => i.id === id);
@@ -532,7 +546,7 @@ async function aksiMintaBantuan(id, statusBantuan) {
     const pesan = statusBantuan ? 'Aktifkan status Minta Bantuan / Butuh Kolaborasi untuk laporan ini?' : 'Nonaktifkan status Minta Bantuan?';
     if (!confirm(pesan)) return;
 
-    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
+    const ringkas = formatIdentitasRingkas(currentUser.nama_lengkap, currentUser.nama_lembaga);
     const itemLama = laporanList.find(i => i.id === id);
     const logBaru = statusBantuan
         ? `[${new Date().toLocaleTimeString()}] 🆘 ${ringkas} BUTUH BANTUAN LINTAS SEKTOR.\n`
@@ -566,7 +580,7 @@ document.getElementById('form-kolaborasi').addEventListener('submit', async (e) 
     const jenisBantuan = document.getElementById('input-jenis-bantuan').value;
     const ketBantuan = document.getElementById('input-ket-bantuan').value.trim();
 
-    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
+    const ringkas = formatIdentitasRingkas(currentUser.nama_lengkap, currentUser.nama_lembaga);
 
     const { error: errKolaborasi } = await supabaseClient.from('bantuan_kolaborasi').insert([{
         laporan_id: id,
@@ -581,8 +595,6 @@ document.getElementById('form-kolaborasi').addEventListener('submit', async (e) 
     }
 
     const itemLama = laporanList.find(i => i.id === id);
-    
-    // FORMAT LOG BANTUAN: Dibuat mencolok (bold/menyala) agar langsung ternotice di log lapangan
     const logBaru = `[${new Date().toLocaleTimeString()}] ⚡ BANTUAN MASUK dari <b>${currentUser.nama_lembaga}</b>: [${jenisBantuan}] ${ketBantuan}\n`;
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
@@ -613,7 +625,7 @@ document.getElementById('form-catatan').addEventListener('submit', async (e) => 
     const id = document.getElementById('catatan-id-laporan').value;
     const teks = document.getElementById('input-teks-catatan').value;
 
-    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
+    const ringkas = formatIdentitasRingkas(currentUser.nama_lengkap, currentUser.nama_lembaga);
     const itemLama = laporanList.find(i => i.id === id);
     const logBaru = `[${new Date().toLocaleTimeString()}] (${ringkas}): ${teks}\n`;
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
@@ -632,7 +644,7 @@ document.getElementById('form-catatan').addEventListener('submit', async (e) => 
 async function aksiSelesai(id) {
     if (!confirm('Tandai laporan ini sudah SELESAI penanganannya?')) return;
 
-    const ringkas = formatIdentitasRingkas(currentUser.username, currentUser.nama_lembaga);
+    const ringkas = formatIdentitasRingkas(currentUser.nama_lengkap, currentUser.nama_lembaga);
     const itemLama = laporanList.find(i => i.id === id);
 
     const kolabLaporan = daftarKolaborasi.filter(k => k.laporan_id === id);
