@@ -62,10 +62,12 @@ async function muatDataLembaga() {
     }
 }
 
+// --- MANAJEMEN LEMBAGA ---
 function bukaModalLembaga() {
     document.getElementById('lembaga-id').value = '';
     document.getElementById('input-nama-lembaga').value = '';
     document.getElementById('input-hotline-lembaga').value = '';
+    document.getElementById('input-logo-lembaga').value = '';
     document.getElementById('input-alamat-lembaga').value = '';
     document.getElementById('input-kategori-peran').value = 'Dinas Teknis';
     document.getElementById('input-ket-lembaga').value = '';
@@ -73,10 +75,11 @@ function bukaModalLembaga() {
     document.getElementById('modal-lembaga').classList.remove('hidden');
 }
 
-function editLembaga(id, nama, hotline, alamat, peran, ket) {
+function editLembaga(id, nama, hotline, logo, alamat, peran, ket) {
     document.getElementById('lembaga-id').value = id;
     document.getElementById('input-nama-lembaga').value = nama;
     document.getElementById('input-hotline-lembaga').value = hotline;
+    document.getElementById('input-logo-lembaga').value = logo;
     document.getElementById('input-alamat-lembaga').value = alamat;
     document.getElementById('input-kategori-peran').value = peran;
     document.getElementById('input-ket-lembaga').value = ket;
@@ -84,40 +87,34 @@ function editLembaga(id, nama, hotline, alamat, peran, ket) {
     document.getElementById('modal-lembaga').classList.remove('hidden');
 }
 
-function tutupModalLembaga() { 
-    document.getElementById('modal-lembaga').classList.add('hidden'); 
-}
-
 document.getElementById('form-lembaga').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('lembaga-id').value;
     const nama_lembaga = document.getElementById('input-nama-lembaga').value.trim();
     const hotline_telepon = document.getElementById('input-hotline-lembaga').value.trim();
+    const logo_url = document.getElementById('input-logo-lembaga').value.trim();
     const alamat_kantor = document.getElementById('input-alamat-lembaga').value.trim();
     const kategori_peran = document.getElementById('input-kategori-peran').value;
     const keterangan = document.getElementById('input-ket-lembaga').value.trim();
 
     if (id) {
         const { error } = await supabaseClient.from('lembaga').update({ 
-            nama_lembaga, hotline_telepon, alamat_kantor, kategori_peran, keterangan 
+            nama_lembaga, hotline_telepon, logo_url, alamat_kantor, kategori_peran, keterangan 
         }).eq('id', id);
         if (error) alert('Gagal update: ' + error.message);
-        else { tutupModalLembaga(); muatDataLembaga(); alert('Data lembaga berhasil diperbarui!'); }
+        else { tutupModalLembaga(); muatDataLembaga(); alert('Data lembaga diperbarui!'); }
     } else {
         const { error } = await supabaseClient.from('lembaga').insert([{ 
-            nama_lembaga, hotline_telepon, alamat_kantor, kategori_peran, keterangan 
+            nama_lembaga, hotline_telepon, logo_url, alamat_kantor, kategori_peran, keterangan 
         }]);
         if (error) alert('Gagal tambah: ' + error.message);
-        else { tutupModalLembaga(); muatDataLembaga(); alert('Lembaga baru berhasil ditambahkan!'); }
+        else { tutupModalLembaga(); muatDataLembaga(); alert('Lembaga ditambahkan!'); }
     }
 });
 
-async function hapusLembaga(id) {
-    if (!confirm('Yakin ingin menghapus lembaga ini?')) return;
-    const { error } = await supabaseClient.from('lembaga').delete().eq('id', id);
-    if (error) alert('Gagal hapus: ' + error.message);
-    else muatDataLembaga();
-}
+// Sesuaikan pemanggilan di fungsi muatDataLembaga (pada tombol edit):
+// editLembaga('${item.id}', '${item.nama_lembaga}', '${item.hotline_telepon || ''}', '${item.logo_url || ''}', '${item.alamat_kantor || ''}', '${item.kategori_peran || 'Dinas Teknis'}', '${item.keterangan || ''}')
+
 
 // --- MANAJEMEN PETUGAS / AKUN PENGGUNA ---
 async function muatDataPetugas() {
@@ -130,12 +127,15 @@ async function muatDataPetugas() {
             const tr = document.createElement('tr');
             tr.className = 'border-b hover:bg-slate-50';
             tr.innerHTML = `
-                <td class="p-3 font-bold text-slate-800">${item.username}</td>
+                <td class="p-3">
+                    <span class="font-bold text-slate-800">${item.nama_lengkap || '-'}</span><br>
+                    <span class="text-[10px] text-slate-500 font-mono">@${item.username}</span>
+                </td>
                 <td class="p-3 font-mono">${item.telp_petugas || '-'}</td>
                 <td class="p-3">${item.nama_lembaga || '-'}</td>
                 <td class="p-3 uppercase font-semibold text-blue-600">${item.role}</td>
                 <td class="p-3 text-center space-x-2">
-                    <button onclick="editPetugas('${item.id}', '${item.username}', '${item.password || ''}', '${item.telp_petugas || ''}', '${item.nama_lembaga || ''}', '${item.role}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded font-semibold">✏️ Edit</button>
+                    <button onclick="editPetugas('${item.id}', '${item.nama_lengkap || ''}', '${item.username}', '${item.password || ''}', '${item.telp_petugas || ''}', '${item.nama_lembaga || ''}', '${item.role}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded font-semibold">✏️ Edit</button>
                     <button onclick="hapusPetugas('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded font-semibold">🗑️ Hapus</button>
                 </td>
             `;
@@ -151,8 +151,9 @@ function bukaModalPetugas() {
     document.getElementById('modal-petugas').classList.remove('hidden');
 }
 
-function editPetugas(id, username, password, telpPetugas, namaLembaga, role) {
+function editPetugas(id, namaLengkap, username, password, telpPetugas, namaLembaga, role) {
     document.getElementById('petugas-id').value = id;
+    document.getElementById('input-nama-lengkap').value = namaLengkap;
     document.getElementById('input-username-petugas').value = username;
     document.getElementById('input-password-petugas').value = password;
     document.getElementById('input-telp-petugas').value = telpPetugas;
@@ -162,13 +163,10 @@ function editPetugas(id, username, password, telpPetugas, namaLembaga, role) {
     document.getElementById('modal-petugas').classList.remove('hidden');
 }
 
-function tutupModalPetugas() { 
-    document.getElementById('modal-petugas').classList.add('hidden'); 
-}
-
 document.getElementById('form-petugas').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('petugas-id').value;
+    const nama_lengkap = document.getElementById('input-nama-lengkap').value.trim();
     const username = document.getElementById('input-username-petugas').value.trim();
     const password = document.getElementById('input-password-petugas').value.trim();
     const telp_petugas = document.getElementById('input-telp-petugas').value.trim();
@@ -177,18 +175,18 @@ document.getElementById('form-petugas').addEventListener('submit', async (e) => 
 
     if (id) {
         const { error } = await supabaseClient.from('users').update({
-            username, password, telp_petugas, nama_lembaga, role
+            nama_lengkap, username, password, telp_petugas, nama_lembaga, role
         }).eq('id', id);
 
         if (error) alert('Gagal update akun: ' + error.message);
-        else { tutupModalPetugas(); muatDataPetugas(); alert('Akun pengguna berhasil diperbarui!'); }
+        else { tutupModalPetugas(); muatDataPetugas(); alert('Akun pengguna diperbarui!'); }
     } else {
         const { error } = await supabaseClient.from('users').insert([{
-            username, password, telp_petugas, nama_lembaga, role
+            nama_lengkap, username, password, telp_petugas, nama_lembaga, role
         }]);
 
         if (error) alert('Gagal tambah akun: ' + error.message);
-        else { tutupModalPetugas(); muatDataPetugas(); alert('Akun pengguna berhasil dibuat!'); }
+        else { tutupModalPetugas(); muatDataPetugas(); alert('Akun pengguna dibuat!'); }
     }
 });
 
