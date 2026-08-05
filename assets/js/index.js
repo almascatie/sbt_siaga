@@ -91,12 +91,12 @@ async function cekAkunOnlineRealtime() {
         const elPimpinan = document.getElementById('status-pimpinan-online');
 
         if (elLembaga) {
-            elLembaga.textContent = adaPetugasOnline ? '🟢 Siaga (Online)' : '⚪ Offline';
+            elLembaga.textContent = adaPetugasOnline ? '🟢 Siaga' : '⚪ Off';
             elLembaga.className = adaPetugasOnline ? 'font-medium text-emerald-600' : 'font-medium text-slate-400';
         }
         
         if (elPimpinan) {
-            elPimpinan.textContent = adaPimpinanOnline ? '🟢 Memantau' : '⚪ Belum Memantau';
+            elPimpinan.textContent = adaPimpinanOnline ? '🟢 On' : '⚪ Off';
             elPimpinan.className = adaPimpinanOnline ? 'font-medium text-blue-600' : 'font-medium text-slate-400';
         }
     } catch (e) {
