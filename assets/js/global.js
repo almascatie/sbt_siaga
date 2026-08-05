@@ -126,9 +126,37 @@ async function loadMasterDataGlobal() {
     }
 }
 
-// Generator Timestamp Waktu Lokal untuk Laporan Baru
+// Generator Timestamp Waktu Lokal Presisi untuk Database (Format SQL: YYYY-MM-DD HH:mm:ss)
 function buatTimestampLokal() {
-    return new Date().toISOString();
+    const now = new Date();
+    
+    // Memaksa pengambilan string komponen waktu berdasarkan zona waktu WIT (Asia/Jayapura)
+    const options = {
+        timeZone: 'Asia/Jayapura',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+    
+    const formatter = new Intl.DateTimeFormat('en-CA', options); // en-CA menghasilkan format YYYY-MM-DD
+    const parts = formatter.formatToParts(now);
+    
+    let year, month, day, hour, minute, second;
+    parts.forEach(p => {
+        if (p.type === 'year') year = p.value;
+        if (p.type === 'month') month = p.value;
+        if (p.type === 'day') day = p.value;
+        if (p.type === 'hour') hour = p.value;
+        if (p.type === 'minute') minute = p.value;
+        if (p.type === 'second') second = p.value;
+    });
+
+    // Mengembalikan format teks yang diterima sempurna oleh kolom timestamp Supabase
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
 function populateKecamatanDatalistGlobal() {
