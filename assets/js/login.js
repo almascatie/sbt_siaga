@@ -22,6 +22,18 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
                     btn.textContent = 'Masuk ke Dashboard 🚀';
                     return;
                 }
+                / ==========================================
+                // 🟢 TAMBAHAN: UPDATE STATUS USER JADI ONLINE
+                // ==========================================
+                await supabaseClient
+                    .from('users')
+                    .update({ status_online: 'ONLINE' })
+                    .eq('id', data.id);
+
+                // Simpan sesi login sementara di browser (sessionStorage)
+                sessionStorage.setItem('sbt_logged_in', 'true');
+                sessionStorage.setItem('sbt_user_id', data.id);
+                // ... (lanjutan kode aslinya)
 
                 // Simpan sesi login sementara di browser (sessionStorage)
                 sessionStorage.setItem('sbt_logged_in', 'true');
