@@ -99,9 +99,12 @@ function renderSidebar() {
                 <span class="text-blue-600 font-semibold">Ketuk peta →</span>
             </div>
         `;
-        card.onclick = () => map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
-        container.appendChild(card);
-    });
+        card.onclick = () => {
+            selectedReportId = item.id; // <--- Mengaktifkan ID agar ikon di peta ikut berubah jadi bintang
+            renderSidebar();
+            renderMarkersPublik();
+            map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
+        };
 
     if (adaKritis30Min) {
         bunyiPeringatanDarurat();
