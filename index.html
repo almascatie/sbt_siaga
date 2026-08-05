@@ -178,19 +178,18 @@
                             <option value="Kekeringan">💧 Krisis Air Bersih</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block font-medium text-slate-600 mb-1">Pilih Kecamatan</label>
-                        <select id="select-kecamatan" onchange="updateDropdownDesa()" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white">
-                            <option value="">-- Pilih Kecamatan --</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block font-medium text-slate-600 mb-1">Pilih Desa / Kelurahan</label>
-                        <select id="select-desa" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white">
-                            <option value="">-- Pilih Desa --</option>
-                        </select>
+                    <div class="grid grid-cols-2 gap-2">
+                        
+                        <div>
+                            <label class="block font-medium text-slate-600 mb-1">Kecamatan</label>
+                            <input list="list-kecamatan" id="input-kecamatan" onchange="updateDaftarDesa()" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik kecamatan...">
+                            <datalist id="list-kecamatan"></datalist>
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-600 mb-1">Desa / Kelurahan</label>
+                            <input list="list-desa" id="input-desa" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik desa...">
+                            <datalist id="list-desa"></datalist>
+                        </div>
                     </div>
                     <div>
                         <label class="block font-medium text-slate-600 mb-1">Koordinat GPS</label>
