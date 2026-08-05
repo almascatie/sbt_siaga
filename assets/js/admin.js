@@ -46,7 +46,9 @@ async function muatDataLembaga() {
             } else if (item.kategori_peran === 'Mitra') {
                 badgePeran = '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Mitra</span>';
             } else if (item.kategori_peran === 'Kecamatan & Desa') {
-                badgePeran = '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">Kecamatan & Desa</span>';
+                badgePeran = '<span class="bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold">Kecamatan & Desa</span>';
+            } else if (item.kategori_peran === 'Unsur Pimpinan') {
+                badgePeran = '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">Unsur Pimpinan</span>';
             }
 
             const tr = document.createElement('tr');
