@@ -1,9 +1,13 @@
+// ==========================================================
+// INDEX SCRIPT — SIAGA DARURAT SBT
+// ==========================================================
+
 let laporanList = [];
 let selectedCoords = { lng: 130.4850, lat: -3.1500 };
 let markersPublik = [];
 let markersFaskes = [];
 let mapPicker = null;
-let selectedReportId = null; 
+let selectedReportId = null; // Pelacak ID laporan yang aktif/dipilih
 
 const map = new mapboxgl.Map({
     container: 'map',
@@ -21,15 +25,23 @@ async function ambilDataLaporan() {
     }
 }
 
+// Solusi Audio Mobile: Mengaktifkan AudioContext pada sentuhan pertama layar jika diblokir browser
 function bunyiPeringatanDarurat() {
     try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const audioCtx = new AudioContext();
+
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
         
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
@@ -37,7 +49,7 @@ function bunyiPeringatanDarurat() {
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 0.3);
     } catch (e) {
-        console.log("Audio diblokir browser.");
+        console.log("Audio diblokir browser perangkat seluler:", e);
     }
 }
 
@@ -70,8 +82,6 @@ function renderSidebar() {
 
         const badgeHtml = renderBadgeStatus(item.status, isKritis);
         const jamWaktu = formatJamLaporan(item.created_at);
-
-        // [PERBAIKAN UTAMA] Mengambil kelas warna latar kartu secara dinamis berdasarkan status
         const cardStyleClass = getCardClassByStatus(item.status, isKritis);
 
         let estimasiHtml = '';
@@ -81,7 +91,6 @@ function renderSidebar() {
         }
 
         const card = document.createElement('div');
-        // [PERBAIKAN UTAMA] Mengganti 'bg-slate-50' dengan 'cardStyleClass' agar warna latar kartu berubah total
         card.className = `p-2.5 rounded-lg shadow-sm border cursor-pointer transition ${cardStyleClass} border-slate-200 hover:brightness-95`;
         card.innerHTML = `
             <div class="flex justify-between items-center mb-1">
@@ -99,12 +108,17 @@ function renderSidebar() {
                 <span class="text-blue-600 font-semibold">Ketuk peta →</span>
             </div>
         `;
+        
+        // Memperbarui ID laporan terpilih agar marker peta berubah jadi bintang dan menggeser peta
         card.onclick = () => {
-            selectedReportId = item.id; // <--- Mengaktifkan ID agar ikon di peta ikut berubah jadi bintang
+            selectedReportId = item.id;
             renderSidebar();
             renderMarkersPublik();
             map.flyTo({ center: [item.lng, item.lat], zoom: 14 });
         };
+
+        container.appendChild(card);
+    });
 
     if (adaKritis30Min) {
         bunyiPeringatanDarurat();
@@ -118,12 +132,11 @@ function renderMarkersPublik() {
     const sekarang = new Date().getTime();
 
     laporanList.forEach(item => {
-        // Pengecekan status kritis (>30 menit pada status Sedang Dicek / Baru)
         const waktuBuat = new Date(item.created_at).getTime();
         const selisihMenit = (sekarang - waktuBuat) / (1000 * 60);
         const isKritis = (item.status === 'Sedang Dicek' || item.status === 'Baru') && selisihMenit > 30;
 
-        // Memanggil fungsi global dari global.js untuk membuat elemen marker yang seragam dan interaktif
+        // Menggunakan fungsi pembuat marker global yang mendukung ikon bintang (★)
         const el = buatElemenMarkerGlobal(item, selectedReportId, isKritis);
 
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
@@ -135,7 +148,6 @@ function renderMarkersPublik() {
             </div>
         `);
 
-        // Event klik pada marker peta untuk mengubah status aktif dan menampilkan ikon bintang
         el.addEventListener('click', () => {
             selectedReportId = item.id;
             renderSidebar();
@@ -150,6 +162,7 @@ function renderMarkersPublik() {
         markersPublik.push(marker);
     });
 }
+
 function toggleLayerFaskes(checkbox) {
     if (checkbox.checked) {
         dataFaskesSBTGlobal.forEach(f => {
@@ -240,7 +253,7 @@ document.getElementById('form-lapor').addEventListener('submit', async (e) => {
         catatan_lapangan: '',
         lng: selectedCoords.lng,
         lat: selectedCoords.lat,
-        created_at: buatTimestampLokal() // <--- Pastikan ini ada!
+        created_at: buatTimestampLokal()
     };
 
     const { error } = await supabaseClient.from('laporan').insert([dataBaru]);
@@ -276,6 +289,17 @@ function cekStatusLaporan() {
         hasilDiv.innerHTML = `<p class="text-red-600 font-semibold">Nomor laporan tidak ditemukan.</p>`;
     }
 }
+
+// Menambahkan pemicu interaksi layar untuk membuka blokir AudioContext di HP/Mobile
+window.addEventListener('click', () => {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+        const tempCtx = new AudioContext();
+        if (tempCtx.state === 'suspended') {
+            tempCtx.resume();
+        }
+    }
+}, { once: true });
 
 map.on('load', () => {
     loadMasterDataGlobal();
