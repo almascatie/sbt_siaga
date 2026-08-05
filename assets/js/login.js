@@ -53,11 +53,11 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
                     sessionStorage.setItem('sbt_admin_auth', 'true');
                     window.location.href = 'admin.html';
                 } else if (roleUser.includes('kolaborasi')) {
-                    window.location.href = 'kolaborator.html'; // Kemenag / Koperasi
+                    window.location.href = 'kolaborator.html'; 
                 } else if (roleUser.includes('pimpinan') || roleUser.includes('eksekutif')) {
-                    window.location.href = 'pimpinan.html'; // Bupati / Pimpinan Daerah
+                    window.location.href = 'pimpinan.html'; 
                 } else {
-                    window.location.href = 'petugas.html'; // Damkar / BPBD / Petugas Utama
+                    window.location.href = 'operasional.html'; 
                 }
 
             } catch (err) {
