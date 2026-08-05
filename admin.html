@@ -63,7 +63,7 @@
         <!-- KARTU 2: KELOLA AKUN PENGGUNA / PETUGAS -->
         <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h2 class="font-bold text-sm md:text-base text-slate-800">👤 Manajemen Akun Pengguna / Petugas Lapangan</h2>
+                <h2 class="font-bold text-sm md:text-base text-slate-800">👤 Manajemen Akun Pengguna / Petugas Sektoral</h2>
                 <button onclick="bukaModalPetugas()" class="btn-teal text-xs shadow">
                     ➕ Tambah Akun Baru
                 </button>
@@ -76,7 +76,7 @@
                             <th class="p-3">Username</th>
                             <th class="p-3">No. Telp Petugas</th>
                             <th class="p-3">Lembaga Terkait</th>
-                            <th class="p-3">Role Akses</th>
+                            <th class="p-3">Role Akses Sistem</th>
                             <th class="p-3 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -126,7 +126,7 @@
                 <input type="hidden" id="lembaga-id">
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Nama Lembaga / Instansi</label>
-                    <input type="text" id="input-nama-lembaga" required placeholder="Contoh: Dinas Kesehatan SBT" class="w-full p-2.5 border rounded outline-none">
+                    <input type="text" id="input-nama-lembaga" required placeholder="Contoh: BPBD Kab. SBT" class="w-full p-2.5 border rounded outline-none">
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Nomor Hotline / Telepon Posko</label>
@@ -139,9 +139,10 @@
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Kategori Peran Sektoral</label>
                     <select id="input-kategori-peran" class="w-full p-2.5 border rounded bg-white outline-none font-semibold">
-                        <option value="Utama">Lembaga Utama (Eksekutor / Verifikasi)</option>
-                        <option value="Bantuan">Lembaga Bantuan / Kolaborator</option>
-                        <option value="Pimpinan">Pimpinan / Eksekutif</option>
+                        <option value="Dinas Teknis">Dinas Teknis (Eksekutor Utama)</option>
+                        <option value="Instansi Pendukung">Instansi Pendukung (Logistik / Bantuan)</option>
+                        <option value="Mitra">Mitra (TNI / Polri / Basarnas)</option>
+                        <option value="Kecamatan & Desa">Kecamatan & Desa (Camat / Lurah / Kades)</option>
                     </select>
                 </div>
                 <div>
@@ -166,7 +167,7 @@
                 <input type="hidden" id="petugas-id">
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Username Login</label>
-                    <input type="text" id="input-username-petugas" required placeholder="Contoh: petugas_bpbd_01" class="w-full p-2.5 border rounded outline-none">
+                    <input type="text" id="input-username-petugas" required placeholder="Contoh: bpbd_operator01" class="w-full p-2.5 border rounded outline-none">
                 </div>
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Password</label>
@@ -185,9 +186,10 @@
                 <div>
                     <label class="block font-medium text-slate-600 mb-1">Role / Hak Akses Sistem</label>
                     <select id="input-role-petugas" class="w-full p-2.5 border rounded bg-white outline-none font-semibold">
-                        <option value="petugas_utama">Petugas Utama</option>
-                        <option value="petugas_kolaborasi">Kolaborator / Bantuan</option>
-                        <option value="pimpinan">Pimpinan / Eksekutif</option>
+                        <option value="operator_call_center">Operator Call Center (Verifikasi Awal)</option>
+                        <option value="operator_teknis">Operator / Petugas Lapangan (Dinas Teknis/Mitra)</option>
+                        <option value="instansi_pendukung">Instansi Pendukung (Kolaborator Bantuan)</option>
+                        <option value="pimpinan">Unsur Pimpinan / Eksekutif</option>
                         <option value="superadmin">Super Admin</option>
                     </select>
                 </div>
