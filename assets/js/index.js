@@ -3,6 +3,7 @@ let selectedCoords = { lng: 130.4850, lat: -3.1500 };
 let markersPublik = [];
 let markersFaskes = [];
 let mapPicker = null;
+let selectedReportId = null; 
 
 const map = new mapboxgl.Map({
     container: 'map',
