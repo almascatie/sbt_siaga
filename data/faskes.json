@@ -1,0 +1,245 @@
+{
+    "deskripsi": "Master Data Fasilitas Kesehatan Eksisting (22 Puskesmas dan 2 RSUD) Kabupaten Seram Bagian Timur",
+    "faskes": [
+        {
+            "id": "PUSKESMAS_AMARSEKARU",
+            "nama": "Puskesmas Amarsekaru",
+            "tipe": "puskesmas",
+            "lat": -4.082687,
+            "lng": 131.308842,
+            "desa": "Amarsekaru",
+            "kecamatan": "Pulau Gorom",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_KATALOKA",
+            "nama": "Puskesmas Kataloka",
+            "tipe": "puskesmas",
+            "lat": -3.987427,
+            "lng": 131.377412,
+            "desa": "Kataloka",
+            "kecamatan": "Pulau Gorom",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_MIRAN",
+            "nama": "Puskesmas Miran",
+            "tipe": "puskesmas",
+            "lat": -4.001604,
+            "lng": 131.42178,
+            "desa": "Miran",
+            "kecamatan": "Gorom Timur",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_PULAU_PANJANG",
+            "nama": "Puskesmas Pulau Panjang",
+            "tipe": "puskesmas",
+            "lat": -4.040742,
+            "lng": 131.234131,
+            "desa": "Wisalen",
+            "kecamatan": "Pulau Panjang",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_DAI",
+            "nama": "Puskesmas Dai",
+            "tipe": "puskesmas",
+            "lat": -4.015265,
+            "lng": 131.389708,
+            "desa": "Kilalir",
+            "kecamatan": "Pulau Gorom",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_TAMHER_TIMUR",
+            "nama": "Puskesmas Tamher Timur",
+            "tipe": "puskesmas",
+            "lat": -4.503608,
+            "lng": 131.678097,
+            "desa": "Tamher Timur",
+            "kecamatan": "Wakate",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_TEOR",
+            "nama": "Puskesmas Teor",
+            "tipe": "puskesmas",
+            "lat": -4.728591,
+            "lng": 131.756918,
+            "desa": "Lapang Kampung Jawa",
+            "kecamatan": "Teor",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_GESER",
+            "nama": "Puskesmas Geser",
+            "tipe": "puskesmas",
+            "lat": -3.884516,
+            "lng": 130.897702,
+            "desa": "Geser",
+            "kecamatan": "Seram Timur",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_KILGA",
+            "nama": "Puskesmas Kilga",
+            "tipe": "puskesmas",
+            "lat": -3.890361,
+            "lng": 130.912817,
+            "desa": "Kilga",
+            "kecamatan": "Kian Darat",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_AIR_KASAR",
+            "nama": "Puskesmas Air Kasar",
+            "tipe": "puskesmas",
+            "lat": -3.541745,
+            "lng": 130.838276,
+            "desa": "Waras-Waras",
+            "kecamatan": "Tutuk Tolu",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_KILMURI",
+            "nama": "Puskesmas Kilmuri",
+            "tipe": "puskesmas",
+            "lat": -3.694441,
+            "lng": 130.473679,
+            "desa": "Kilmury",
+            "kecamatan": "Kilmury",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_AFANG",
+            "nama": "Puskesmas Afang",
+            "tipe": "puskesmas",
+            "lat": -3.72841,
+            "lng": 130.57294,
+            "desa": "Afang Defol",
+            "kecamatan": "Kilmury",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_WERINAMA",
+            "nama": "Puskesmas Werinama",
+            "tipe": "puskesmas",
+            "lat": -3.457366,
+            "lng": 129.997891,
+            "desa": "Werinama",
+            "kecamatan": "Werinama",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_BATUASA",
+            "nama": "Puskesmas Batuasa",
+            "tipe": "puskesmas",
+            "lat": -3.547032,
+            "lng": 130.183752,
+            "desa": "Batuasa",
+            "kecamatan": "Kilmury",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_ATIAHU",
+            "nama": "Puskesmas Atiahu",
+            "tipe": "puskesmas",
+            "lat": -3.3699882,
+            "lng": 129.9691402,
+            "desa": "Atiahu",
+            "kecamatan": "Siwalalar",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_POLIN",
+            "nama": "Puskesmas Polin",
+            "tipe": "puskesmas",
+            "lat": -3.335443,
+            "lng": 129.89544,
+            "desa": "Polin",
+            "kecamatan": "Siwalalat",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_BULA",
+            "nama": "Puskesmas Bula",
+            "tipe": "puskesmas",
+            "lat": -3.105429,
+            "lng": 130.496488,
+            "desa": "Bula",
+            "kecamatan": "Bula",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_BANGGOI",
+            "nama": "Puskesmas Banggoi",
+            "tipe": "puskesmas",
+            "lat": -3.0476103,
+            "lng": 130.1746349,
+            "desa": "Waiketam Baru",
+            "kecamatan": "Bula Barat",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_WARU",
+            "nama": "Puskesmas Waru",
+            "tipe": "puskesmas",
+            "lat": -3.401899,
+            "lng": 130.663649,
+            "desa": "Waru",
+            "kecamatan": "Teluk Waru",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_NAMA",
+            "nama": "Puskesmas Nama",
+            "tipe": "puskesmas",
+            "lat": -3.740683,
+            "lng": 130.826663,
+            "desa": "Nama",
+            "kecamatan": "Kian Darat",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_JAKARTA_BARU",
+            "nama": "Puskesmas Jakarta Baru",
+            "tipe": "puskesmas",
+            "lat": -3.060037,
+            "lng": 130.258744,
+            "desa": "Jakarta Baru",
+            "kecamatan": "Bula Barat",
+            "details": ""
+        },
+        {
+            "id": "PUSKESMAS_UKAR_SENGAN",
+            "nama": "Puskesmas Ukar Sengan",
+            "tipe": "puskesmas",
+            "lat": -3.839459,
+            "lng": 130.776512,
+            "desa": "Manggis",
+            "kecamatan": "Ukar Sengan",
+            "details": ""
+        },
+        {
+            "id": "RSUD_BULA",
+            "nama": "RSUD Bula",
+            "tipe": "rsud",
+            "lat": -3.095312,
+            "lng": 130.473747,
+            "desa": "Kampung Wailola Kecil",
+            "kecamatan": "Bula",
+            "details": "Rumah Sakit Rujukan Utama Daerah"
+        },
+        {
+            "id": "RSUD_GORAN_RIUN",
+            "nama": "RSUD Goran Riun",
+            "tipe": "rsud",
+            "lat": -3.995278,
+            "lng": 131.381944,
+            "desa": "Kataloka",
+            "kecamatan": "Pulau Gorom",
+            "details": "Rumah Sakit Rujukan Wilayah Pulau"
+        }
+    ]
+}
