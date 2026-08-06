@@ -149,8 +149,19 @@ function cekWarningKritis() {
 
     const warningBox = document.getElementById('warning-box-30m');
     if (warningBox) {
-        if (adaKritis) warningBox.classList.remove('hidden');
-        else warningBox.classList.add('hidden');
+        if (adaKritis) {
+            warningBox.classList.remove('hidden');
+            if (!audioBeepInterval) {
+                putarSuaraBeep();
+                audioBeepInterval = setInterval(putarSuaraBeep, 10000);
+            }
+        } else {
+            warningBox.classList.add('hidden');
+            if (audioBeepInterval) {
+                clearInterval(audioBeepInterval);
+                audioBeepInterval = null;
+            }
+        }
     }
 }
 
@@ -237,8 +248,6 @@ function renderTabel() {
 
     filtered.forEach(item => {
         const badgeColor = item.jenis === 'Kebakaran' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
-
-        // Memanfaatkan fungsi formatJamLaporan dari global.js
         const jamLapor = formatJamLaporan(item.created_at);
         
         const waktuIdHTML = `
@@ -353,7 +362,7 @@ function renderTabel() {
             aksiHTML = `
                 <div class="space-y-1.5 mt-2">
                     ${(item.status === 'Baru' || item.status === 'Sedang Dicek') ? `<button onclick="event.stopPropagation(); aksiVerifikasi('${item.id}')" class="w-full bg-amber-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-amber-700 text-xs shadow-sm transition">✅ Verifikasi</button>` : ''}
-                    ${item.status === 'Terverifikasi' ? `<button onclick="event.stopPropagation(); bukaModalProses('${item.id}')" class="w-full bg-[var(--sbt-blue)] text-white px-3 py-2 rounded-lg font-bold hover:brightness-110 text-xs shadow-sm transition">🚀 Mulai Proses Utama</button>` : ''}
+                    ${item.status === 'Terverifikasi' ? `<button onclick="event.stopPropagation(); aksiMulaiProses('${item.id}')" class="w-full bg-[var(--sbt-blue)] text-white px-3 py-2 rounded-lg font-bold hover:brightness-110 text-xs shadow-sm transition">🚀 Mulai Proses Utama</button>` : ''}
                     ${(item.status === 'Proses' || item.status === 'Sedang Ditangani') ? `
                         <button onclick="event.stopPropagation(); bukaModalCatatan('${item.id}')" class="w-full bg-emerald-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-emerald-700 text-xs shadow-sm transition">➕ Tambah Log Lapangan</button>
                         ${tombolMintaBantuanHTML}
@@ -427,7 +436,6 @@ function renderMarkers() {
             }
         }
 
-        // Memanggil fungsi global dari global.js untuk menyeragamkan marker
         const el = buatElemenMarkerGlobal(item, selectedReportId, isKritis);
 
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
@@ -473,25 +481,16 @@ async function aksiVerifikasi(id) {
     }
 }
 
-function bukaModalProses(id) {
-    document.getElementById('proses-id-laporan').value = id;
-    document.getElementById('label-lembaga-aktif').innerText = currentUser.nama_lembaga;
-    document.getElementById('input-telp-petugas').value = currentUser.telp_petugas || '-';
-    document.getElementById('modal-proses').classList.remove('hidden');
-}
+// Eksekusi instan tanpa modal form estimasi (Langsung 1 klik)
+async function aksiMulaiProses(id) {
+    if (!confirm(`Mulai penanganan utama laporan ini atas nama [${currentUser.nama_lembaga}]?`)) return;
 
-function tutupModalProses() { document.getElementById('modal-proses').classList.add('hidden'); }
-
-document.getElementById('form-proses').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('proses-id-laporan').value;
     const telp = currentUser.telp_petugas || '-';
-    const jam = parseFloat(document.getElementById('input-estimasi-jam').value) || 1;
-
     const ringkas = formatIdentitasRingkas(currentUser.nama_lengkap, currentUser.nama_lembaga);
     const logBaru = `[${new Date().toLocaleTimeString()}] ${ringkas} mulai menangani utama\n`;
 
     const itemLama = laporanList.find(i => i.id === id);
+    if (!itemLama) return;
     const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
 
     const { error } = await supabaseClient.from('laporan').update({
@@ -501,17 +500,16 @@ document.getElementById('form-proses').addEventListener('submit', async (e) => {
         penanggung_jawab: currentUser.nama_lembaga,
         telp_petugas: telp,
         catatan_lapangan: gabungLog,
-        estimasi_selesai: new Date(Date.now() + (jam * 3600000)).toISOString()
+        estimasi_selesai: new Date(Date.now() + (2 * 3600000)).toISOString() // Default 2 jam otomatis
     }).eq('id', id);
 
     if (error) alert('Gagal: ' + error.message);
     else {
-        tutupModalProses();
         activeTab = 'Proses';
         gantiTab('Proses');
         ambilDataLaporan();
     }
-});
+}
 
 async function aksiMintaBantuan(id, statusBantuan) {
     const pesan = statusBantuan ? 'Aktifkan status Minta Bantuan / Butuh Kolaborasi untuk laporan ini?' : 'Nonaktifkan status Minta Bantuan?';
@@ -545,42 +543,6 @@ function tutupModalKolaborasi() {
     document.getElementById('modal-kolaborasi').classList.add('hidden');
 }
 
-document.getElementById('form-kolaborasi').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('kolaborasi-id-laporan').value;
-    const jenisBantuan = document.getElementById('input-jenis-bantuan').value;
-    const ketBantuan = document.getElementById('input-ket-bantuan').value.trim();
-
-    const { error: errKolaborasi } = await supabaseClient.from('bantuan_kolaborasi').insert([{
-        laporan_id: id,
-        nama_lembaga: currentUser.nama_lembaga,
-        username_petugas: currentUser.username,
-        jenis_bantuan: `${jenisBantuan}${ketBantuan ? ' - ' + ketBantuan : ''}`
-    }]);
-
-    if (errKolaborasi) {
-        alert('Gagal mencatat kolaborasi: ' + errKolaborasi.message);
-        return;
-    }
-
-    const itemLama = laporanList.find(i => i.id === id);
-    const logBaru = `[${new Date().toLocaleTimeString()}] ⚡ BANTUAN MASUK dari <b>${currentUser.nama_lembaga}</b>: [${jenisBantuan}] ${ketBantuan}\n`;
-    const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
-
-    const updatePayload = { catatan_lapangan: gabungLog };
-    if (itemLama.minta_bantuan) updatePayload.minta_bantuan = false;
-
-    const { error: errUpdate } = await supabaseClient.from('laporan').update(updatePayload).eq('id', id);
-
-    if (errUpdate) {
-        alert('Gagal memperbarui log laporan: ' + errUpdate.message);
-    } else {
-        tutupModalKolaborasi();
-        alert('Berhasil bergabung dalam kolaborasi penanganan laporan ini!');
-        ambilDataLaporan();
-    }
-});
-
 function bukaModalCatatan(id) {
     document.getElementById('catatan-id-laporan').value = id;
     document.getElementById('input-teks-catatan').value = '';
@@ -589,7 +551,7 @@ function bukaModalCatatan(id) {
 
 function tutupModalCatatan() { document.getElementById('modal-catatan').classList.add('hidden'); }
 
-document.getElementById('form-catatan').addEventListener('submit', async (e) => {
+document.getElementById('form-catatan')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('catatan-id-laporan').value;
     const teks = document.getElementById('input-teks-catatan').value;
@@ -648,7 +610,7 @@ function putarSuaraBeep() {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.value = 880; // Frekuensi nada tinggi
+        osc.frequency.value = 880;
         gain.gain.setValueAtTime(0.1, ctx.currentTime);
         osc.connect(gain);
         gain.connect(ctx.destination);
@@ -659,12 +621,13 @@ function putarSuaraBeep() {
     }
 }
 
-// Handler Checkbox Faskes & RSUD di Peta
+// Handler Checkbox Faskes & RSUD di Peta (Diperbaiki agar aman menghandle berbagai struktur JSON)
 async function toggleLayerFaskes(checkbox) {
     if (checkbox.checked) {
         try {
             const res = await fetch('data/faskes.json');
-            const dataFaskes = await res.json();
+            const result = await res.json();
+            const dataFaskes = Array.isArray(result) ? result : (result.data || result.faskes || []);
             
             dataFaskes.forEach(faskes => {
                 const el = document.createElement('div');
@@ -694,36 +657,6 @@ async function toggleLayerFaskes(checkbox) {
         faskesMarkers = [];
     }
 }
-
-// Perbarui fungsi cekWarningKritis agar memicu banner besar & suara Beep
-function cekWarningKritis() {
-    const sekarang = new Date().getTime();
-    const adaKritis = laporanList.some(item => {
-        if (item.status === 'Baru' || item.status === 'Sedang Dicek') {
-            const waktuLapor = new Date(item.created_at).getTime();
-            return (sekarang - waktuLapor) / (1000 * 60) > 30;
-        }
-        return false;
-    });
-
-    const warningBox = document.getElementById('warning-box-30m');
-    if (warningBox) {
-        if (adaKritis) {
-            warningBox.classList.remove('hidden');
-            if (!audioBeepInterval) {
-                putarSuaraBeep();
-                audioBeepInterval = setInterval(putarSuaraBeep, 10000); // Beep tiap 10 detik jika ada laporan kritis
-            }
-        } else {
-            warningBox.classList.add('hidden');
-            if (audioBeepInterval) {
-                clearInterval(audioBeepInterval);
-                audioBeepInterval = null;
-            }
-        }
-    }
-}
-
 
 function bukaModalDetailLog(id) {
     const item = laporanList.find(i => i.id === id);
@@ -756,7 +689,7 @@ function bukaModalDetailLog(id) {
     `;
 }
 
-// Sinkronisasi Jam SBT WIT (Waktu Indonesia Timur)
+// Sinkronisasi Jam SBT WIT
 function perbaruiJamStatus() {
     const el = document.getElementById('last-updated-time');
     if (el) {
