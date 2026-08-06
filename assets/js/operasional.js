@@ -579,6 +579,39 @@ function tutupModalKolaborasi() {
     document.getElementById('modal-kolaborasi').classList.add('hidden');
 }
 
+// === FUNGSI KOLABORASI LENGKAP TERHUBUNG SUPABASE (MENCEGAH REFRESH) ===
+document.getElementById('form-kolaborasi')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('kolaborasi-id-laporan').value;
+    const jenisBantuan = document.getElementById('input-jenis-bantuan').value;
+    const ketBantuan = document.getElementById('input-ket-bantuan').value.trim();
+
+    const { error: errKolaborasi } = await supabaseClient.from('bantuan_kolaborasi').insert([{
+        laporan_id: id,
+        nama_lembaga: currentUser.nama_lembaga,
+        username_petugas: currentUser.username,
+        jenis_bantuan: `${jenisBantuan}${ketBantuan ? ' - ' + ketBantuan : ''}`
+    }]);
+
+    if (errKolaborasi) {
+        alert('Gagal mencatat kolaborasi: ' + errKolaborasi.message);
+        return;
+    }
+
+    const itemLama = laporanList.find(i => i.id === id);
+    const logBaru = `[${new Date().toLocaleTimeString()}] ⚡ BANTUAN MASUK dari <b>${currentUser.nama_lembaga}</b>: [${jenisBantuan}] ${ketBantuan}\n`;
+    const gabungLog = (itemLama.catatan_lapangan || '') + logBaru;
+
+    const updatePayload = { catatan_lapangan: gabungLog };
+    if (itemLama.minta_bantuan) updatePayload.minta_bantuan = false;
+
+    await supabaseClient.from('laporan').update(updatePayload).eq('id', id);
+
+    tutupModalKolaborasi();
+    alert('Berhasil bergabung dalam penanganan laporan ini!');
+    ambilDataLaporan();
+});
+
 function bukaModalCatatan(id) {
     document.getElementById('catatan-id-laporan').value = id;
     document.getElementById('input-teks-catatan').value = '';
