@@ -6,6 +6,8 @@ let markers = [];
 let activeTab = 'LogAktivitas';
 let filterStatusTabel = 'Semua';
 let currentUser = null;
+let faskesMarkers = [];
+let audioBeepInterval = null;
 
 // Inisialisasi Mapbox dengan style terang
 const map = new mapboxgl.Map({
@@ -19,13 +21,17 @@ window.onload = () => {
     const isLogged = sessionStorage.getItem('sbt_logged_in');
     if (isLogged === 'true') {
         currentUser = {
+            id: sessionStorage.getItem('sbt_user_id'),
             username: sessionStorage.getItem('sbt_username'),
+            nama_lengkap: sessionStorage.getItem('sbt_nama_lengkap') || sessionStorage.getItem('sbt_username'),
             nama_lembaga: sessionStorage.getItem('sbt_nama_lembaga'),
             role: sessionStorage.getItem('sbt_role')
         };
 
-        document.getElementById('header-sapaan').innerText = `Pemantauan Eksekutif: ${sederhanakanTeks(currentUser.nama_lembaga, 30)}`;
+        const sapaanEl = document.getElementById('header-sapaan');
+        if (sapaanEl) sapaanEl.innerText = `${sederhanakanTeks(currentUser.nama_lembaga || currentUser.username, 30)}`;
         
+        updateStatusOnlineDB('ONLINE');
         ambilDataPimpinan();
         setInterval(ambilDataPimpinan, 5000);
     } else {
@@ -33,18 +39,83 @@ window.onload = () => {
     }
 };
 
-async function logoutSession() {
+// Fungsi Status Online & Logout yang Konsisten
+async function updateStatusOnlineDB(statusText) {
+    const userIdAktif = sessionStorage.getItem('sbt_user_id');
     const usernameAktif = sessionStorage.getItem('sbt_username');
-    
-    if (usernameAktif) {
-        await supabaseClient
-            .from('users')
-            .update({ status_online: 'OFFLINE' })
-            .eq('username', usernameAktif);
-    }
+    if (!userIdAktif && !usernameAktif) return;
 
+    try {
+        let query = supabaseClient.from('users').update({ status_online: statusText });
+        if (userIdAktif) {
+            query = query.eq('id', userIdAktif);
+        } else {
+            query = query.eq('username', usernameAktif);
+        }
+        await query;
+    } catch (err) {
+        console.warn('Gagal update status online:', err);
+    }
+}
+
+async function logoutSession() {
+    await updateStatusOnlineDB('OFFLINE');
     sessionStorage.clear();
     window.location.href = 'index.html';
+}
+
+// Penanganan Penutupan Tab Otomatis
+window.addEventListener('beforeunload', () => {
+    const userIdAktif = sessionStorage.getItem('sbt_user_id');
+    const usernameAktif = sessionStorage.getItem('sbt_username');
+    if (!userIdAktif && !usernameAktif) return;
+
+    const supabaseUrl = window.CONFIG ? window.CONFIG.SUPABASE_URL : window.SUPABASE_URL;
+    const supabaseKey = window.CONFIG ? window.CONFIG.SUPABASE_ANON_KEY : window.SUPABASE_ANON_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+        const targetQuery = userIdAktif ? `id=eq.${userIdAktif}` : `username=eq.${usernameAktif}`;
+        const endpoint = `${supabaseUrl}/rest/v1/users?${targetQuery}`;
+        fetch(endpoint, {
+            method: 'PATCH',
+            headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ status_online: 'OFFLINE' }),
+            keepalive: true
+        }).catch(() => {});
+    }
+});
+
+// Jam Header WIT Real-time
+function perbaruiJamHeader() {
+    const now = new Date();
+    const jamStr = now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jayapura', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' WIT';
+    const el1 = document.getElementById('jam-wit-text');
+    const el2 = document.getElementById('mobile-jam-wit');
+    if (el1) el1.textContent = jamStr;
+    if (el2) el2.textContent = '🕒 ' + jamStr;
+}
+perbaruiJamHeader();
+setInterval(perbaruiJamHeader, 1000);
+
+function toggleHeaderMenuMobile() {
+    document.getElementById('mobile-header-menu').classList.toggle('hidden');
+}
+
+function toggleFooterMenuMobile() {
+    document.getElementById('mobile-footer-menu').classList.toggle('hidden');
+}
+
+function bukaModalFooter(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function tutupModalUmum(id) {
+    document.getElementById(id).classList.add('hidden');
 }
 
 function sederhanakanTeks(teks, batasMaksimal = 25) {
@@ -62,10 +133,96 @@ async function ambilDataPimpinan() {
         daftarKolaborasi = dataKolab || [];
 
         hitungStatistik();
+        cekWarningKritis();
         renderPanel();
         renderMarkers();
     } catch (err) {
         console.error(err);
+    }
+}
+
+// ALARM WARNING KRITIS > 30 MENIT
+function cekWarningKritis() {
+    const sekarang = new Date().getTime();
+    const adaKritis = laporanList.some(item => {
+        const stLower = (item.status || '').toLowerCase();
+        if (stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu') || item.status === 'Baru') {
+            const waktuLapor = new Date(item.created_at).getTime();
+            const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
+            return selisihMenit > 30;
+        }
+        return false;
+    });
+
+    const warningBox = document.getElementById('warning-box-30m');
+    if (warningBox) {
+        if (adaKritis) {
+            warningBox.classList.remove('hidden');
+            if (!audioBeepInterval) {
+                putarSuaraBeep();
+                audioBeepInterval = setInterval(putarSuaraBeep, 10000);
+            }
+        } else {
+            warningBox.classList.add('hidden');
+            if (audioBeepInterval) {
+                clearInterval(audioBeepInterval);
+                audioBeepInterval = null;
+            }
+        }
+    }
+}
+
+function putarSuaraBeep() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+    } catch (e) {
+        console.warn('Audio Context dibatasi browser:', e);
+    }
+}
+
+// Layer Faskes Peta
+async function toggleLayerFaskes(checkbox) {
+    if (checkbox.checked) {
+        try {
+            const res = await fetch('data/faskes.json');
+            const result = await res.json();
+            const dataFaskes = Array.isArray(result) ? result : (result.data || result.faskes || []);
+            
+            dataFaskes.forEach(faskes => {
+                const el = document.createElement('div');
+                el.className = 'w-7 h-7 bg-teal-600 border-2 border-white rounded-full flex items-center justify-center shadow-lg text-white text-xs font-bold cursor-pointer';
+                el.innerHTML = '🏥';
+
+                const popup = new mapboxgl.Popup({ offset: 20 }).setHTML(`
+                    <div class="p-1 text-xs text-slate-800">
+                        <b class="text-teal-800">${faskes.nama || 'Fasilitas Kesehatan'}</b><br>
+                        <span>${faskes.kategori || 'RSUD / Puskesmas'}</span><br>
+                        <span class="text-slate-500">${faskes.kecamatan || ''}</span>
+                    </div>
+                `);
+
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat([faskes.lng, faskes.lat])
+                    .setPopup(popup)
+                    .addTo(map);
+
+                faskesMarkers.push(marker);
+            });
+        } catch (err) {
+            console.error('Gagal memuat data faskes.json:', err);
+        }
+    } else {
+        faskesMarkers.forEach(m => m.remove());
+        faskesMarkers = [];
     }
 }
 
@@ -117,7 +274,6 @@ function renderPanel() {
             return;
         }
 
-        // Jika container belum punya struktur list, bersihkan sekali
         if (!container.dataset.renderedTab || container.dataset.renderedTab !== 'LogAktivitas') {
             container.innerHTML = '';
             container.dataset.renderedTab = 'LogAktivitas';
@@ -169,7 +325,6 @@ function renderPanel() {
         });
 
     } else {
-        // Untuk tab Lainnya (SemuaLaporan & KolaborasiLembaga)
         container.dataset.renderedTab = activeTab;
         container.innerHTML = '';
 
@@ -322,12 +477,8 @@ async function kirimKomentarPimpinan(id) {
     if (!pesan) return alert('Tuliskan pesan atau arahan terlebih dahulu.');
 
     const itemLama = laporanList.find(i => i.id === id);
-    
-    // Mengambil username akun yang sedang aktif login secara spesifik
     const namaPengirim = currentUser.username || 'Pimpinan';
     const waktuSekarang = new Date().toLocaleTimeString();
-    
-    // Format log bersih tanpa typo
     const formatPesan = `👑 [${waktuSekarang}] ${namaPengirim}: "${pesan}"\n`;
 
     const { error } = await supabaseClient.from('laporan').update({
@@ -347,6 +498,7 @@ function renderMarkers() {
     markers.forEach(m => m.remove());
     markers = [];
 
+    const sekarang = new Date().getTime();
     const filterStatus = document.getElementById('filter-status-peta').value;
     const filterJenis = document.getElementById('filter-jenis-peta').value;
 
@@ -359,33 +511,14 @@ function renderMarkers() {
         if (filterStatus === 'Darurat' && !(stLower.includes('proses') && item.minta_bantuan)) return;
         if (filterStatus === 'Selesai' && !stLower.includes('selesai')) return;
 
-        const el = document.createElement('div');
-        if (stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu')) {
-            el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
-            el.style.width = '24px';
-            el.style.height = '24px';
-            el.style.backgroundColor = '#f59e0b';
-        } else if (stLower.includes('proses')) {
-            if (item.minta_bantuan) {
-                el.className = `rounded-full shadow-2xl cursor-pointer border-2 border-white siaga-kritis flex items-center justify-center font-black text-white text-[10px]`;
-                el.style.width = '34px';
-                el.style.height = '34px';
-                el.style.backgroundColor = '#dc2626';
-                el.innerText = '🆘';
-            } else {
-                el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
-                el.style.width = '26px';
-                el.style.height = '26px';
-                el.style.backgroundColor = '#3b82f6';
-            }
-        } else if (stLower.includes('selesai')) {
-            el.className = `rounded-full shadow-md cursor-pointer border-2 border-white`;
-            el.style.width = '22px';
-            el.style.height = '22px';
-            el.style.backgroundColor = '#10b981';
-        } else {
-            return;
+        let isKritis = false;
+        const waktuLapor = new Date(item.created_at).getTime();
+        const selisihMenit = (sekarang - waktuLapor) / (1000 * 60);
+        if ((stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu')) && selisihMenit > 30) {
+            isKritis = true;
         }
+
+        const el = buatElemenMarkerGlobal(item, null, isKritis);
 
         const popupContent = `
             <div class="text-slate-900 text-xs space-y-1 p-1">
