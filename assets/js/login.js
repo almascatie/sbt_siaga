@@ -47,18 +47,18 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
 
                 // Normalisasi teks role dari database ke huruf kecil untuk pengarahan halaman yang aman
                 const roleUser = (data.role || '').toLowerCase().trim();
-
-                // Arahkan halaman berdasarkan role pengguna secara fleksibel
-                if (roleUser.includes('superadmin')) {
-                    sessionStorage.setItem('sbt_admin_auth', 'true');
-                    window.location.href = 'admin.html';
-                } else if (roleUser.includes('kolaborasi')) {
-                    window.location.href = 'kolaborator.html'; 
-                } else if (roleUser.includes('pimpinan') || roleUser.includes('eksekutif')) {
-                    window.location.href = 'pimpinan.html'; 
-                } else {
-                    window.location.href = 'operasional.html'; 
-                }
+                        // Arahkan halaman berdasarkan role pengguna secara fleksibel
+                        if (roleUser.includes('superadmin')) {
+                            sessionStorage.setItem('sbt_admin_auth', 'true');
+                            window.location.href = 'admin.html';
+                        } else if (roleUser.includes('kolaborasi') || roleUser.includes('pendukung') || roleUser.includes('instansi pendukung')) {
+                            // Menangkap role 'kolaborasi', 'pendukung', maupun 'instansi pendukung'
+                            window.location.href = 'kolaborator.html'; 
+                        } else if (roleUser.includes('pimpinan') || roleUser.includes('eksekutif')) {
+                            window.location.href = 'pimpinan.html'; 
+                        } else {
+                            window.location.href = 'operasional.html'; 
+                        }
 
             } catch (err) {
                 console.error(err);
