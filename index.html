@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Center & Operasional Lintas Sektor - SBT</title>
+    <title>Siaga Darurat SBT — Pelaporan Karhutla & Krisis Air Bersih</title>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,280 +12,307 @@
     <script src="config.js"></script>
     <!-- Script Global Terpusat -->
     <script src="assets/js/global.js"></script>
-    <style>
-        #map { width: 100%; height: 100%; }
-        @keyframes pulse-red {
-            0% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
-            70% { transform: scale(1); box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .siaga-kritis-banner { animation: pulse-red 1.2s infinite; }
-        
-        :root {
-            --sbt-blue: #005577;
-            --sbt-teal: #079591;
-            --sbt-orange: #c66a3d;
-            --sbt-light: #fcfaf5;
-            --sbt-cream: #efe9dc;
-        }
-
-        body { background-color: var(--sbt-light); font-family: system-ui, -apple-system, sans-serif; }
-        .laporan-row-dim { opacity: 0.4; transition: opacity 0.2s ease; }
-        .laporan-row-active { 
-            background-color: #ffffff !important; 
-            border-left: 4px solid var(--sbt-orange) !important;
-            box-shadow: 0 10px 25px -5px rgba(198, 106, 61, 0.15);
-            opacity: 1 !important;
-        }
-    </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden text-slate-800">
+<body class="h-screen flex flex-col overflow-hidden">
 
-    <!-- ============ HEADER SATU BARIS INTERAKTIF ============ -->
+    <!-- ============ HEADER ============ -->
     <header class="site-header text-white px-4 py-2.5 flex justify-between items-center shadow-md z-20 shrink-0">
-        <div class="flex items-center gap-3 overflow-hidden">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo SBT" class="w-8 h-9 object-contain bg-white/10 p-0.5 rounded shrink-0">
-            <!-- Format Satu Baris: Judul | Nama Akun | Lembaga -->
-            <div class="flex items-center gap-2 text-xs sm:text-sm truncate">
-                <span class="font-display font-extrabold tracking-wide uppercase text-white">DASHBOARD SIAGA DARURAT SBT</span>
-                <span class="text-white/40 font-light">|</span>
-                <button onclick="bukaModalProfilAkun()" class="font-light text-amber-200 hover:underline truncate cursor-pointer" id="header-akun-nama" title="Klik untuk lihat Profil Akun">Memuat Akun...</button>
-                <span class="text-white/40 font-light">|</span>
-                <button onclick="bukaModalProfilLembaga()" class="font-light text-blue-200 hover:underline truncate cursor-pointer" id="header-lembaga-nama" title="Klik untuk lihat Profil Lembaga">Memuat Lembaga...</button>
-                <span id="badge-role" class="bg-[var(--sbt-orange)] text-[9px] px-1.5 py-0.5 rounded font-bold uppercase text-white shrink-0 ml-1">OP</span>
+        <div class="flex items-center gap-2.5">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo Kabupaten Seram Bagian Timur" class="w-8 h-9 object-contain bg-white/10 p-0.5 rounded">
+            <div class="leading-tight">
+                <h1 class="font-display font-extrabold text-xs sm:text-sm tracking-wide">SIAGA DARURAT SBT</h1>
+                <p class="text-[10px] sm:text-[11px] text-blue-100/80">Pelaporan Karhutla & Krisis Air Bersih</p>
             </div>
         </div>
-
-        <div class="flex items-center gap-2.5 shrink-0">
-            <div id="header-jam-wit" class="hidden md:flex items-center gap-1.5 bg-white/10 border border-white/25 text-white text-xs px-2.5 py-1 rounded-full font-mono font-semibold">
-                <span>🕒</span>
-                <span id="jam-wit-text">--:-- WIT</span>
+        <div class="flex items-center gap-2">
+            <div id="connection-indicator" class="hidden sm:flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-100 text-[10px] px-2 py-1 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="conn-text">Online</span>
             </div>
-            <a href="tambah_laporan.html" class="btn-outline !bg-white/10 !text-white !border-white/40 !py-1.5 !px-3 text-xs whitespace-nowrap hover:!bg-white/20 font-semibold">
-                📝 Laporan Mandiri
+            <a href="login.html" class="btn-outline !bg-white/10 !text-white !border-white/40 !py-1.5 !px-3 text-[11px] whitespace-nowrap hover:!bg-white/20">
+                🔐 Login
             </a>
-            <button onclick="logoutSession()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition shadow-sm">
-                🚪 Keluar
-            </button>
         </div>
     </header>
 
-    <!-- ============ MAIN CONTENT AREA ============ -->
-    <div class="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
-        
-        <!-- PETA, WARNING KRITIS >30 MENIT & LEGENDA -->
-        <main class="flex-1 relative h-1/2 lg:h-full order-1 lg:order-none">
-            <div id="map"></div>
+    <!-- ============ FLOATING CALL 112 ============ -->
+    <a href="tel:112" class="fixed bottom-6 right-5 bg-[var(--sbt-red)] hover:brightness-110 text-white w-16 h-16 rounded-full shadow-2xl z-40 flex flex-col items-center justify-center font-display font-bold siaga-darurat-pulse text-[11px] leading-tight border-2 border-white/30" title="Darurat Hubungi 112">
+        <span class="text-xl">📞</span>
+        <span class="tracking-tighter">Telp 112</span>
+    </a>
 
-            <!-- Warning Kritis >30 Menit -->
-            <div id="warning-box-30m" class="hidden absolute z-20 top-4 left-4 bg-red-600 text-white p-4 rounded-xl shadow-2xl max-w-sm text-xs sm:text-sm space-y-1.5 border-2 border-white/40 siaga-kritis-banner">
-                <div class="flex items-center gap-2">
-                    <span class="text-lg">🚨</span>
-                    <p class="font-display font-extrabold tracking-wide uppercase">PERINGATAN KRITIS OPERASIONAL</p>
+    <!-- ============ MAIN LAYOUT ============ -->
+    <div class="flex flex-1 overflow-hidden relative flex-col md:flex-row">
+
+        <!-- SIDEBAR -->
+<aside class="order-3 md:order-none w-full md:w-80 bg-white border-r border-slate-200 flex flex-col z-10 shadow-sm h-1/3 md:h-full shrink-0">
+    <!-- Header Sidebar dengan Jam Update Sistem (Jam SBT) -->
+    <div class="p-3 bg-slate-50 border-b border-slate-200 flex flex-col gap-1 shrink-0">
+        <div class="flex justify-between items-center">
+            <h2 class="text-[11px] font-display font-bold text-slate-700 uppercase tracking-wide">Daftar Laporan Masuk</h2>
+            <span id="counter-laporan" class="text-[10px] bg-[var(--sbt-blue)]/10 text-[var(--sbt-blue)] px-2 py-0.5 rounded-full font-bold whitespace-nowrap">0 Kasus</span>
+        </div>
+        <!-- Teks Update Jam Sesuai Jam SBT yang Muncul di Mobile & Web -->
+        <div class="flex justify-between items-center text-[10px] text-slate-500 font-mono-report pt-1 border-t border-slate-200/60">
+            <span>🕒 Update Jam SBT:</span>
+            <span id="last-updated-time" class="font-bold text-slate-700">— WIT</span>
+        </div>
+    </div>
+
+    <div id="sidebar-list" class="flex-1 overflow-y-auto p-2.5 space-y-2">
+        <p class="text-xs text-slate-400 text-center py-4">Memuat data dari server...</p>
+    </div>
+
+    <!-- Footer Sidebar (Status Saja) -->
+    <div class="p-2.5 border-t border-slate-200 shrink-0 bg-slate-50/50 relative">
+        <div class="flex items-center justify-between text-[11px] px-1">
+            <div class="flex items-center gap-1.5">
+                <span class="status-dot"></span>
+                <span class="font-display font-bold text-slate-700">Sistem Aktif</span>
+            </div>
+            <button type="button" onclick="toggleStatusOnlineMobile()" class="text-[10px] bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-0.5 rounded font-bold transition flex items-center gap-1">
+                <span>👥 Status Satgas</span>
+                <span id="toggle-icon">▼</span>
+            </button>
+        </div>
+
+        <div id="panel-status-online" class="hidden mt-2 pt-2 border-t border-slate-200 text-[10px] space-y-1 text-slate-600 bg-white p-2 rounded shadow-inner">
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-slate-700">Satgas:</span>
+                <span id="status-lembaga-utama" class="font-medium text-emerald-600">Load...</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-slate-700">Pimpinan:</span>
+                <span id="status-pimpinan-online" class="font-medium text-blue-600">Load...</span>
+            </div>
+        </div>
+    </div>
+</aside>
+
+        <!-- PETA + FLOATING CTA -->
+        <main class="order-1 md:order-none flex-1 relative h-2/3 md:h-full">
+            <div class="absolute top-3 left-1/2 -translate-x-1/2 w-[92%] sm:w-[26rem] z-20 floating-cta px-4 py-3.5">
+                <div class="flex items-center gap-2 cta-icon-row mb-3">
+                    <span class="bg-orange-50 text-orange-600">🔥</span>
+                    <span class="bg-blue-50 text-blue-600">💧</span>
+                    <h2 class="font-display font-bold text-[13px] text-slate-800">Siaga Darurat Kab SBT</h2>
                 </div>
-                <p class="font-medium opacity-95 leading-relaxed">Terdapat laporan darurat yang belum ditangani/diverifikasi selama lebih dari **30 Menit**!</p>
+                <div class="space-y-2.5">
+                    <button onclick="bukaFormLapor()" class="btn-danger w-full text-[13px] py-3 px-3 flex items-center justify-center gap-2">
+                        <span>📢</span>
+                        <span>Laporkan</span>
+                    </button>
+                    <div class="text-center pt-0.5">
+                        <button onclick="openModal('modal-cek')" class="text-slate-600 hover:text-[var(--sbt-blue)] font-bold text-[11.5px] transition underline underline-offset-4">
+                            🔍 Cek Status Laporan
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Legenda & Layer Peta -->
-            <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md p-2.5 rounded-lg shadow-md text-[11px] z-10 space-y-2 max-w-[12rem]">
+            <div id="map"></div>
+
+            <div class="absolute bottom-3 left-3 legend-modern p-2.5 rounded-lg shadow-md text-[11px] z-10 space-y-2 max-w-[12rem]">
                 <p class="font-display font-bold text-slate-700">Legenda & Layer</p>
                 <div class="space-y-1 border-t border-slate-200/60 pt-1">
                     <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block"></span> Karhutla</div>
                     <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> Krisis Air Bersih</div>
                     <div class="flex items-center gap-1.5 pt-1 border-t border-slate-100">
-                        <input type="checkbox" id="toggle-faskes-layer" onchange="toggleLayerFaskes(this)" class="rounded text-teal-600 focus:ring-0 w-3 h-3 cursor-pointer">
+                        <input type="checkbox" id="toggle-faskes-layer" onchange="toggleLayerFaskes(this)" class="rounded text-teal-600 focus:ring-0 w-3 h-3">
                         <label for="toggle-faskes-layer" class="font-medium text-slate-700 cursor-pointer">🏥 Faskes & RSUD</label>
                     </div>
                 </div>
             </div>
         </main>
-
-        <!-- PANEL KONTROL BERBASIS TAB -->
-        <aside class="w-full lg:w-[700px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full order-2 lg:order-none">
-            <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
-                <h2 class="text-[11px] font-display font-bold text-slate-700 uppercase tracking-wide">Panel Penanganan Laporan</h2>
-            </div>
-
-            <!-- TAB STATUS -->
-            <div class="grid grid-cols-5 bg-slate-100 border-b border-slate-200 text-center text-xs font-bold">
-                <button onclick="gantiTab('Baru')" id="tab-Baru" class="py-3 px-1 border-b-2 border-red-600 text-red-700 bg-white transition">Baru (<span id="count-Baru">0</span>)</button>
-                <button onclick="gantiTab('Terverifikasi')" id="tab-Terverifikasi" class="py-3 px-1 text-slate-600 hover:text-amber-600 transition">Verif (<span id="count-Terverifikasi">0</span>)</button>
-                <button onclick="gantiTab('Proses')" id="tab-Proses" class="py-3 px-1 text-slate-600 hover:text-blue-700 transition">Proses (<span id="count-Proses">0</span>)</button>
-                <button onclick="gantiTab('Selesai')" id="tab-Selesai" class="py-3 px-1 text-slate-600 hover:text-green-700 transition">Selesai (<span id="count-Selesai">0</span>)</button>
-                <button onclick="gantiTab('Semua')" id="tab-Semua" class="py-3 px-1 text-slate-600 hover:text-slate-900 transition">Semua</button>
-            </div>
-
-            <!-- Filter Instansi Sektoral -->
-            <div id="filter-container" class="p-2.5 bg-slate-50 border-b border-slate-200 hidden flex items-center justify-between text-xs">
-                <span class="font-semibold text-slate-600">Filter Instansi:</span>
-                <select id="select-filter-lembaga" onchange="renderTabel()" class="p-1.5 border border-slate-300 rounded bg-white text-xs outline-none w-2/3 shadow-sm">
-                    <option value="">-- Semua Lembaga --</option>
-                </select>
-            </div>
-
-            <!-- TABEL DAFTAR LAPORAN -->
-            <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/50">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead class="bg-slate-100/80 sticky top-0 text-[11px] text-slate-600 uppercase border-b border-slate-200 backdrop-blur-sm z-10">
-                        <tr>
-                            <th class="p-3 w-28">Waktu & ID</th>
-                            <th class="p-3 w-32">Pelapor</th>
-                            <th class="p-3">Lokasi, Jenis & Keterangan</th>
-                            <th class="p-3 text-center w-48">Aksi & Kolaborasi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body" class="divide-y divide-slate-200"></tbody>
-                </table>
-            </div>
-        </aside>
     </div>
 
-    <!-- ============ FOOTER GLOBAL DENGAN MENU KONTAK & MODAL LENGKAP ============ -->
+    <!-- ============ FOOTER ============ -->
     <footer class="footer-sbt px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0 z-20">
         <p>© Siaga Pemkab SBT 2026</p>
-        <div class="flex gap-4">
-            <button type="button" onclick="bukaModalFooter('modal-hukum')" class="hover:underline">Dasar Hukum</button>
-            <button type="button" onclick="bukaModalFooter('modal-privacy')" class="hover:underline">Kebijakan Privasi</button>
-            <button type="button" onclick="bukaModalFooter('modal-syarat')" class="hover:underline">Syarat Penggunaan</button>
-            <button type="button" onclick="bukaModalFooter('modal-kontak')" class="hover:underline font-bold text-amber-300">📞 Kontak</button>
+        <div class="hidden sm:flex gap-4">
+            <button type="button" onclick="openModal('modal-hukum')" class="hover:underline">Dasar Hukum</button>
+            <button type="button" onclick="openModal('modal-privacy')" class="hover:underline">Kebijakan Privasi</button>
+            <button type="button" onclick="openModal('modal-syarat')" class="hover:underline">Syarat Penggunaan</button>
+        </div>
+        <div class="relative sm:hidden">
+            <button onclick="toggleMobileMenu()" class="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white font-bold text-base px-2.5 transition" title="Menu Informasi">⋮</button>
+            <div id="mobile-footer-menu" class="hidden absolute bottom-full right-0 mb-2 w-44 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl py-1.5 text-xs z-50 text-slate-200">
+                <button type="button" onclick="openModal('modal-hukum'); toggleMobileMenu();" class="w-full text-left px-3 py-2 hover:bg-slate-800 block">Dasar Hukum</button>
+                <button type="button" onclick="openModal('modal-privacy'); toggleMobileMenu();" class="w-full text-left px-3 py-2 hover:bg-slate-800 block">Kebijakan Privasi</button>
+                <button type="button" onclick="openModal('modal-syarat'); toggleMobileMenu();" class="w-full text-left px-3 py-2 hover:bg-slate-800 block">Syarat Penggunaan</button>
+            </div>
         </div>
     </footer>
 
-    <!-- ============ MODAL PROFIL AKUN ============ -->
-    <div id="modal-profil-akun" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
-        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-display font-bold text-sm text-slate-800">👤 Profil Akun Petugas</h3>
-                <button onclick="tutupModalUmum('modal-profil-akun')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+    <!-- ============ MODAL: FORM LAPOR WARGA ============ -->
+    <div id="modal-lapor" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-display font-bold text-sm text-slate-800">Formulir Laporan Darurat Warga</h3>
+                <button onclick="closeModal('modal-lapor')" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
             </div>
-            <div class="space-y-2 text-slate-700">
-                <p><b>Nama Lengkap:</b> <span id="profil-nama">-</span></p>
-                <p><b>Username:</b> <span id="profil-username">-</span></p>
-                <p><b>Peran (Role):</b> <span id="profil-role">-</span></p>
-                <p><b>Nomor Kontak / HP:</b> <span id="profil-telp">-</span></p>
+            <div class="mb-3 bg-amber-50 border border-amber-200 p-2.5 rounded text-[11px] text-amber-800">
+                <b>Panduan Lokasi:</b> Klik tombol di bawah ini, geser peta hingga titik target pas di lokasi kejadian, lalu tekan tombol konfirmasi.
+                <button type="button" onclick="mulaiPilihPeta()" class="mt-2 w-full bg-amber-600 text-white py-1.5 rounded font-bold hover:bg-amber-700 text-xs shadow">📍 Pilih Titik di Peta</button>
+            </div>
+            <form id="form-lapor" class="space-y-2.5 text-xs">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Nama Lengkap</label>
+                    <input type="text" id="warga-nama" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Contoh: Bpk. Umar">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon / WhatsApp (Aktif)</label>
+                    <input type="tel" id="warga-telp" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="0812XXXXXXXX">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium text-slate-600 mb-1">Jenis Kejadian</label>
+                        <select id="warga-jenis" class="w-full p-2 border border-slate-300 rounded outline-none">
+                            <option value="Kebakaran">🔥 Karhutla / Titik Api</option>
+                            <option value="Kekeringan">💧 Krisis Air Bersih</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-600 mb-1">Koordinat GPS</label>
+                        <div class="flex gap-1">
+                            <input type="text" id="warga-lng" readonly placeholder="Lng" class="w-1/2 p-1.5 bg-slate-100 border border-slate-300 rounded text-slate-500 font-mono text-[10px]">
+                            <input type="text" id="warga-lat" readonly placeholder="Lat" class="w-1/2 p-1.5 bg-slate-100 border border-slate-300 rounded text-slate-500 font-mono text-[10px]">
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium text-slate-600 mb-1">Kecamatan</label>
+                        <input list="list-kecamatan" id="input-kecamatan" onchange="updateDaftarDesaGlobal()" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik kec...">
+                        <datalist id="list-kecamatan"></datalist>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-600 mb-1">Desa / Kelurahan</label>
+                        <input list="list-desa" id="input-desa" required class="w-full p-2 border border-slate-300 rounded outline-none bg-white text-xs" placeholder="Ketik desa...">
+                        <datalist id="list-desa"></datalist>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Keterangan Singkat Kejadian</label>
+                    <textarea id="warga-ket" rows="2" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Jelaskan kondisi di lapangan..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-[var(--sbt-orange)] hover:brightness-110 text-white font-display font-bold py-2.5 rounded shadow transition text-xs">
+                    Kirim Laporan Darurat
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ MODAL PILIH PETA ============ -->
+    <div id="modal-peta-picker" class="fixed inset-0 bg-black/80 hidden z-50 flex flex-col">
+        <div class="site-header text-white px-4 py-3 flex justify-between items-center shadow-md">
+            <div>
+                <h3 class="font-display font-bold text-xs">Geser Peta ke Titik Lokasi Kejadian</h3>
+                <p class="text-[10px] text-amber-300">Posisikan titik tengah peta tepat di lokasi kejadian.</p>
+            </div>
+            <button onclick="batalkanPilihPeta()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded text-xs">Batal</button>
+        </div>
+        <div class="flex-1 relative">
+            <div id="map-picker" class="w-full h-full"></div>
+            <div class="map-crosshair">
+                <div class="w-8 h-8 rounded-full border-2 border-red-600 bg-red-500/30 flex items-center justify-center shadow-lg animate-pulse">
+                    <div class="w-2 h-2 bg-red-600 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+        <div class="p-3 bg-white flex justify-center shadow-lg z-10">
+            <button type="button" onclick="konfirmasiTitikPeta()" class="w-full max-w-sm bg-[var(--sbt-red)] hover:brightness-110 text-white font-display font-bold py-3 rounded-lg shadow-lg text-sm flex items-center justify-center gap-2">
+                ✅ Gunakan Titik Lokasi Ini
+            </button>
+        </div>
+    </div>
+
+    <!-- ============ MODAL CEK STATUS & MODAL LEGALITAS ============ -->
+    <div id="modal-cek" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-display font-bold text-sm text-slate-800">Cek Status Laporan</h3>
+                <button onclick="closeModal('modal-cek')" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+            </div>
+            <div class="space-y-3">
+                <input type="text" id="input-kode-cek" placeholder="Nomor Laporan (Mis: SBT-xxxx)" class="w-full p-2.5 border border-slate-300 rounded outline-none font-mono-report">
+                <button onclick="cekStatusLaporan()" class="w-full btn-primary py-2">Cek Status</button>
+                <div id="hasil-cek" class="p-3 bg-slate-50 rounded border border-slate-200 mt-2 hidden space-y-1.5"></div>
             </div>
         </div>
     </div>
 
-    <!-- ============ MODAL PROFIL LEMBAGA ============ -->
-    <div id="modal-profil-lembaga" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
-        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-display font-bold text-sm text-slate-800">🏛️ Profil Instansi / Lembaga</h3>
-                <button onclick="tutupModalUmum('modal-profil-lembaga')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
-            </div>
-            <div class="space-y-2 text-slate-700">
-                <p><b>Nama Lembaga:</b> <span id="lembaga-nama">-</span></p>
-                <p><b>Kategori:</b> <span id="lembaga-kategori">-</span></p>
-                <p><b>Alamat Kantor:</b> <span id="lembaga-alamat">-</span></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============ MODAL FOOTER: DASAR HUKUM ============ -->
     <div id="modal-hukum" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
         <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
-            <div class="flex justify-between items-center border-b pb-2">
+            <div class="flex justify-between items-center mb-1">
                 <h3 class="font-display font-bold text-sm text-slate-800">Dasar Hukum Penanganan Darurat</h3>
-                <button onclick="tutupModalUmum('modal-hukum')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+                <button onclick="closeModal('modal-hukum')" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
             </div>
             <p class="text-slate-600 leading-relaxed">Layanan Siaga Darurat Karhutla dan Krisis Air Bersih Kabupaten Seram Bagian Timur diselenggarakan berdasarkan peraturan perundang-undangan penanggulangan bencana yang berlaku di Republik Indonesia.</p>
         </div>
     </div>
 
-    <!-- ============ MODAL FOOTER: KEBIJAKAN PRIVASI ============ -->
     <div id="modal-privacy" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
         <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
-            <div class="flex justify-between items-center border-b pb-2">
+            <div class="flex justify-between items-center mb-1">
                 <h3 class="font-display font-bold text-sm text-slate-800">Kebijakan Privasi</h3>
-                <button onclick="tutupModalUmum('modal-privacy')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+                <button onclick="closeModal('modal-privacy')" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
             </div>
             <p class="text-slate-600 leading-relaxed">Pemerintah Kabupaten Seram Bagian Timur menjaga kerahasiaan identitas dan nomor kontak pelapor yang masuk ke dalam sistem, serta hanya dipergunakan untuk keperluan verifikasi dan penanganan darurat di lapangan.</p>
         </div>
     </div>
 
-    <!-- ============ MODAL FOOTER: SYARAT PENGGUNAAN ============ -->
     <div id="modal-syarat" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
         <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
-            <div class="flex justify-between items-center border-b pb-2">
+            <div class="flex justify-between items-center mb-1">
                 <h3 class="font-display font-bold text-sm text-slate-800">Syarat Penggunaan Layanan</h3>
-                <button onclick="tutupModalUmum('modal-syarat')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+                <button onclick="closeModal('modal-syarat')" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
             </div>
             <p class="text-slate-600 leading-relaxed">Pengguna dilarang mengirimkan laporan palsu, prank, atau informasi bohong yang dapat mengganggu kesiapsiagaan unit darurat daerah Kabupaten Seram Bagian Timur.</p>
         </div>
     </div>
 
-    <!-- ============ MODAL FOOTER: KONTAK ADMIN & LEMBAGA ============ -->
-    <div id="modal-kontak" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
-        <div class="bg-white rounded-xl max-w-lg w-full p-5 shadow-xl text-xs space-y-3">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-display font-bold text-sm text-slate-800">📞 Direktori Kontak Darurat & Admin</h3>
-                <button onclick="tutupModalUmum('modal-kontak')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
-            </div>
-            <div class="space-y-3 max-h-72 overflow-y-auto">
-                <div class="bg-red-50 p-2.5 rounded-lg border border-red-200">
-                    <p class="font-bold text-red-700 text-[11px]">🚨 Kontak Admin Pusat / Posko Utama:</p>
-                    <p class="text-slate-700 font-medium">Hotline 112 / Call Center SBT: <a href="tel:112" class="text-blue-600 font-bold hover:underline">112</a></p>
-                    <p class="text-slate-700">WhatsApp Resmi Posko: <a href="https://wa.me/628114700111" target="_blank" class="text-emerald-600 font-bold hover:underline">0811-4700-111</a></p>
-                </div>
-                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
-                    <p class="font-bold text-slate-800 text-[11px]">🏛️ Kontak Instansi & Sektoral:</p>
-                    <ul class="space-y-1 text-slate-600">
-                        <li>• <b>Damkar Kab. SBT:</b> (0915) 21113</li>
-                        <li>• <b>BPBD Kab. SBT:</b> 0811-4700-222</li>
-                        <li>• <b>Dinas Kesehatan / RSUD:</b> 0811-4700-333</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Script Utama Halaman Publik -->
+    <script src="assets/js/index.js"></script>
+   <script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-footer-menu');
+        if (menu) menu.classList.toggle('hidden');
+    }
 
-    <!-- SCRIPT OPERASIONAL & PENDUKUNG -->
-    <script src="assets/js/operasional.js"></script>
-    <script>
-        function perbaruiJamHeader() {
-            const el = document.getElementById('jam-wit-text');
-            if (el) {
-                const now = new Date();
-                el.textContent = now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jayapura', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' WIT';
-            }
+    function toggleStatusOnlineMobile() {
+        const panel = document.getElementById('panel-status-online');
+        const icon = document.getElementById('toggle-icon');
+        if (panel) {
+            panel.classList.toggle('hidden');
+            icon.textContent = panel.classList.contains('hidden') ? '▼' : '▲';
         }
-        perbaruiJamHeader();
-        setInterval(perbaruiJamHeader, 1000);
+    }
 
-        function bukaModalFooter(id) {
-            document.getElementById(id).classList.remove('hidden');
+    window.addEventListener('click', function(e) {
+        const menu = document.getElementById('mobile-footer-menu');
+        const button = e.target.closest('button');
+        if (menu && !menu.classList.contains('hidden') && (!button || !button.getAttribute('onclick')?.includes('toggleMobileMenu'))) {
+            menu.classList.add('hidden');
         }
+    });
 
-        function tutupModalUmum(id) {
-            document.getElementById(id).classList.add('hidden');
+    // Memaksa Jam Update Mengikuti Waktu Lokal SBT (WIT) di Web & Mobile
+    function perbaruiJamStatus() {
+        const el = document.getElementById('last-updated-time');
+        if (el) {
+            const now = new Date();
+            const jamSBT = now.toLocaleTimeString('id-ID', { 
+                timeZone: 'Asia/Jayapura', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            el.textContent = jamSBT + ' WIT';
         }
-
-        async function bukaModalProfilAkun() {
-            document.getElementById('profil-nama').innerText = currentUser.nama_lengkap || '-';
-            document.getElementById('profil-username').innerText = currentUser.username || '-';
-            document.getElementById('profil-role').innerText = currentUser.role || '-';
-            document.getElementById('profil-telp').innerText = currentUser.telp_petugas || '-';
-            document.getElementById('modal-profil-akun').classList.remove('hidden');
-        }
-
-        async function bukaModalProfilLembaga() {
-            const namaLembaga = currentUser.nama_lembaga;
-            document.getElementById('lembaga-nama').innerText = namaLembaga || '-';
-            document.getElementById('lembaga-kategori').innerText = 'Instansi Sektoral / Pemerintah Daerah';
-            
-            // Ambil detail tambahan dari database jika ada
-            if (namaLembaga) {
-                const { data } = await supabaseClient.from('lembaga').select('*').eq('nama_lembaga', namaLembaga).single();
-                if (data) {
-                    document.getElementById('lembaga-kategori').innerText = data.kategori || 'Pemerintah Daerah';
-                    document.getElementById('lembaga-alamat').innerText = data.alamat || 'Bula, Kabupaten Seram Bagian Timur';
-                } else {
-                    document.getElementById('lembaga-alamat').innerText = 'Bula, Kabupaten Seram Bagian Timur';
-                }
-            }
-            document.getElementById('modal-profil-lembaga').classList.remove('hidden');
-        }
-    </script>
+    }
+    perbaruiJamStatus();
+    setInterval(perbaruiJamStatus, 30000);
+</script>
 </body>
 </html>
