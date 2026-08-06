@@ -334,13 +334,6 @@
                     const lembagaEl = document.getElementById('header-lembaga-nama');
                     if (akunEl && currentUser) akunEl.innerText = currentUser.nama_lengkap;
                     if (lembagaEl && currentUser) lembagaEl.innerText = currentUser.nama_lembaga;
-
-                    // Ambil logo lembaga dari database jika ada
-                    if (currentUser && currentUser.nama_lembaga) {
-                        const { data } = await supabaseClient.from('lembaga').select('logo_url').eq('nama_lembaga', currentUser.nama_lembaga).single();
-                        if (data && data.logo_url) {
-                        }
-                    }
                 }
             }, 300);
         });
