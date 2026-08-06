@@ -7,7 +7,7 @@ let selectedCoords = { lng: 130.4850, lat: -3.1500 };
 let markersPublik = [];
 let markersFaskes = [];
 let mapPicker = null;
-let selectedReportId = null; // Pelacak ID laporan yang aktif/dipilih
+let selectedReportId = null;
 
 const map = new mapboxgl.Map({
     container: 'map',
@@ -25,22 +25,32 @@ async function ambilDataLaporan() {
     }
 }
 
-// Fungsi untuk mengecek status online satgas/lembaga dari tabel users Supabase secara realtime
+// Pengecekan status online/offline riil dari tabel users (Hanya memunculkan teks "Online" atau "Offline")
 async function cekAkunOnlineRealtime() {
     try {
-        const { data, error } = await supabaseClient.from('users').select('nama_lembaga, status_online, role');
+        const { data, error } = await supabaseClient.from('users').select('status_online, role, nama_lembaga');
         if (error || !data) return;
 
-        // Cari lembaga utama operasional yang statusnya ONLINE
-        const satgasOnline = data.find(u => u.status_online === 'ONLINE' && u.nama_lembaga && !u.nama_lembaga.toLowerCase().includes('112') && u.role !== 'pimpinan');
-        const pimpinanOnline = data.find(u => u.status_online === 'ONLINE' && (u.role === 'pimpinan' || u.role === 'eksekutif'));
+        // Cek apakah ada akun lembaga operasional yang statusnya 'ONLINE'
+        const adaSatgasOnline = data.some(u => 
+            (u.status_online === 'ONLINE' || u.status_online === 'online') && 
+            u.role !== 'pimpinan' && 
+            u.role !== 'superadmin' &&
+            !u.nama_lembaga?.toLowerCase().includes('112')
+        );
+
+        // Cek apakah ada akun pimpinan yang statusnya 'ONLINE'
+        const adaPimpinanOnline = data.some(u => 
+            (u.status_online === 'ONLINE' || u.status_online === 'online') && 
+            (u.role === 'pimpinan' || u.role === 'eksekutif')
+        );
 
         const elSatgas = document.getElementById('status-lembaga-utama');
         const elPimpinan = document.getElementById('status-pimpinan-online');
 
         if (elSatgas) {
-            if (satgasOnline) {
-                elSatgas.textContent = `${satgasOnline.nama_lembaga} (Aktif)`;
+            if (adaSatgasOnline) {
+                elSatgas.textContent = 'Online';
                 elSatgas.className = 'font-medium text-emerald-600';
             } else {
                 elSatgas.textContent = 'Offline';
@@ -49,8 +59,8 @@ async function cekAkunOnlineRealtime() {
         }
 
         if (elPimpinan) {
-            if (pimpinanOnline) {
-                elPimpinan.textContent = 'Pimpinan Siaga (Online)';
+            if (adaPimpinanOnline) {
+                elPimpinan.textContent = 'Online';
                 elPimpinan.className = 'font-medium text-blue-600';
             } else {
                 elPimpinan.textContent = 'Offline';
@@ -58,11 +68,10 @@ async function cekAkunOnlineRealtime() {
             }
         }
     } catch (err) {
-        console.error('Gagal memuat status online satgas:', err);
+        console.error('Gagal memuat status online:', err);
     }
 }
 
-// Solusi Audio Mobile: Mengaktifkan AudioContext pada sentuhan pertama layar jika diblokir browser
 function bunyiPeringatanDarurat() {
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -116,7 +125,6 @@ function renderSidebar() {
         const waktuBuat = new Date(cleanDateStr);
         const selisihMenit = (now - waktuBuat) / (1000 * 60);
         
-        // Cek kritis jika statusnya masih 'Baru' atau 'Sedang Dicek' dan lewat 30 menit
         const isKritis = ((item.status === 'Baru' || item.status === 'Sedang Dicek') && selisihMenit > 30);
 
         if (isKritis) {
