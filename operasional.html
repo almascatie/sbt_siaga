@@ -41,21 +41,23 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden text-slate-800">
 
-    <!-- ============ HEADER RESPONSIF (SATU BARIS & HAMBURGER MOBILE) ============ -->
-    <header class="site-header text-white px-3 sm:px-4 py-2 flex justify-between items-center shadow-md z-30 shrink-0">
-        <div class="flex items-center gap-2.5 overflow-hidden">
-            <img id="header-logo-lembaga" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo SBT" class="w-8 h-9 object-contain bg-white/10 p-0.5 rounded shrink-0">
-            <!-- Format Satu Baris: Judul | Akun | Lembaga -->
-            <div class="flex items-center gap-1.5 text-[11px] sm:text-xs truncate">
-                <span class="font-display font-extrabold tracking-wide uppercase text-white hidden md:inline">DASHBOARD SIAGA DARURAT SBT</span>
-                <span class="font-display font-extrabold tracking-wide uppercase text-white md:hidden">SIAGA SBT</span>
-                <span class="text-white/40 font-light hidden sm:inline">|</span>
-                <button onclick="bukaModalProfilAkun()" class="font-light text-amber-200 hover:underline truncate cursor-pointer" id="header-akun-nama" title="Klik untuk profil akun">Memuat...</button>
-                <span class="text-white/40 font-light hidden sm:inline">|</span>
-                <button onclick="bukaModalProfilLembaga()" class="font-light text-blue-200 hover:underline truncate cursor-pointer hidden sm:inline" id="header-lembaga-nama" title="Klik untuk profil lembaga">Memuat...</button>
-                <span id="badge-role" class="bg-[var(--sbt-orange)] text-[9px] px-1.5 py-0.5 rounded font-bold uppercase text-white shrink-0 ml-0.5">OP</span>
-            </div>
+<!-- ============ HEADER RESPONSIF ============ -->
+<header class="site-header text-white px-3 sm:px-4 py-2 flex justify-between items-center shadow-md z-30 shrink-0">
+    <div class="flex items-center gap-2.5 overflow-hidden">
+        <!-- Logo Tetap Logo Kabupaten Seram Bagian Timur -->
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo Kabupaten SBT" class="w-8 h-9 object-contain bg-white/10 p-0.5 rounded shrink-0">
+        
+        <!-- Format Satu Baris: Judul | Akun | Lembaga -->
+        <div class="flex items-center gap-1.5 text-[11px] sm:text-xs truncate">
+            <span class="font-display font-extrabold tracking-wide uppercase text-white hidden md:inline">DASHBOARD SIAGA DARURAT SBT</span>
+            <span class="font-display font-extrabold tracking-wide uppercase text-white md:hidden">SIAGA SBT</span>
+            <span class="text-white/40 font-light hidden sm:inline">|</span>
+            <button onclick="bukaModalProfilAkun()" class="font-light text-amber-200 hover:underline truncate cursor-pointer" id="header-akun-nama" title="Klik untuk profil akun">Memuat...</button>
+            <span class="text-white/40 font-light hidden sm:inline">|</span>
+            <button onclick="bukaModalProfilLembaga()" class="font-light text-blue-200 hover:underline truncate cursor-pointer hidden sm:inline" id="header-lembaga-nama" title="Klik untuk profil lembaga">Memuat...</button>
+            <span id="badge-role" class="bg-[var(--sbt-orange)] text-[9px] px-1.5 py-0.5 rounded font-bold uppercase text-white shrink-0 ml-0.5">OP</span>
         </div>
+    </div>
 
         <!-- Tombol Desktop -->
         <div class="hidden md:flex items-center gap-2.5 shrink-0">
