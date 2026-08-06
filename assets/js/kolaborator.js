@@ -1,3 +1,7 @@
+// ===========================================================
+// KOLABORATOR SCRIPT — PUSAT KOORDINASI BANTUAN SBT
+// ===========================================================
+
 mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
 
 let laporanList = [];
@@ -20,6 +24,7 @@ window.onload = () => {
         currentUser = {
             id: sessionStorage.getItem('sbt_user_id'),
             username: sessionStorage.getItem('sbt_username'),
+            nama_lengkap: sessionStorage.getItem('sbt_nama_lengkap') || sessionStorage.getItem('sbt_username'),
             nama_lembaga: sessionStorage.getItem('sbt_nama_lembaga'),
             role: sessionStorage.getItem('sbt_role'),
             telp_posko: sessionStorage.getItem('sbt_telp_posko')
@@ -30,6 +35,9 @@ window.onload = () => {
             return;
         }
 
+        // Set status online di database saat halaman kolaborator berhasil dimuat
+        updateStatusOnlineDB('ONLINE');
+
         inisialisasiSesiHeader();
         ambilDataLaporan();
         setInterval(ambilDataLaporan, 5000);
@@ -38,10 +46,61 @@ window.onload = () => {
     }
 };
 
-function logoutSession() {
+// Fungsi bantu untuk memperbarui status online/offline ke Supabase secara konsisten
+async function updateStatusOnlineDB(statusText) {
+    const userIdAktif = sessionStorage.getItem('sbt_user_id');
+    const usernameAktif = sessionStorage.getItem('sbt_username');
+    
+    if (!userIdAktif && !usernameAktif) return;
+
+    try {
+        let query = supabaseClient.from('users').update({ status_online: statusText });
+        if (userIdAktif) {
+            query = query.eq('id', userIdAktif);
+        } else {
+            query = query.eq('username', usernameAktif);
+        }
+        await query;
+    } catch (err) {
+        console.warn('Gagal memperbarui status online:', err);
+    }
+}
+
+// Fungsi Logout Session yang tuntas menunggu update offline ke Supabase
+async function logoutSession() {
+    await updateStatusOnlineDB('OFFLINE');
     sessionStorage.clear();
     window.location.href = 'login.html';
 }
+
+// Penanganan otomatis ketika petugas menutup tab/browser secara langsung tanpa klik tombol Keluar
+window.addEventListener('beforeunload', () => {
+    const userIdAktif = sessionStorage.getItem('sbt_user_id');
+    const usernameAktif = sessionStorage.getItem('sbt_username');
+    
+    if (!userIdAktif && !usernameAktif) return;
+
+    const supabaseUrl = window.CONFIG ? window.CONFIG.SUPABASE_URL : window.SUPABASE_URL;
+    const supabaseKey = window.CONFIG ? window.CONFIG.SUPABASE_ANON_KEY : window.SUPABASE_ANON_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+        const targetQuery = userIdAktif ? `id=eq.${userIdAktif}` : `username=eq.${usernameAktif}`;
+        const endpoint = `${supabaseUrl}/rest/v1/users?${targetQuery}`;
+        const payload = JSON.stringify({ status_online: 'OFFLINE' });
+
+        fetch(endpoint, {
+            method: 'PATCH',
+            headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: payload,
+            keepalive: true
+        }).catch(err => console.log('Unload status update error:', err));
+    }
+});
 
 function inisialisasiSesiHeader() {
     const sapaan = document.getElementById('header-sapaan');
@@ -305,7 +364,7 @@ function tutupModalKolaborasi() {
     document.getElementById('modal-kolaborasi').classList.add('hidden');
 }
 
-document.getElementById('form-kolaborasi').addEventListener('submit', async (e) => {
+document.getElementById('form-kolaborasi')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('kolaborasi-id-laporan').value;
     const jenisBantuan = document.getElementById('input-jenis-bantuan').value;
@@ -347,7 +406,7 @@ function tutupModalCatatan() {
     document.getElementById('modal-catatan').classList.add('hidden');
 }
 
-document.getElementById('form-catatan').addEventListener('submit', async (e) => {
+document.getElementById('form-catatan')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('catatan-id-laporan').value;
     const teks = document.getElementById('input-teks-catatan').value.trim();
