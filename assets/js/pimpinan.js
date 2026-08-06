@@ -499,17 +499,17 @@ function renderMarkers() {
     markers = [];
 
     const sekarang = new Date().getTime();
-    const filterStatus = document.getElementById('filter-status-peta').value;
-    const filterJenis = document.getElementById('filter-jenis-peta').value;
+    // const filterStatus = document.getElementById('filter-status-peta').value;
+    // const filterJenis = document.getElementById('filter-jenis-peta').value;
 
     laporanList.forEach(item => {
         const stLower = (item.status || '').toLowerCase();
 
-        if (filterJenis !== 'Semua' && item.jenis !== filterJenis) return;
-        if (filterStatus === 'Verifikasi' && !(stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu'))) return;
-        if (filterStatus === 'Proses' && !(stLower.includes('proses') && !item.minta_bantuan)) return;
-        if (filterStatus === 'Darurat' && !(stLower.includes('proses') && item.minta_bantuan)) return;
-        if (filterStatus === 'Selesai' && !stLower.includes('selesai')) return;
+        // if (filterJenis !== 'Semua' && item.jenis !== filterJenis) return;
+        // if (filterStatus === 'Verifikasi' && !(stLower.includes('verif') || stLower.includes('pending') || stLower.includes('menunggu'))) return;
+        // if (filterStatus === 'Proses' && !(stLower.includes('proses') && !item.minta_bantuan)) return;
+        // if (filterStatus === 'Darurat' && !(stLower.includes('proses') && item.minta_bantuan)) return;
+        // if (filterStatus === 'Selesai' && !stLower.includes('selesai')) return;
 
         let isKritis = false;
         const waktuLapor = new Date(item.created_at).getTime();
