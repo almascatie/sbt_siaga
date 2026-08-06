@@ -25,13 +25,13 @@ async function ambilDataLaporan() {
     }
 }
 
-// Pengecekan status online/offline riil dari tabel users (Hanya memunculkan teks "Online" atau "Offline")
+// Pengecekan status online/offline riil untuk Satgas dan Pimpinan berdasarkan database
 async function cekAkunOnlineRealtime() {
     try {
         const { data, error } = await supabaseClient.from('users').select('status_online, role, nama_lembaga');
         if (error || !data) return;
 
-        // Cek apakah ada akun lembaga operasional yang statusnya 'ONLINE'
+        // Cek apakah ada akun lembaga operasional/satgas yang status_online-nya 'ONLINE'
         const adaSatgasOnline = data.some(u => 
             (u.status_online === 'ONLINE' || u.status_online === 'online') && 
             u.role !== 'pimpinan' && 
@@ -39,7 +39,7 @@ async function cekAkunOnlineRealtime() {
             !u.nama_lembaga?.toLowerCase().includes('112')
         );
 
-        // Cek apakah ada akun pimpinan yang statusnya 'ONLINE'
+        // Cek apakah ada akun pimpinan yang status_online-nya 'ONLINE'
         const adaPimpinanOnline = data.some(u => 
             (u.status_online === 'ONLINE' || u.status_online === 'online') && 
             (u.role === 'pimpinan' || u.role === 'eksekutif')
@@ -48,6 +48,7 @@ async function cekAkunOnlineRealtime() {
         const elSatgas = document.getElementById('status-lembaga-utama');
         const elPimpinan = document.getElementById('status-pimpinan-online');
 
+        // Render Status Satgas (Dinamis sesuai login)
         if (elSatgas) {
             if (adaSatgasOnline) {
                 elSatgas.textContent = 'Online';
@@ -58,6 +59,7 @@ async function cekAkunOnlineRealtime() {
             }
         }
 
+        // Render Status Pimpinan (Dinamis sesuai login)
         if (elPimpinan) {
             if (adaPimpinanOnline) {
                 elPimpinan.textContent = 'Online';
