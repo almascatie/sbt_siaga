@@ -339,7 +339,6 @@
                     if (currentUser && currentUser.nama_lembaga) {
                         const { data } = await supabaseClient.from('lembaga').select('logo_url').eq('nama_lembaga', currentUser.nama_lembaga).single();
                         if (data && data.logo_url) {
-                            document.getElementById('header-logo-lembaga').src = data.logo_url;
                         }
                     }
                 }
