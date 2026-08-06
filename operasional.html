@@ -41,22 +41,23 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden text-slate-800">
 
-    <!-- ============ HEADER (NAMA USER & LEMBAGA DIPERBESAR) ============ -->
+    <!-- ============ HEADER SATU BARIS INTERAKTIF ============ -->
     <header class="site-header text-white px-4 py-2.5 flex justify-between items-center shadow-md z-20 shrink-0">
-        <div class="flex items-center gap-3">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo SBT" class="w-9 h-10 object-contain bg-white/10 p-0.5 rounded">
-            <div class="leading-tight">
-                <div class="flex items-center gap-2">
-                    <h1 class="font-display font-extrabold text-xs sm:text-sm tracking-wide">SIAGA DARURAT SBT</h1>
-                    <span id="badge-role" class="bg-[var(--sbt-orange)] text-[10px] px-2 py-0.5 rounded font-bold uppercase text-white">OPERASIONAL</span>
-                </div>
-                <!-- Sapaan User & Lembaga Diperbesar -->
-                <p class="text-xs sm:text-sm font-bold text-amber-200 tracking-wide mt-0.5" id="header-sapaan">Memuat Sesi Petugas...</p>
+        <div class="flex items-center gap-3 overflow-hidden">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo SBT" class="w-8 h-9 object-contain bg-white/10 p-0.5 rounded shrink-0">
+            <!-- Format Satu Baris: Judul | Nama Akun | Lembaga -->
+            <div class="flex items-center gap-2 text-xs sm:text-sm truncate">
+                <span class="font-display font-extrabold tracking-wide uppercase text-white">DASHBOARD SIAGA DARURAT SBT</span>
+                <span class="text-white/40 font-light">|</span>
+                <button onclick="bukaModalProfilAkun()" class="font-light text-amber-200 hover:underline truncate cursor-pointer" id="header-akun-nama" title="Klik untuk lihat Profil Akun">Memuat Akun...</button>
+                <span class="text-white/40 font-light">|</span>
+                <button onclick="bukaModalProfilLembaga()" class="font-light text-blue-200 hover:underline truncate cursor-pointer" id="header-lembaga-nama" title="Klik untuk lihat Profil Lembaga">Memuat Lembaga...</button>
+                <span id="badge-role" class="bg-[var(--sbt-orange)] text-[9px] px-1.5 py-0.5 rounded font-bold uppercase text-white shrink-0 ml-1">OP</span>
             </div>
         </div>
 
-        <div class="flex items-center gap-3">
-            <div id="header-jam-wit" class="hidden sm:flex items-center gap-1.5 bg-white/10 border border-white/25 text-white text-xs px-3 py-1 rounded-full font-mono font-semibold">
+        <div class="flex items-center gap-2.5 shrink-0">
+            <div id="header-jam-wit" class="hidden md:flex items-center gap-1.5 bg-white/10 border border-white/25 text-white text-xs px-2.5 py-1 rounded-full font-mono font-semibold">
                 <span>🕒</span>
                 <span id="jam-wit-text">--:-- WIT</span>
             </div>
@@ -76,7 +77,7 @@
         <main class="flex-1 relative h-1/2 lg:h-full order-1 lg:order-none">
             <div id="map"></div>
 
-            <!-- Warning Kritis >30 Menit (Diperbesar & Mencolok untuk Petugas) -->
+            <!-- Warning Kritis >30 Menit -->
             <div id="warning-box-30m" class="hidden absolute z-20 top-4 left-4 bg-red-600 text-white p-4 rounded-xl shadow-2xl max-w-sm text-xs sm:text-sm space-y-1.5 border-2 border-white/40 siaga-kritis-banner">
                 <div class="flex items-center gap-2">
                     <span class="text-lg">🚨</span>
@@ -85,7 +86,7 @@
                 <p class="font-medium opacity-95 leading-relaxed">Terdapat laporan darurat yang belum ditangani/diverifikasi selama lebih dari **30 Menit**!</p>
             </div>
 
-            <!-- Legenda & Layer Peta (Faskes Diperbaiki) -->
+            <!-- Legenda & Layer Peta -->
             <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md p-2.5 rounded-lg shadow-md text-[11px] z-10 space-y-2 max-w-[12rem]">
                 <p class="font-display font-bold text-slate-700">Legenda & Layer</p>
                 <div class="space-y-1 border-t border-slate-200/60 pt-1">
@@ -139,17 +140,107 @@
         </aside>
     </div>
 
-    <!-- ============ FOOTER ============ -->
+    <!-- ============ FOOTER GLOBAL DENGAN MENU KONTAK & MODAL LENGKAP ============ -->
     <footer class="footer-sbt px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0 z-20">
         <p>© Siaga Pemkab SBT 2026</p>
-        <div class="hidden sm:flex gap-4">
-            <button type="button" onclick="openModal('modal-hukum')" class="hover:underline">Dasar Hukum</button>
-            <button type="button" onclick="openModal('modal-privacy')" class="hover:underline">Kebijakan Privasi</button>
-            <button type="button" onclick="openModal('modal-syarat')" class="hover:underline">Syarat Penggunaan</button>
+        <div class="flex gap-4">
+            <button type="button" onclick="bukaModalFooter('modal-hukum')" class="hover:underline">Dasar Hukum</button>
+            <button type="button" onclick="bukaModalFooter('modal-privacy')" class="hover:underline">Kebijakan Privasi</button>
+            <button type="button" onclick="bukaModalFooter('modal-syarat')" class="hover:underline">Syarat Penggunaan</button>
+            <button type="button" onclick="bukaModalFooter('modal-kontak')" class="hover:underline font-bold text-amber-300">📞 Kontak</button>
         </div>
     </footer>
 
-    <!-- SCRIPT OPERASIONAL -->
+    <!-- ============ MODAL PROFIL AKUN ============ -->
+    <div id="modal-profil-akun" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-display font-bold text-sm text-slate-800">👤 Profil Akun Petugas</h3>
+                <button onclick="tutupModalUmum('modal-profil-akun')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+            </div>
+            <div class="space-y-2 text-slate-700">
+                <p><b>Nama Lengkap:</b> <span id="profil-nama">-</span></p>
+                <p><b>Username:</b> <span id="profil-username">-</span></p>
+                <p><b>Peran (Role):</b> <span id="profil-role">-</span></p>
+                <p><b>Nomor Kontak / HP:</b> <span id="profil-telp">-</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL PROFIL LEMBAGA ============ -->
+    <div id="modal-profil-lembaga" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-display font-bold text-sm text-slate-800">🏛️ Profil Instansi / Lembaga</h3>
+                <button onclick="tutupModalUmum('modal-profil-lembaga')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+            </div>
+            <div class="space-y-2 text-slate-700">
+                <p><b>Nama Lembaga:</b> <span id="lembaga-nama">-</span></p>
+                <p><b>Kategori:</b> <span id="lembaga-kategori">-</span></p>
+                <p><b>Alamat Kantor:</b> <span id="lembaga-alamat">-</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL FOOTER: DASAR HUKUM ============ -->
+    <div id="modal-hukum" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-display font-bold text-sm text-slate-800">Dasar Hukum Penanganan Darurat</h3>
+                <button onclick="tutupModalUmum('modal-hukum')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+            </div>
+            <p class="text-slate-600 leading-relaxed">Layanan Siaga Darurat Karhutla dan Krisis Air Bersih Kabupaten Seram Bagian Timur diselenggarakan berdasarkan peraturan perundang-undangan penanggulangan bencana yang berlaku di Republik Indonesia.</p>
+        </div>
+    </div>
+
+    <!-- ============ MODAL FOOTER: KEBIJAKAN PRIVASI ============ -->
+    <div id="modal-privacy" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-display font-bold text-sm text-slate-800">Kebijakan Privasi</h3>
+                <button onclick="tutupModalUmum('modal-privacy')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+            </div>
+            <p class="text-slate-600 leading-relaxed">Pemerintah Kabupaten Seram Bagian Timur menjaga kerahasiaan identitas dan nomor kontak pelapor yang masuk ke dalam sistem, serta hanya dipergunakan untuk keperluan verifikasi dan penanganan darurat di lapangan.</p>
+        </div>
+    </div>
+
+    <!-- ============ MODAL FOOTER: SYARAT PENGGUNAAN ============ -->
+    <div id="modal-syarat" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-display font-bold text-sm text-slate-800">Syarat Penggunaan Layanan</h3>
+                <button onclick="tutupModalUmum('modal-syarat')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+            </div>
+            <p class="text-slate-600 leading-relaxed">Pengguna dilarang mengirimkan laporan palsu, prank, atau informasi bohong yang dapat mengganggu kesiapsiagaan unit darurat daerah Kabupaten Seram Bagian Timur.</p>
+        </div>
+    </div>
+
+    <!-- ============ MODAL FOOTER: KONTAK ADMIN & LEMBAGA ============ -->
+    <div id="modal-kontak" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-lg w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-display font-bold text-sm text-slate-800">📞 Direktori Kontak Darurat & Admin</h3>
+                <button onclick="tutupModalUmum('modal-kontak')" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+            </div>
+            <div class="space-y-3 max-h-72 overflow-y-auto">
+                <div class="bg-red-50 p-2.5 rounded-lg border border-red-200">
+                    <p class="font-bold text-red-700 text-[11px]">🚨 Kontak Admin Pusat / Posko Utama:</p>
+                    <p class="text-slate-700 font-medium">Hotline 112 / Call Center SBT: <a href="tel:112" class="text-blue-600 font-bold hover:underline">112</a></p>
+                    <p class="text-slate-700">WhatsApp Resmi Posko: <a href="https://wa.me/628114700111" target="_blank" class="text-emerald-600 font-bold hover:underline">0811-4700-111</a></p>
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
+                    <p class="font-bold text-slate-800 text-[11px]">🏛️ Kontak Instansi & Sektoral:</p>
+                    <ul class="space-y-1 text-slate-600">
+                        <li>• <b>Damkar Kab. SBT:</b> (0915) 21113</li>
+                        <li>• <b>BPBD Kab. SBT:</b> 0811-4700-222</li>
+                        <li>• <b>Dinas Kesehatan / RSUD:</b> 0811-4700-333</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT OPERASIONAL & PENDUKUNG -->
     <script src="assets/js/operasional.js"></script>
     <script>
         function perbaruiJamHeader() {
@@ -161,6 +252,40 @@
         }
         perbaruiJamHeader();
         setInterval(perbaruiJamHeader, 1000);
+
+        function bukaModalFooter(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function tutupModalUmum(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        async function bukaModalProfilAkun() {
+            document.getElementById('profil-nama').innerText = currentUser.nama_lengkap || '-';
+            document.getElementById('profil-username').innerText = currentUser.username || '-';
+            document.getElementById('profil-role').innerText = currentUser.role || '-';
+            document.getElementById('profil-telp').innerText = currentUser.telp_petugas || '-';
+            document.getElementById('modal-profil-akun').classList.remove('hidden');
+        }
+
+        async function bukaModalProfilLembaga() {
+            const namaLembaga = currentUser.nama_lembaga;
+            document.getElementById('lembaga-nama').innerText = namaLembaga || '-';
+            document.getElementById('lembaga-kategori').innerText = 'Instansi Sektoral / Pemerintah Daerah';
+            
+            // Ambil detail tambahan dari database jika ada
+            if (namaLembaga) {
+                const { data } = await supabaseClient.from('lembaga').select('*').eq('nama_lembaga', namaLembaga).single();
+                if (data) {
+                    document.getElementById('lembaga-kategori').innerText = data.kategori || 'Pemerintah Daerah';
+                    document.getElementById('lembaga-alamat').innerText = data.alamat || 'Bula, Kabupaten Seram Bagian Timur';
+                } else {
+                    document.getElementById('lembaga-alamat').innerText = 'Bula, Kabupaten Seram Bagian Timur';
+                }
+            }
+            document.getElementById('modal-profil-lembaga').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
