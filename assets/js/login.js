@@ -30,20 +30,18 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
                 .update({ status_online: 'ONLINE' })
                 .eq('username', u); // 'u' adalah variabel input username
 
-                // Simpan sesi login sementara di browser (sessionStorage)
-                sessionStorage.setItem('sbt_logged_in', 'true');
-                sessionStorage.setItem('sbt_user_id', data.id);
-                // ... (lanjutan kode aslinya)
-
-                // Simpan sesi login sementara di browser (sessionStorage)
-                sessionStorage.setItem('sbt_logged_in', 'true');
-                sessionStorage.setItem('sbt_user_id', data.id);
-                sessionStorage.setItem('sbt_username', data.username);
-                sessionStorage.setItem('sbt_nama_lembaga', data.nama_lembaga);
-                sessionStorage.setItem('sbt_role', data.role);
-                sessionStorage.setItem('sbt_telp_posko', data.telp_posko || '');
-
-                alert(`Selamat datang, ${data.nama_lembaga}!`);
+                // Simpan sesi login lengkap ke browser (sessionStorage)
+                        sessionStorage.setItem('sbt_logged_in', 'true');
+                        sessionStorage.setItem('sbt_user_id', data.id);
+                        sessionStorage.setItem('sbt_username', data.username);
+                        sessionStorage.setItem('sbt_nama_lengkap', data.nama_lengkap || data.username); // Mengambil nama lengkap asli dari database
+                        sessionStorage.setItem('sbt_nama_lembaga', data.nama_lembaga || '-');
+                        sessionStorage.setItem('sbt_role', data.role || '');
+                        sessionStorage.setItem('sbt_telp_petugas', data.telp_petugas || '');
+                        
+                        // Menggunakan nama lengkap petugas untuk sapaan selamat datang yang personal
+                        const sapaanNama = data.nama_lengkap || data.username;
+                        alert(`Selamat datang, ${sapaanNama} (${data.nama_lembaga || 'Sektoral'})!`);
 
                 // Normalisasi teks role dari database ke huruf kecil untuk pengarahan halaman yang aman
                 const roleUser = (data.role || '').toLowerCase().trim();
