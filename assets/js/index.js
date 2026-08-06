@@ -25,6 +25,43 @@ async function ambilDataLaporan() {
     }
 }
 
+// Fungsi untuk mengecek status online satgas/lembaga dari tabel users Supabase secara realtime
+async function cekAkunOnlineRealtime() {
+    try {
+        const { data, error } = await supabaseClient.from('users').select('nama_lembaga, status_online, role');
+        if (error || !data) return;
+
+        // Cari lembaga utama operasional yang statusnya ONLINE
+        const satgasOnline = data.find(u => u.status_online === 'ONLINE' && u.nama_lembaga && !u.nama_lembaga.toLowerCase().includes('112') && u.role !== 'pimpinan');
+        const pimpinanOnline = data.find(u => u.status_online === 'ONLINE' && (u.role === 'pimpinan' || u.role === 'eksekutif'));
+
+        const elSatgas = document.getElementById('status-lembaga-utama');
+        const elPimpinan = document.getElementById('status-pimpinan-online');
+
+        if (elSatgas) {
+            if (satgasOnline) {
+                elSatgas.textContent = `${satgasOnline.nama_lembaga} (Aktif)`;
+                elSatgas.className = 'font-medium text-emerald-600';
+            } else {
+                elSatgas.textContent = 'Offline';
+                elSatgas.className = 'font-medium text-slate-400';
+            }
+        }
+
+        if (elPimpinan) {
+            if (pimpinanOnline) {
+                elPimpinan.textContent = 'Pimpinan Siaga (Online)';
+                elPimpinan.className = 'font-medium text-blue-600';
+            } else {
+                elPimpinan.textContent = 'Offline';
+                elPimpinan.className = 'font-medium text-slate-400';
+            }
+        }
+    } catch (err) {
+        console.error('Gagal memuat status online satgas:', err);
+    }
+}
+
 // Solusi Audio Mobile: Mengaktifkan AudioContext pada sentuhan pertama layar jika diblokir browser
 function bunyiPeringatanDarurat() {
     try {
@@ -115,7 +152,6 @@ function renderSidebar() {
             </div>
         `;
         
-        // Memperbarui ID laporan terpilih agar marker peta berubah jadi bintang dan menggeser peta
         card.onclick = () => {
             selectedReportId = item.id;
             renderSidebar();
@@ -142,7 +178,6 @@ function renderMarkersPublik() {
         const selisihMenit = (sekarang - waktuBuat) / (1000 * 60);
         const isKritis = (item.status === 'Sedang Dicek' || item.status === 'Baru') && selisihMenit > 30;
 
-        // Menggunakan fungsi pembuat marker global yang mendukung ikon bintang (★)
         const el = buatElemenMarkerGlobal(item, selectedReportId, isKritis);
 
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
@@ -296,7 +331,6 @@ function cekStatusLaporan() {
     }
 }
 
-// Menambahkan pemicu interaksi layar untuk membuka blokir AudioContext di HP/Mobile
 window.addEventListener('click', () => {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (AudioContext) {
