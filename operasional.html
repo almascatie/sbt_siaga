@@ -44,10 +44,8 @@
 <!-- ============ HEADER RESPONSIF ============ -->
 <header class="site-header text-white px-3 sm:px-4 py-2 flex justify-between items-center shadow-md z-30 shrink-0">
     <div class="flex items-center gap-2.5 overflow-hidden">
-        <!-- Logo Tetap Logo Kabupaten Seram Bagian Timur -->
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Lambang_Kabupaten_Seram_Bagian_Timur.png/500px-Lambang_Kabupaten_Seram_Bagian_Timur.png" alt="Logo Kabupaten SBT" class="w-8 h-9 object-contain bg-white/10 p-0.5 rounded shrink-0">
         
-        <!-- Format Satu Baris: Judul | Akun | Lembaga -->
         <div class="flex items-center gap-1.5 text-[11px] sm:text-xs truncate">
             <span class="font-display font-extrabold tracking-wide uppercase text-white hidden md:inline">DASHBOARD SIAGA DARURAT SBT</span>
             <span class="font-display font-extrabold tracking-wide uppercase text-white md:hidden">SIAGA SBT</span>
@@ -59,7 +57,6 @@
         </div>
     </div>
 
-        <!-- Tombol Desktop -->
         <div class="hidden md:flex items-center gap-2.5 shrink-0">
             <div id="header-jam-wit" class="flex items-center gap-1 bg-white/10 border border-white/25 text-white text-xs px-2.5 py-1 rounded-full font-mono font-semibold">
                 <span>🕒</span>
@@ -73,7 +70,6 @@
             </button>
         </div>
 
-        <!-- Hamburger Menu Mobile -->
         <div class="relative md:hidden">
             <button onclick="toggleHeaderMenuMobile()" class="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white font-bold text-base px-2.5 transition">⋮</button>
             <div id="mobile-header-menu" class="hidden absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl py-2 text-xs z-50 text-slate-200 space-y-1">
@@ -82,12 +78,11 @@
                 <button onclick="logoutSession()" class="w-full text-left px-3 py-2 text-red-400 hover:bg-slate-800 block font-semibold">🚪 Keluar</button>
             </div>
         </div>
-    </header>
+</header>
 
     <!-- ============ MAIN CONTENT AREA ============ -->
     <div class="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
         
-        <!-- PETA & WARNING -->
         <main class="flex-1 relative h-1/2 lg:h-full order-1 lg:order-none">
             <div id="map"></div>
 
@@ -112,7 +107,6 @@
             </div>
         </main>
 
-        <!-- PANEL KONTROL -->
         <aside class="w-full lg:w-[700px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-lg h-1/2 lg:h-full order-2 lg:order-none">
             <div class="p-2.5 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
                 <h2 class="text-[11px] font-display font-bold text-slate-700 uppercase tracking-wide">Panel Penanganan Laporan</h2>
@@ -153,7 +147,6 @@
     <footer class="footer-sbt px-4 py-1.5 flex justify-between items-center text-[10.5px] shrink-0 z-20">
         <p>© Siaga Pemkab SBT 2026</p>
         
-        <!-- Menu Desktop -->
         <div class="hidden sm:flex gap-3">
             <button type="button" onclick="bukaModalFooter('modal-hukum')" class="hover:underline">Dasar Hukum</button>
             <button type="button" onclick="bukaModalFooter('modal-privacy')" class="hover:underline">Kebijakan Privasi</button>
@@ -161,7 +154,6 @@
             <button type="button" onclick="bukaModalFooter('modal-kontak')" class="hover:underline font-bold text-amber-300">📞 Kontak</button>
         </div>
 
-        <!-- Menu Mobile Hamburger (Ramping) -->
         <div class="relative sm:hidden flex items-center gap-2">
             <button type="button" onclick="bukaModalFooter('modal-kontak')" class="font-bold text-amber-300 hover:underline">📞 Kontak</button>
             <button onclick="toggleFooterMenuMobile()" class="p-1 bg-white/10 hover:bg-white/20 rounded text-white font-bold text-sm px-2">⋮</button>
@@ -189,7 +181,7 @@
         </div>
     </div>
 
-    <!-- ============ MODAL PROFIL LEMBAGA (DENGAN LOGO) ============ -->
+    <!-- ============ MODAL PROFIL LEMBAGA ============ -->
     <div id="modal-profil-lembaga" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
         <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs space-y-3">
             <div class="flex justify-between items-center border-b pb-2">
@@ -264,6 +256,83 @@
         </div>
     </div>
 
+    <!-- ============ MODAL OPERASIONAL (KEMBALI UTUH) ============ -->
+    
+    <!-- MODAL INPUT PROSES PENANGANAN UTAMA -->
+    <div id="modal-proses" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center mb-1">
+                <h3 class="font-bold text-sm text-slate-800">Formulir Penanganan Utama</h3>
+                <button onclick="tutupModalProses()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+            </div>
+            <p class="text-[11px] text-slate-500">Lembaga Utama (<b id="label-lembaga-aktif">-</b>) akan diterjunkan sebagai eksekutor laporan ini.</p>
+            <form id="form-proses" class="space-y-2.5">
+                <input type="hidden" id="proses-id-laporan">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Nomor Telepon / Hotline Posko</label>
+                    <input type="text" id="input-telp-petugas" disabled class="w-full p-2 border border-slate-200 bg-slate-100 rounded outline-none font-mono font-bold text-slate-700">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Estimasi Selesai (Jam)</label>
+                    <input type="number" id="input-estimasi-jam" required class="w-full p-2 border border-slate-300 rounded outline-none" value="2" min="1">
+                </div>
+                <button type="submit" class="w-full bg-[var(--sbt-blue)] hover:brightness-110 text-white font-bold py-2.5 rounded-lg shadow-sm transition">
+                    🚀 Mulai Aksi Penanganan Utama
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL IKUT KOLABORASI / BANTUAN LINTAS SEKTOR -->
+    <div id="modal-kolaborasi" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center mb-1">
+                <h3 class="font-bold text-sm text-slate-800">🤝 Ikut Terjun & Kolaborasi Lintas Sektor</h3>
+                <button onclick="tutupModalKolaborasi()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+            </div>
+            <p class="text-[11px] text-slate-500">Instansi Anda (<b id="label-lembaga-kolaborasi">-</b>) akan ikut membantu menangani laporan yang sedang berjalan ini.</p>
+            <form id="form-kolaborasi" class="space-y-2.5">
+                <input type="hidden" id="kolaborasi-id-laporan">
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Jenis Bantuan / Dukungan</label>
+                    <select id="input-jenis-bantuan" required class="w-full p-2 border border-slate-300 rounded bg-white outline-none">
+                        <option value="SDM / Personel Tambahan">👥 SDM / Personel Tambahan</option>
+                        <option value="Logistik / Konsumsi">📦 Logistik / Makanan / Konsumsi</option>
+                        <option value="Air Bersih / Armada Tangki">💧 Air Bersih / Armada Tangki</option>
+                        <option value="Alat Medis / Kesehatan">💊 Bantuan Medis / Kesehatan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-1">Catatan / Detail Bantuan</label>
+                    <textarea id="input-ket-bantuan" rows="2" placeholder="Contoh: Kirim 5 personel dan 1 unit ambulans..." class="w-full p-2 border border-slate-300 rounded outline-none"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition">
+                    ✨ Konfirmasi Bergabung Kolaborasi
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH CATATAN LAPANGAN / TIMELINE -->
+    <div id="modal-catatan" class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-center p-3">
+        <div class="bg-white rounded-xl max-w-md w-full p-5 shadow-xl text-xs space-y-3">
+            <div class="flex justify-between items-center mb-1">
+                <h3 class="font-bold text-sm text-slate-800">Tambah Catatan / Logistik Lapangan</h3>
+                <button onclick="tutupModalCatatan()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+            </div>
+            <p class="text-[11px] text-slate-500">Tulis perkembangan terbaru penanganan di titik ini agar bisa dilihat instansi lain & pimpinan.</p>
+            <form id="form-catatan" class="space-y-2.5">
+                <input type="hidden" id="catatan-id-laporan">
+                <div>
+                    <textarea id="input-teks-catatan" rows="3" required class="w-full p-2 border border-slate-300 rounded outline-none" placeholder="Contoh: Penyaluran logistik tahap 1 selesai..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg shadow-sm transition">
+                    ➕ Kirim Catatan Perkembangan
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- SCRIPT UTAMA -->
     <script src="assets/js/operasional.js"></script>
     <script>
@@ -325,7 +394,6 @@
             document.getElementById('modal-profil-lembaga').classList.remove('hidden');
         }
 
-        // Auto render identitas header saat data sesi siap
         window.addEventListener('DOMContentLoaded', async () => {
             const timerCheck = setInterval(async () => {
                 if (window.currentUserLoaded || (typeof currentUser !== 'undefined' && currentUser)) {
