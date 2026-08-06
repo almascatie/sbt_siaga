@@ -59,29 +59,26 @@ async function logoutSession() {
 }
 
 function inisialisasiSesiHeader() {
-    const sapaan = document.getElementById('header-sapaan');
+    const akunEl = document.getElementById('header-akun-nama');
+    const lembagaEl = document.getElementById('header-lembaga-nama');
     const badge = document.getElementById('badge-role');
 
-    const namaTampil = currentUser.nama_lengkap;
+    const namaTampil = currentUser.nama_lengkap || currentUser.username;
     const lembagaTampil = currentUser.nama_lembaga || 'Sektoral';
 
-    if (currentUser.role === 'pimpinan') {
-        sapaan.innerHTML = `<b>${namaTampil}</b> — Pimpinan (${lembagaTampil})`;
-        if (badge) {
+    if (akunEl) akunEl.innerText = namaTampil;
+    if (lembagaEl) lembagaEl.innerText = lembagaTampil;
+
+    if (badge) {
+        if (currentUser.role === 'pimpinan') {
             badge.innerText = 'PIMPINAN';
-            badge.className = 'bg-amber-600 text-[9px] px-2 py-0.5 rounded font-bold uppercase text-white';
-        }
-    } else if (currentUser.nama_lembaga && currentUser.nama_lembaga.toLowerCase().includes('112')) {
-        sapaan.innerHTML = `<b>${namaTampil}</b> — Call Center 112`;
-        if (badge) {
+            badge.className = 'bg-amber-600 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase text-white shrink-0 ml-0.5';
+        } else if (currentUser.nama_lembaga && currentUser.nama_lembaga.toLowerCase().includes('112')) {
             badge.innerText = 'CALL CENTER';
-            badge.className = 'bg-purple-600 text-[9px] px-2 py-0.5 rounded font-bold uppercase text-white';
-        }
-    } else {
-        sapaan.innerHTML = `<b>${namaTampil}</b> (${lembagaTampil})`;
-        if (badge) {
-            badge.innerText = 'OPERASIONAL';
-            badge.className = 'bg-[var(--sbt-orange)] text-[9px] px-2 py-0.5 rounded font-bold uppercase text-white';
+            badge.className = 'bg-purple-600 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase text-white shrink-0 ml-0.5';
+        } else {
+            badge.innerText = 'OP';
+            badge.className = 'bg-[var(--sbt-orange)] text-[9px] px-1.5 py-0.5 rounded font-bold uppercase text-white shrink-0 ml-0.5';
         }
     }
 }
