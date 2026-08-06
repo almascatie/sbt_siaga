@@ -36,7 +36,10 @@ window.onload = () => {
             return;
         }
 
-        inisialisasiSesiHeader();
+        // Set status online di database saat halaman operasional berhasil dimuat
+        updateStatusOnlineDB('ONLINE');
+
+        inialisasiSesiHeader();
         muatFilterLembaga();
         ambilDataLaporan();
         setInterval(ambilDataLaporan, 5000);
@@ -45,18 +48,55 @@ window.onload = () => {
     }
 };
 
-async function logoutSession() {
+// Fungsi bantu untuk memperbarui status online/offline ke Supabase secara konsisten
+async function updateStatusOnlineDB(statusText) {
     const usernameAktif = sessionStorage.getItem('sbt_username');
-    if (usernameAktif) {
-        await supabaseClient
-            .from('users')
-            .update({ status_online: 'OFFLINE' })
-            .eq('username', usernameAktif);
+    const userIdAktif = sessionStorage.getItem('sbt_user_id');
+    
+    if (usernameAktif || userIdAktif) {
+        let query = supabaseClient.from('users').update({ status_online: statusText });
+        if (userIdAktif) {
+            query = query.eq('id', userIdAktif);
+        } else {
+            query = query.eq('username', usernameAktif);
+        }
+        await query;
     }
+}
 
+async function logoutSession() {
+    await updateStatusOnlineDB('OFFLINE');
     sessionStorage.clear();
     window.location.href = 'index.html';
 }
+
+// Penanganan otomatis ketika petugas menutup tab/browser secara langsung tanpa klik tombol Keluar
+window.addEventListener('beforeunload', () => {
+    const usernameAktif = sessionStorage.getItem('sbt_username');
+    const userIdAktif = sessionStorage.getItem('sbt_user_id');
+    
+    if (usernameAktif || userIdAktif) {
+        const supabaseUrl = window.SUPABASE_URL; 
+        const supabaseKey = window.SUPABASE_ANON_KEY;
+        
+        if (supabaseUrl && supabaseKey) {
+            const targetId = userIdAktif;
+            const targetUsername = usernameAktif;
+            
+            fetch(`${supabaseUrl}/rest/v1/users?${targetId ? `id=eq.${targetId}` : `username=eq.${targetUsername}`}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${supabaseKey}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({ status_online: 'OFFLINE' }),
+                keepalive: true
+            }).catch(err => console.log('Unload status update error:', err));
+        }
+    }
+});
 
 function inisialisasiSesiHeader() {
     const akunEl = document.getElementById('header-akun-nama');
@@ -478,7 +518,6 @@ async function aksiVerifikasi(id) {
     }
 }
 
-// Eksekusi instan tanpa modal form estimasi (Langsung 1 klik)
 async function aksiMulaiProses(id) {
     if (!confirm(`Mulai penanganan utama laporan ini atas nama [${currentUser.nama_lembaga}]?`)) return;
 
@@ -497,7 +536,7 @@ async function aksiMulaiProses(id) {
         penanggung_jawab: currentUser.nama_lembaga,
         telp_petugas: telp,
         catatan_lapangan: gabungLog,
-        estimasi_selesai: new Date(Date.now() + (2 * 3600000)).toISOString() // Default 2 jam otomatis
+        estimasi_selesai: new Date(Date.now() + (2 * 3600000)).toISOString()
     }).eq('id', id);
 
     if (error) alert('Gagal: ' + error.message);
@@ -600,7 +639,6 @@ async function aksiSelesai(id) {
     }
 }
 
-// Fungsi untuk memutar suara beep peringatan kritis (>30 menit)
 function putarSuaraBeep() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -618,7 +656,6 @@ function putarSuaraBeep() {
     }
 }
 
-// Handler Checkbox Faskes & RSUD di Peta (Diperbaiki agar aman menghandle berbagai struktur JSON)
 async function toggleLayerFaskes(checkbox) {
     if (checkbox.checked) {
         try {
@@ -686,7 +723,6 @@ function bukaModalDetailLog(id) {
     `;
 }
 
-// Sinkronisasi Jam SBT WIT
 function perbaruiJamStatus() {
     const el = document.getElementById('last-updated-time');
     if (el) {
