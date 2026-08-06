@@ -8,6 +8,8 @@ let activeTab = 'Semua';
 let currentUser = null;
 let daftarKolaborasi = [];
 let selectedReportId = null;
+let faskesMarkers = [];
+let audioBeepInterval = null;
 
 // Menggunakan Mapbox token dari global config
 const map = new mapboxgl.Map({
@@ -638,6 +640,90 @@ async function aksiSelesai(id) {
         ambilDataLaporan();
     }
 }
+
+// Fungsi untuk memutar suara beep peringatan kritis (>30 menit)
+function putarSuaraBeep() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 880; // Frekuensi nada tinggi
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+    } catch (e) {
+        console.warn('Audio Context dibatasi browser:', e);
+    }
+}
+
+// Handler Checkbox Faskes & RSUD di Peta
+async function toggleLayerFaskes(checkbox) {
+    if (checkbox.checked) {
+        try {
+            const res = await fetch('data/faskes.json');
+            const dataFaskes = await res.json();
+            
+            dataFaskes.forEach(faskes => {
+                const el = document.createElement('div');
+                el.className = 'w-7 h-7 bg-teal-600 border-2 border-white rounded-full flex items-center justify-center shadow-lg text-white text-xs font-bold cursor-pointer';
+                el.innerHTML = '🏥';
+
+                const popup = new mapboxgl.Popup({ offset: 20 }).setHTML(`
+                    <div class="p-1 text-xs">
+                        <b class="text-teal-800">${faskes.nama || 'Fasilitas Kesehatan'}</b><br>
+                        <span>${faskes.kategori || 'RSUD / Puskesmas'}</span><br>
+                        <span class="text-slate-500">${faskes.kecamatan || ''}</span>
+                    </div>
+                `);
+
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat([faskes.lng, faskes.lat])
+                    .setPopup(popup)
+                    .addTo(map);
+
+                faskesMarkers.push(marker);
+            });
+        } catch (err) {
+            console.error('Gagal memuat data faskes.json:', err);
+        }
+    } else {
+        faskesMarkers.forEach(m => m.remove());
+        faskesMarkers = [];
+    }
+}
+
+// Perbarui fungsi cekWarningKritis agar memicu banner besar & suara Beep
+function cekWarningKritis() {
+    const sekarang = new Date().getTime();
+    const adaKritis = laporanList.some(item => {
+        if (item.status === 'Baru' || item.status === 'Sedang Dicek') {
+            const waktuLapor = new Date(item.created_at).getTime();
+            return (sekarang - waktuLapor) / (1000 * 60) > 30;
+        }
+        return false;
+    });
+
+    const warningBox = document.getElementById('warning-box-30m');
+    if (warningBox) {
+        if (adaKritis) {
+            warningBox.classList.remove('hidden');
+            if (!audioBeepInterval) {
+                putarSuaraBeep();
+                audioBeepInterval = setInterval(putarSuaraBeep, 10000); // Beep tiap 10 detik jika ada laporan kritis
+            }
+        } else {
+            warningBox.classList.add('hidden');
+            if (audioBeepInterval) {
+                clearInterval(audioBeepInterval);
+                audioBeepInterval = null;
+            }
+        }
+    }
+}
+
 
 function bukaModalDetailLog(id) {
     const item = laporanList.find(i => i.id === id);
